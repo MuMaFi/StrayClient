@@ -33,6 +33,7 @@ macOS (Apple Silicon + Intel) · Windows · Русский / English
 | 🧣 **Capes** | Your own cape from a PNG with a live front/back preview. Powered by our small **Stray Client** mod (`mods/stray-client`, MIT) for Minecraft 26.x; the cape is shown on your own player. |
 | 🖼️ **StraySMP loading screen** | The Minecraft loading screen shows the StraySMP logo on navy instead of “Mojang Studios” on red (part of the Stray Client mod). |
 | ⌨️ **Modules** | Keystrokes HUD: WASD, mouse clicks with CPS, space bar, FPS and ping. The launcher installs and configures *Modern Keystrokes* for you. |
+| ⚔️ **PvP Plus** | Our own PvP mod as a one-click module (Minecraft 26.3): auto sprint, snap-tap, combo/reach/CPS display, target HUD with totem pops, armor & item HUD, potion timers, zoom, fullbright, kill effects and an Apple Silicon preset. No cheats: it only shows information and changes local settings. Shipped in `mods/bundled`. |
 | 🍎 **Apple Silicon** | A separate native build for M1–M4 (`target-cpu=apple-m1`), native ARM Java without Rosetta, and GC threads sized to the performance cores. |
 
 <img src="docs/en/accounts.png" width="49%" alt="Account switcher" /> <img src="docs/en/mods.png" width="49%" alt="Mods" />

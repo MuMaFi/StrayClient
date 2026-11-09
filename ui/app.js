@@ -659,13 +659,28 @@
     pv.querySelector(".ks-ping").classList.toggle("hide", !ks.ping);
     pv.querySelector(".ks-extra").classList.toggle("hide", !ks.fps && !ks.ping);
   }
+  function renderPvp() {
+    const on = !!S.settings.pvpPlus;
+    $("#pvp-enabled").checked = on;
+    $("#pvp-card").classList.toggle("off", !on);
+    $("#pvp-feats").innerHTML = Array.from({ length: 10 }, (_, i) => `<span><b>✓</b>${t("pvp.f" + (i + 1))}</span>`).join("");
+  }
   async function loadModules() {
     renderKeystrokes();
+    renderPvp();
     const av = await availability();
     const n = $("#ks-notice");
     n.hidden = av.keystrokes;
     n.textContent = av.keystrokes ? "" : t("ks.unavailable", currentGame());
+    const pn = $("#pvp-notice");
+    pn.hidden = av.pvpPlus !== false;
+    pn.textContent = av.pvpPlus === false ? t("pvp.unavailable", currentGame()) : "";
   }
+  $("#pvp-enabled").addEventListener("change", (e) => {
+    S.settings.pvpPlus = e.target.checked;
+    renderPvp();
+    applyModulesSoon();
+  });
   $("#ks-enabled").addEventListener("change", (e) => {
     S.settings.keystrokes.enabled = e.target.checked;
     renderKeystrokes();

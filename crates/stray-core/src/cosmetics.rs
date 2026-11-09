@@ -24,6 +24,16 @@ const CAPES_JAR_NAME: &str = "stray-client.jar";
 const LEGACY_JAR_NAME: &str = "stray-capes.jar";
 pub const KEYSTROKES_SLUG: &str = "modern-keystrokes";
 
+/// PvP Plus, made by the Stray Client team (mods/bundled, MIT). Built for Minecraft 26.3.
+const PVP_PLUS_JAR: &[u8] = include_bytes!("../../../mods/bundled/pvp-plus-1.0.0.jar");
+const PVP_PLUS_JAR_NAME: &str = "pvp-plus-1.0.0.jar";
+const FABRIC_API_SLUG: &str = "fabric-api";
+
+/// PvP Plus declares `minecraft: ~26.3` → 26.3 and its patch releases.
+pub fn pvp_plus_supported(game: &str) -> bool {
+    game == "26.3" || game.starts_with("26.3.")
+}
+
 /// Largest cape we accept (HD capes are 2:1, e.g. 2048×1024).
 const MAX_CAPE_BYTES: usize = 4 * 1024 * 1024;
 
@@ -43,6 +53,7 @@ pub struct Availability {
     /// Our cape mod works on the unobfuscated 26.x line.
     pub capes: bool,
     pub keystrokes: bool,
+    pub pvp_plus: bool,
 }
 
 fn library(paths: &Paths) -> PathBuf {
@@ -65,6 +76,7 @@ pub async fn availability(game: &str) -> Availability {
     Availability {
         capes: capes_supported(game),
         keystrokes,
+        pvp_plus: pvp_plus_supported(game),
     }
 }
 
@@ -223,6 +235,22 @@ pub async fn apply(
         let _ = tokio::fs::remove_file(&jar).await;
     }
 
+    // ── PvP Plus ──
+    let pvp_jar = instance.join("mods").join(PVP_PLUS_JAR_NAME);
+    if settings.pvp_plus && pvp_plus_supported(game) {
+        // It depends on Fabric API.
+        if !mods::installed(paths, game)
+            .await
+            .iter()
+            .any(|m| m.slug == FABRIC_API_SLUG)
+        {
+            mods::install(paths, Source::Modrinth, FABRIC_API_SLUG, game, "", progress).await?;
+        }
+        write_if_changed(&pvp_jar, PVP_PLUS_JAR).await?;
+    } else {
+        let _ = tokio::fs::remove_file(&pvp_jar).await;
+    }
+
     // ── Keystrokes ──
     let ks = &settings.keystrokes;
     let installed = mods::installed(paths, game).await;
@@ -318,6 +346,13 @@ mod tests {
             ("straysmp.png", 64, 32)
         );
         let _ = std::fs::remove_dir_all(root);
+    }
+
+    #[test]
+    fn pvp_plus_versions_and_jar() {
+        assert!(pvp_plus_supported("26.3") && pvp_plus_supported("26.3.1"));
+        assert!(!pvp_plus_supported("26.2") && !pvp_plus_supported("1.21.11"));
+        assert_eq!(&PVP_PLUS_JAR[..2], b"PK");
     }
 
     #[test]

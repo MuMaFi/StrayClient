@@ -511,3 +511,11 @@ body.no-motion *, body.no-motion *::before, body.no-motion *::after { animation:
 /* `hidden` always wins over component display rules */
 [hidden] { display: none !important; }
 .account.official #acc-name { white-space: nowrap; }
+
+/* PvP Plus module */
+#pvp-card { margin-top: 16px; }
+.pvp-body { padding: 18px 22px; display: flex; flex-direction: column; gap: 14px; }
+.pvp-feats { display: flex; flex-wrap: wrap; gap: 8px; }
+.pvp-feats span { padding: 7px 12px; border-radius: 10px; background: var(--panel-2); font-size: 12px; font-weight: 700; }
+.pvp-feats span b { color: var(--accent); font-weight: 800; margin-right: 4px; }
+#pvp-card.off .pvp-body { opacity: .45; filter: saturate(.5); }

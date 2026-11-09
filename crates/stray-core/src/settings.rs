@@ -39,6 +39,8 @@ pub struct Settings {
     /// File name in the cape library used when `cape_mode` is `local`.
     pub cape: String,
     pub keystrokes: Keystrokes,
+    /// PvP Plus module (bundled mod, Minecraft 26.3).
+    pub pvp_plus: bool,
     /// `auto`: direct Microsoft login when the build has a client ID, otherwise play through
     /// the official Minecraft Launcher. `direct` / `official` force one of the two.
     pub play_mode: String,
@@ -87,6 +89,7 @@ impl Default for Settings {
             cape_mode: "account".into(),
             cape: String::new(),
             keystrokes: Keystrokes::default(),
+            pvp_plus: false,
             play_mode: "auto".into(),
         }
     }
