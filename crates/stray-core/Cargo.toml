@@ -19,3 +19,4 @@ hickory-resolver = { version = "0.25", default-features = false, features = ["to
 urlencoding = "2"
 sha2 = "0.10"
 base64 = "0.22"
+sys-locale = "0.3"

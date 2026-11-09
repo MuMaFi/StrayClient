@@ -519,3 +519,7 @@ body.no-motion *, body.no-motion *::before, body.no-motion *::after { animation:
 .pvp-feats span { padding: 7px 12px; border-radius: 10px; background: var(--panel-2); font-size: 12px; font-weight: 700; }
 .pvp-feats span b { color: var(--accent); font-weight: 800; margin-right: 4px; }
 #pvp-card.off .pvp-body { opacity: .45; filter: saturate(.5); }
+/* three languages in the header: keep everything on one line at 1180px */
+.lang button { padding: 6px 8px; }
+@media (max-width: 1280px) { .nav-btn { padding: 9px 9px; gap: 7px; } .top { gap: 18px; } }
+@media (max-width: 1280px) { .top { gap: 14px; } .top-right { gap: 8px; } .brand span { font-size: 16px; } }

@@ -8,7 +8,7 @@
 
 A fast, native Minecraft client built in Rust
 
-macOS (Apple Silicon + Intel) · Windows · Русский / English
+macOS (Apple Silicon + Intel) · Windows · English / Українська / Русский
 
 <img src="docs/en/home.png" width="860" alt="Stray Client home screen" />
 
@@ -28,7 +28,7 @@ macOS (Apple Silicon + Intel) · Windows · Русский / English
 | 🎯 **Straight onto the server** | Quick Play joins `play.straysmp.cc` as soon as the game opens. Live player counter via Server List Ping (SRV records are followed). |
 | 🧠 **Tuned JVM** | Tuned G1 flags by default, or generational ZGC for machines with plenty of RAM. On JDK 25+ we add `-XX:+UseCompactObjectHeaders` (smaller heap). RAM recommendation is based on your system. |
 | 🔐 **Sign-in** | Works out of the box through the **official Minecraft Launcher**: Stray Client sets everything up, writes a “Stray Client” profile and opens the launcher, which signs you in and checks the license. With a Microsoft client ID in the build, direct sign-in like Lunar Client is available too (own window, several accounts, one-click skin upload). |
-| 🌍 **RU / EN** | Switch any time in the header or Settings. |
+| 🌍 **EN / UA / RU** | English, Ukrainian and Russian. On first start the client picks your system language (Ukrainian → UA, Russian → RU, everything else → EN); switch any time in the header or Settings. |
 | 👕 **Skins** | Upload a PNG (64×64 / 64×32) or copy any player's skin, pick Classic/Slim, and apply it to your account through the official Minecraft API, so everyone sees it on every server. |
 | 🧣 **Capes** | Your own cape from a PNG with a live front/back preview. Powered by our small **Stray Client** mod (`mods/stray-client`, MIT) for Minecraft 26.x; the cape is shown on your own player. |
 | 🖼️ **StraySMP loading screen** | The Minecraft loading screen shows the StraySMP logo on navy instead of “Mojang Studios” on red (part of the Stray Client mod). |

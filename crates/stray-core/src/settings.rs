@@ -74,7 +74,7 @@ impl Default for Keystrokes {
 impl Default for Settings {
     fn default() -> Self {
         Self {
-            language: "ru".into(),
+            language: system_language().into(),
             game_version: String::new(),
             memory_mb: 4096,
             gc: GcPreset::Balanced,
@@ -95,6 +95,23 @@ impl Default for Settings {
     }
 }
 
+/// First-start language from the OS: Russian or Ukrainian systems get their language,
+/// everyone else English.
+pub fn system_language() -> &'static str {
+    language_for(sys_locale::get_locale().as_deref().unwrap_or("en"))
+}
+
+fn language_for(locale: &str) -> &'static str {
+    let l = locale.to_ascii_lowercase();
+    if l.starts_with("uk") {
+        "uk"
+    } else if l.starts_with("ru") || l.starts_with("be") || l.starts_with("kk") {
+        "ru"
+    } else {
+        "en"
+    }
+}
+
 impl Settings {
     pub async fn load(paths: &Paths) -> Self {
         match tokio::fs::read(paths.settings_file()).await {
@@ -107,5 +124,16 @@ impl Settings {
         tokio::fs::create_dir_all(&paths.root).await?;
         tokio::fs::write(paths.settings_file(), serde_json::to_vec_pretty(self)?).await?;
         Ok(())
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn languages() {
+        assert_eq!(super::language_for("uk-UA"), "uk");
+        assert_eq!(super::language_for("ru_RU"), "ru");
+        assert_eq!(super::language_for("de-DE"), "en");
+        assert_eq!(super::language_for("en-US"), "en");
     }
 }

@@ -22,7 +22,7 @@
   };
   const urlLang = params.get("lang");
   let settings = {
-    language: ["ru", "en"].includes(urlLang) ? urlLang : store.get("mock-lang") || "ru",
+    language: ["ru", "uk", "en"].includes(urlLang) ? urlLang : store.get("mock-lang") || (/^uk/i.test(navigator.language) ? "uk" : /^(ru|be|kk)/i.test(navigator.language) ? "ru" : "en"),
     gameVersion: "", memoryMb: 4096, gc: "balanced", extraJvmArgs: "", javaPath: "",
     autoJoin: true, closeOnLaunch: false, curseforgeKey: "", width: 1280, height: 720, reduceMotion: false,
     capeMode: "local", cape: "straysmp.png",
@@ -53,7 +53,7 @@
   const handlers = {
     async get_init() {
       const playMode = settings.playMode === "official" ? "official" : "direct";
-      return { playMode, official: { launcherFound: true }, settings, account: current() && { name: active, uuid: active }, accounts: list(), totalMemoryMb: 16384, hasClientId: true, hasCfKey: false, appVersion: "1.1.0", os: "macos", dataDir: "~/Library/Application Support/StrayLauncher" };
+      return { playMode, official: { launcherFound: true }, settings, account: current() && { name: active, uuid: active }, accounts: list(), totalMemoryMb: 16384, hasClientId: true, hasCfKey: false, appVersion: "1.2.0", os: "macos", dataDir: "~/Library/Application Support/StrayLauncher" };
     },
     async save_settings({ settings: s }) { settings = s; store.set("mock-lang", s.language); return !!s.curseforgeKey; },
     async game_versions() { return ["26.3", "26.2", "26.1.2", "26.1.1", "26.1", "1.21.11", "1.21.10", "1.21.8", "1.21.4", "1.21.1", "1.20.6", "1.20.4", "1.20.1"]; },

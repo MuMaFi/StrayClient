@@ -25,7 +25,7 @@
 
   // ───────── i18n ─────────
   const t = (key, ...args) => {
-    const dict = I18N[S.settings?.language] || I18N.ru;
+    const dict = I18N[S.settings?.language] || I18N.en;
     let s = dict[key] ?? I18N.en[key] ?? key;
     args.forEach((a, i) => (s = s.replace(`{${i}}`, a)));
     return s;
@@ -42,6 +42,8 @@
     updateMemHint();
     renderStatus();
     if (!S.busy && !S.running) $("#play-label").textContent = t("play");
+    // sign-in method hint, auto-join toggle and account chip (boot + every language change)
+    if (S.init) applyPlayMode();
   }
 
   function errText(e) {
@@ -50,13 +52,13 @@
     if (I18N.en["err." + s]) return t("err." + s);
     if (s === "not logged in") return t("acc.need");
     if (s === "cf_no_key") return t("mods.cfKey");
-    if (s.startsWith("no_version:")) return `${s.slice(11)}: ${S.settings.language === "ru" ? "нет версии для" : "no build for"} ${currentGame()}`;
+    if (s.startsWith("no_version:")) return `${s.slice(11)}: ${{ ru: "нет версии для", uk: "немає версії для" }[S.settings.language] || "no build for"} ${currentGame()}`;
     if (s.startsWith("skin_bad_size:")) return t("err.skin_bad_size", s.slice(14).replace("x", "×"));
     if (s.startsWith("skin_no_player:")) return t("err.skin_no_player", s.slice(15));
     if (s.startsWith("skin_upload_failed:")) return t("err.skin_upload_failed", s.slice(19));
     if (s.startsWith("cape_bad_size:")) return t("err.cape_bad_size", s.slice(14).replace("x", "×"));
     if (s.startsWith("keystrokes_unavailable:")) return t("ks.unavailable", s.slice(23));
-    if (s.startsWith("cf_no_download:")) return `${s.slice(15)}: ${S.settings.language === "ru" ? "автор запретил сторонние загрузки" : "author disabled third-party downloads"}`;
+    if (s.startsWith("cf_no_download:")) return `${s.slice(15)}: ${{ ru: "автор запретил сторонние загрузки", uk: "автор заборонив сторонні завантаження" }[S.settings.language] || "author disabled third-party downloads"}`;
     return t("err.generic", s);
   }
 
@@ -99,9 +101,10 @@
     $("#gc-label").textContent = S.settings.gc === "lowlatency" ? "ZGC" : "G1";
     const n = S.installed.length || 2;
     let word;
-    if (S.settings.language === "ru") {
+    if (S.settings.language === "ru" || S.settings.language === "uk") {
+      const uk = S.settings.language === "uk";
       const m10 = n % 10, m100 = n % 100;
-      word = m10 === 1 && m100 !== 11 ? "мод" : m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14) ? "мода" : "модов";
+      word = m10 === 1 && m100 !== 11 ? "мод" : m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14) ? (uk ? "моди" : "мода") : uk ? "модів" : "модов";
     } else word = n === 1 ? "mod" : "mods";
     $("#mods-chip-label").textContent = t("modsCount", n, word);
   }
@@ -617,7 +620,6 @@
       b.addEventListener("click", () => {
         s.language = b.dataset.lang;
         applyI18n();
-    applyPlayMode();
         $$("#set-lang button").forEach((x) => x.classList.toggle("on", x.dataset.v === s.language));
         saveSoon();
       })

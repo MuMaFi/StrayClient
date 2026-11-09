@@ -39,6 +39,8 @@
     header { display: flex; align-items: center; gap: 32px; padding: 26px 0 20px; border-bottom: 1px solid var(--ring-2); }
     .brand { display: flex; align-items: center; gap: 14px; font-family: var(--display); font-weight: 800; font-size: 18px; letter-spacing: .06em; }
     .brand img { width: 40px; height: 40px; image-rendering: pixelated; }
+    .brand { white-space: nowrap; }
+    @media (max-width: 1240px) { header { gap: 20px; } nav a { padding: 9px 10px; } }
     nav { display: flex; gap: 6px; }
     nav a { padding: 9px 14px; border-radius: 12px; font-family: var(--display); font-size: 13px; transition: background .15s, color .15s; }
     nav a:hover { background: var(--panel); color: var(--accent); }
@@ -299,7 +301,7 @@
 <a class="social" href="https://www.tiktok.com/@strayzii" rel="noopener" target="_blank" title="TikTok · StrayZii"><svg viewbox="0 0 24 24"><path d="M16.6 5.8A4.3 4.3 0 0 1 15.5 3h-3.1v12.4a2.6 2.6 0 1 1-2.6-2.6c.3 0 .5 0 .8.1V9.7a5.7 5.7 0 1 0 4.9 5.7V9.1a7.3 7.3 0 0 0 4.3 1.4V7.4a4.3 4.3 0 0 1-3.2-1.6z" fill="currentColor" stroke="none"></path></svg></a>
 <a class="social" href="https://tg.straysmp.cc" rel="noopener" target="_blank" title="Telegram"><svg viewbox="0 0 24 24"><path d="M21.4 4.2 2.9 11.3c-1.3.5-1.2 1.2-.2 1.5l4.7 1.5 1.8 5.6c.2.6.4.8.9.8.4 0 .6-.2.9-.4l2.3-2.2 4.7 3.5c.9.5 1.5.2 1.7-.8l3.1-14.6c.3-1.3-.5-1.9-1.4-1.5zM8.2 13.9l9.5-6c.5-.3.9-.1.5.2l-8 7.3-.3 3.4z" fill="currentColor" stroke="none"></path></svg></a>
 <a class="social" href="https://ds.straysmp.cc" rel="noopener" target="_blank" title="Discord"><svg viewbox="0 0 24 24"><path d="M19.3 5.3A16.5 16.5 0 0 0 15.2 4l-.5 1a15.3 15.3 0 0 0-5.4 0l-.5-1a16.4 16.4 0 0 0-4.1 1.3C2 9.2 1.3 13 1.6 16.8a16.6 16.6 0 0 0 5 2.5l1.1-1.7a10.7 10.7 0 0 1-1.7-.8l.4-.3a11.8 11.8 0 0 0 11.2 0l.4.3a10.7 10.7 0 0 1-1.7.8l1.1 1.7a16.5 16.5 0 0 0 5-2.5c.4-4.4-.7-8.2-3.1-11.5zM8.7 14.5c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2zm6.6 0c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2z" fill="currentColor" stroke="none"></path></svg></a>
-<div class="lang" role="group" aria-label="Language"><button data-lang="ru" class="on">RU</button><button data-lang="en">EN</button></div>
+<div class="lang" role="group" aria-label="Language"><button data-lang="ru" class="on">RU</button><button data-lang="uk">UA</button><button data-lang="en">EN</button></div>
 <a class="btn btn-panel" href="https://github.com/MuMaFi/StrayClient" rel="noopener" target="_blank">GitHub</a>
 </div>
 </header>
@@ -367,7 +369,7 @@
 <div class="card feat">
 <div class="ico"><svg viewbox="0 0 24 24"><path d="M7 3h10l2 18-7-3-7 3z"></path><path d="M9 3c0 2 1.3 3 3 3s3-1 3-3"></path></svg></div>
 <h3 data-i18n="f.cape.t">Скины и плащи</h3>
-<p data-i18n="f.cape.p">Скин из PNG или от любого игрока — сразу на аккаунт, его видят все. Плюс свой плащ из PNG через мод <b>Stray Capes</b>.</p>
+<p data-i18n="f.cape.p">Скин из PNG или от любого игрока — сразу на аккаунт, его видят все. Плюс свой плащ из PNG через мод <b>Stray Client</b>.</p>
 </div>
 <div class="card feat">
 <div class="ico"><svg viewbox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="3"></rect><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"></path></svg></div>
@@ -384,26 +386,26 @@
 <section>
 <div class="sec-head">
 <div><div class="eyebrow" data-i18n="t32">Интерфейс</div><h2 data-i18n="t33">Чистый и быстрый</h2></div>
-<p class="muted" data-i18n="t34">Тёмная тема, всё важное на одном экране. Русский и английский язык. Листай скриншоты →</p>
+<p class="muted" data-i18n="t34">Тёмная тема, всё важное на одном экране. Русский, украинский и английский языки. Листай скриншоты →</p>
 </div>
 <div class="gallery">
 <figure class="viewer">
-<img alt="Главный экран Stray Client" data-i18n-attr="alt:t35" height="740" id="g-main" src="docs/home.png" data-img-en="docs/en/home.png" width="1180"/>
+<img alt="Главный экран Stray Client" data-i18n-attr="alt:t35" height="740" id="g-main" src="docs/home.png" data-img-en="docs/en/home.png" data-img-uk="docs/uk/home.png" width="1180"/>
 <figcaption data-i18n="t36" id="g-cap"><b>Главный экран</b> — выбор версии, кнопка «Играть» и встроенная оптимизация.</figcaption>
 <button aria-label="Назад" class="g-nav g-prev" data-i18n-attr="aria-label:t37"><svg viewbox="0 0 24 24"><path d="m15 6-6 6 6 6"></path></svg></button>
 <button aria-label="Вперёд" class="g-nav g-next" data-i18n-attr="aria-label:t38"><svg viewbox="0 0 24 24"><path d="m9 6 6 6-6 6"></path></svg></button>
 </figure>
 <div class="thumbs" id="g-thumbs">
-<button class="on" data-cap="&lt;b&gt;Главный экран&lt;/b&gt; — выбор версии, кнопка «Играть» и встроенная оптимизация." data-i18n-attr="data-cap:t39" data-src="docs/home.png" data-src-en="docs/en/home.png"><img alt="" loading="lazy" src="docs/home.png" data-img-en="docs/en/home.png"/><span data-i18n="t40">Главная</span></button>
-<button data-cap="&lt;b&gt;Запуск&lt;/b&gt; — Java, библиотеки и ресурсы качаются параллельно, прогресс прямо на кнопке." data-i18n-attr="data-cap:t41" data-src="docs/progress.png" data-src-en="docs/en/progress.png"><img alt="" loading="lazy" src="docs/progress.png" data-img-en="docs/en/progress.png"/><span data-i18n="t42">Запуск</span></button>
-<button data-cap="&lt;b&gt;Поиск модов&lt;/b&gt; — Modrinth и CurseForge, только совместимые версии, установка в один клик." data-i18n-attr="data-cap:t43" data-src="docs/mods.png" data-src-en="docs/en/mods.png"><img alt="" loading="lazy" src="docs/mods.png" data-img-en="docs/en/mods.png"/><span data-i18n="t44">Моды</span></button>
-<button data-cap="&lt;b&gt;Установленные моды&lt;/b&gt; — включай, выключай и удаляй. Sodium и FerriteCore всегда на месте." data-i18n-attr="data-cap:t45" data-src="docs/installed.png" data-src-en="docs/en/installed.png"><img alt="" loading="lazy" src="docs/installed.png" data-img-en="docs/en/installed.png"/><span data-i18n="t46">Установленные</span></button>
-<button data-cap="&lt;b&gt;Настройки&lt;/b&gt; — память, сборщик мусора, размер окна, своя Java и аргументы JVM." data-i18n-attr="data-cap:t47" data-src="docs/settings.png" data-src-en="docs/en/settings.png"><img alt="" loading="lazy" src="docs/settings.png" data-img-en="docs/en/settings.png"/><span data-i18n="t48">Настройки</span></button>
-<button data-cap="&lt;b&gt;Вход через Microsoft&lt;/b&gt; — как в Lunar: страница Microsoft открывается в отдельном окне, пароль вводится только там." data-i18n-attr="data-cap:t49" data-src="docs/login.png" data-src-en="docs/en/login.png"><img alt="" loading="lazy" src="docs/login.png" data-img-en="docs/en/login.png"/><span data-i18n="t50">Вход</span></button>
-<button data-cap="&lt;b&gt;Аккаунты&lt;/b&gt; — несколько аккаунтов Microsoft, переключение в один клик, как в Lunar." data-i18n-attr="data-cap:t51" data-src="docs/accounts.png" data-src-en="docs/en/accounts.png"><img alt="" loading="lazy" src="docs/accounts.png" data-img-en="docs/en/accounts.png"/><span data-i18n="t52">Аккаунты</span></button>
-<button data-cap="&lt;b&gt;Модули&lt;/b&gt; — Keystrokes: WASD, клики мыши с CPS, пробел, FPS и пинг. Превью реагирует на твои нажатия." data-i18n-attr="data-cap:g.modules.cap" data-src="docs/modules.png" data-src-en="docs/en/modules.png"><img alt="" loading="lazy" src="docs/modules.png" data-img-en="docs/en/modules.png"/><span data-i18n="g.modules.label">Модули</span></button>
-<button data-cap="&lt;b&gt;Скины&lt;/b&gt; — загрузи PNG или скопируй скин игрока и примени его к аккаунту: его увидят все." data-i18n-attr="data-cap:g.skins.cap" data-src="docs/skins.png" data-src-en="docs/en/skins.png"><img alt="" loading="lazy" src="docs/skins.png" data-img-en="docs/en/skins.png"/><span data-i18n="g.skins.label">Скины</span></button>
-<button data-cap="&lt;b&gt;Плащи&lt;/b&gt; — свой плащ из PNG с превью, на тебе в игре и на элитрах." data-i18n-attr="data-cap:g.capes.cap" data-src="docs/capes.png" data-src-en="docs/en/capes.png"><img alt="" loading="lazy" src="docs/capes.png" data-img-en="docs/en/capes.png"/><span data-i18n="g.capes.label">Плащи</span></button>
+<button class="on" data-cap="&lt;b&gt;Главный экран&lt;/b&gt; — выбор версии, кнопка «Играть» и встроенная оптимизация." data-i18n-attr="data-cap:t39" data-src="docs/home.png" data-src-en="docs/en/home.png" data-src-uk="docs/uk/home.png"><img alt="" loading="lazy" src="docs/home.png" data-img-en="docs/en/home.png" data-img-uk="docs/uk/home.png"/><span data-i18n="t40">Главная</span></button>
+<button data-cap="&lt;b&gt;Запуск&lt;/b&gt; — Java, библиотеки и ресурсы качаются параллельно, прогресс прямо на кнопке." data-i18n-attr="data-cap:t41" data-src="docs/progress.png" data-src-en="docs/en/progress.png" data-src-uk="docs/uk/progress.png"><img alt="" loading="lazy" src="docs/progress.png" data-img-en="docs/en/progress.png" data-img-uk="docs/uk/progress.png"/><span data-i18n="t42">Запуск</span></button>
+<button data-cap="&lt;b&gt;Поиск модов&lt;/b&gt; — Modrinth и CurseForge, только совместимые версии, установка в один клик." data-i18n-attr="data-cap:t43" data-src="docs/mods.png" data-src-en="docs/en/mods.png" data-src-uk="docs/uk/mods.png"><img alt="" loading="lazy" src="docs/mods.png" data-img-en="docs/en/mods.png" data-img-uk="docs/uk/mods.png"/><span data-i18n="t44">Моды</span></button>
+<button data-cap="&lt;b&gt;Установленные моды&lt;/b&gt; — включай, выключай и удаляй. Sodium и FerriteCore всегда на месте." data-i18n-attr="data-cap:t45" data-src="docs/installed.png" data-src-en="docs/en/installed.png" data-src-uk="docs/uk/installed.png"><img alt="" loading="lazy" src="docs/installed.png" data-img-en="docs/en/installed.png" data-img-uk="docs/uk/installed.png"/><span data-i18n="t46">Установленные</span></button>
+<button data-cap="&lt;b&gt;Настройки&lt;/b&gt; — память, сборщик мусора, размер окна, своя Java и аргументы JVM." data-i18n-attr="data-cap:t47" data-src="docs/settings.png" data-src-en="docs/en/settings.png" data-src-uk="docs/uk/settings.png"><img alt="" loading="lazy" src="docs/settings.png" data-img-en="docs/en/settings.png" data-img-uk="docs/uk/settings.png"/><span data-i18n="t48">Настройки</span></button>
+<button data-cap="&lt;b&gt;Вход через Microsoft&lt;/b&gt; — как в Lunar: страница Microsoft открывается в отдельном окне, пароль вводится только там." data-i18n-attr="data-cap:t49" data-src="docs/login.png" data-src-en="docs/en/login.png" data-src-uk="docs/uk/login.png"><img alt="" loading="lazy" src="docs/login.png" data-img-en="docs/en/login.png" data-img-uk="docs/uk/login.png"/><span data-i18n="t50">Вход</span></button>
+<button data-cap="&lt;b&gt;Аккаунты&lt;/b&gt; — несколько аккаунтов Microsoft, переключение в один клик, как в Lunar." data-i18n-attr="data-cap:t51" data-src="docs/accounts.png" data-src-en="docs/en/accounts.png" data-src-uk="docs/uk/accounts.png"><img alt="" loading="lazy" src="docs/accounts.png" data-img-en="docs/en/accounts.png" data-img-uk="docs/uk/accounts.png"/><span data-i18n="t52">Аккаунты</span></button>
+<button data-cap="&lt;b&gt;Модули&lt;/b&gt; — Keystrokes: WASD, клики мыши с CPS, пробел, FPS и пинг. Превью реагирует на твои нажатия." data-i18n-attr="data-cap:g.modules.cap" data-src="docs/modules.png" data-src-en="docs/en/modules.png" data-src-uk="docs/uk/modules.png"><img alt="" loading="lazy" src="docs/modules.png" data-img-en="docs/en/modules.png" data-img-uk="docs/uk/modules.png"/><span data-i18n="g.modules.label">Модули</span></button>
+<button data-cap="&lt;b&gt;Скины&lt;/b&gt; — загрузи PNG или скопируй скин игрока и примени его к аккаунту: его увидят все." data-i18n-attr="data-cap:g.skins.cap" data-src="docs/skins.png" data-src-en="docs/en/skins.png" data-src-uk="docs/uk/skins.png"><img alt="" loading="lazy" src="docs/skins.png" data-img-en="docs/en/skins.png" data-img-uk="docs/uk/skins.png"/><span data-i18n="g.skins.label">Скины</span></button>
+<button data-cap="&lt;b&gt;Плащи&lt;/b&gt; — свой плащ из PNG с превью, на тебе в игре и на элитрах." data-i18n-attr="data-cap:g.capes.cap" data-src="docs/capes.png" data-src-en="docs/en/capes.png" data-src-uk="docs/uk/capes.png"><img alt="" loading="lazy" src="docs/capes.png" data-img-en="docs/en/capes.png" data-img-uk="docs/uk/capes.png"/><span data-i18n="g.capes.label">Плащи</span></button>
 </div>
 </div>
 </section>
@@ -572,7 +574,7 @@
   "t31": "Как в Lunar: страница входа Microsoft открывается <b>в отдельном окне</b> и закрывается сама. Пароль клиент не видит.",
   "t32": "Интерфейс",
   "t33": "Чистый и быстрый",
-  "t34": "Тёмная тема, всё важное на одном экране. Русский и английский язык. Листай скриншоты →",
+  "t34": "Тёмная тема, всё важное на одном экране. Русский, украинский и английский языки. Листай скриншоты →",
   "t35": "Главный экран Stray Client",
   "t36": "<b>Главный экран</b> — выбор версии, кнопка «Играть» и встроенная оптимизация.",
   "t37": "Назад",
@@ -672,7 +674,7 @@
   "c.price.3": "Бесплатно, есть платная подписка",
   "c.price.4": "Бесплатно, с рекламой, косметика платная",
   "f.cape.t": "Скины и плащи",
-  "f.cape.p": "Скин из PNG или от любого игрока — сразу на аккаунт, его видят все. Плюс свой плащ из PNG через мод <b>Stray Capes</b>.",
+  "f.cape.p": "Скин из PNG или от любого игрока — сразу на аккаунт, его видят все. Плюс свой плащ из PNG через мод <b>Stray Client</b>.",
   "f.ks.t": "Keystrokes и CPS",
   "f.ks.p": "Нажатия <b>WASD</b>, клики мыши с <b>CPS</b>, пробел, FPS и пинг — включаются одним переключателем во вкладке «Модули».",
   "f.m1.t": "Для Apple Silicon",
@@ -725,7 +727,7 @@
   "t31": "Like Lunar: Microsoft's sign-in page opens <b>in its own window</b> and closes by itself. The client never sees your password.",
   "t32": "Interface",
   "t33": "Clean and fast",
-  "t34": "Dark theme, everything important on one screen. English and Russian. Browse the screenshots →",
+  "t34": "Dark theme, everything important on one screen. English, Russian and Ukrainian. Browse the screenshots →",
   "t35": "Stray Client home screen",
   "t36": "<b>Home</b> — pick a version, hit Play, optimizations built in.",
   "t37": "Previous",
@@ -825,7 +827,7 @@
   "c.price.3": "Free, paid subscription available",
   "c.price.4": "Free, ad-supported, paid cosmetics",
   "f.cape.t": "Skins and capes",
-  "f.cape.p": "A skin from a PNG or from any player goes straight to your account, so everyone sees it. Plus your own PNG cape via the <b>Stray Capes</b> mod.",
+  "f.cape.p": "A skin from a PNG or from any player goes straight to your account, so everyone sees it. Plus your own PNG cape via the <b>Stray Client</b> mod.",
   "f.ks.t": "Keystrokes and CPS",
   "f.ks.p": "<b>WASD</b> presses, mouse clicks with <b>CPS</b>, space bar, FPS and ping, switched on with one toggle in the Modules tab.",
   "f.m1.t": "Built for Apple Silicon",
@@ -845,12 +847,167 @@
   "im.nowSub": "Just download the file, if you already know what to do.",
   "im.back": "Back",
   "im.next": "Next"
+ },
+ "uk": {
+  "t1": "Stray Client — швидкий клієнт Minecraft",
+  "t2": "Stray Client — офіційний клієнт StraySMP від StrayZii: швидкий і легкий клієнт Minecraft на Rust. Sodium і FerriteCore вже всередині, моди з Modrinth і CurseForge. Для Windows і macOS.",
+  "t3": "Stray Client — швидкий клієнт Minecraft",
+  "t4": "Більше FPS, менше RAM: Sodium + FerriteCore всередині, моди з Modrinth і CurseForge.",
+  "t7": "<i></i>Офіційний клієнт StraySMP · від StrayZii",
+  "t8": "Клієнт, який <span>просто літає</span>",
+  "t9": "Легкий клієнт Minecraft на Rust. Sodium і FerriteCore вже всередині, моди з Modrinth і CurseForge в один клік, Java встановлюється сама. Натиснув «Грати» — і ти в грі.",
+  "t10": "Завантажити безкоштовно",
+  "t11": "Windows і macOS",
+  "t12": "Інша система? <a href=\"#download\">Усі версії</a>",
+  "t13": "Безкоштовно · відкритий код · ~10 МБ",
+  "t14": "<b>~10 МБ</b><span>розмір застосунку: без вбудованого Chromium</span>",
+  "t15": "<b>19 с</b><span>перше встановлення гри, Java та модів (у нашому тесті)</span>",
+  "t16": "<b>0,2 с</b><span>перевірка файлів при повторному запуску</span>",
+  "t17": "<b>2 в 1</b><span>Modrinth і CurseForge в одному вікні</span>",
+  "t18": "Можливості",
+  "t19": "Максимум FPS<br/>без зайвих налаштувань",
+  "t20": "Клієнт сам завантажить Minecraft, Fabric, Java та моди для оптимізації. Тобі залишається натиснути «Грати».",
+  "t21": "Sodium і FerriteCore",
+  "t22": "Вже встановлені й завжди увімкнені: <b>більше FPS</b> і <b>менше RAM</b>. Lithium, ImmediatelyFast, EntityCulling і ModernFix встановлюються в один клік.",
+  "t23": "Пошук, встановлення, увімкнення та видалення модів. Потрібні залежності підтягуються <b>автоматично</b>, показуються лише версії для твоєї гри.",
+  "t24": "Миттєвий запуск",
+  "t25": "Файли завантажуються <b>паралельно</b> й перевіряються за контрольними сумами. Повторний запуск перевіряє все <b>за частки секунди</b>.",
+  "t26": "Java не потрібна",
+  "t27": "Клієнт сам завантажує <b>офіційну Java від Mojang</b> для потрібної версії гри, без ручного встановлення.",
+  "t28": "Налаштована JVM",
+  "t29": "Оптимізований G1 або ZGC для потужних ПК і компактні заголовки об'єктів на новій Java. Рекомендований обсяг RAM підбирається під твій ПК.",
+  "t30": "Вхід через Microsoft",
+  "t31": "Як у Lunar: сторінка входу Microsoft відкривається <b>в окремому вікні</b> й закривається сама. Пароль клієнт не бачить.",
+  "t32": "Інтерфейс",
+  "t33": "Чистий і швидкий",
+  "t34": "Темна тема, усе важливе на одному екрані. Українська, російська й англійська мови. Гортай скриншоти →",
+  "t35": "Головний екран Stray Client",
+  "t36": "<b>Головний екран</b> — вибір версії, кнопка «Грати» та вбудована оптимізація.",
+  "t37": "Назад",
+  "t38": "Вперед",
+  "t39": "<b>Головний екран</b> — вибір версії, кнопка «Грати» та вбудована оптимізація.",
+  "t40": "Головна",
+  "t41": "<b>Запуск</b> — Java, бібліотеки та ресурси завантажуються паралельно, прогрес прямо на кнопці.",
+  "t42": "Запуск",
+  "t43": "<b>Пошук модів</b> — Modrinth і CurseForge, лише сумісні версії, встановлення в один клік.",
+  "t44": "Моди",
+  "t45": "<b>Встановлені моди</b> — вмикай, вимикай і видаляй. Sodium і FerriteCore завжди на місці.",
+  "t46": "Встановлені",
+  "t47": "<b>Налаштування</b> — пам'ять, збирач сміття, розмір вікна, своя Java та аргументи JVM.",
+  "t48": "Налаштування",
+  "t49": "<b>Вхід через Microsoft</b> — як у Lunar: сторінка Microsoft відкривається в окремому вікні, пароль вводиться лише там.",
+  "t50": "Вхід",
+  "t51": "<b>Акаунти</b> — кілька акаунтів Microsoft, перемикання в один клік, як у Lunar.",
+  "t52": "Акаунти",
+  "t53": "Порівняння",
+  "t74": "Завантажити",
+  "t75": "Обери свою систему",
+  "t76": "Остання версія з GitHub Releases.",
+  "t77": "Windows 10 / 11 · 64 біт",
+  "t78": "Завантажити для Windows (.exe)",
+  "t79": "Запусти завантажений <b>setup.exe</b>.",
+  "t80": "Якщо з'явиться SmartScreen: <b>Докладніше → Усе одно запустити</b>. <a href=\"#\" data-open-tutorial=\"win\">Інструкція →</a>",
+  "t81": "Увійди через Microsoft і натисни <b>«Грати»</b>.",
+  "t84": "macOS 11+ · Apple Silicon та Intel",
+  "t85": "Завантажити для Apple Silicon (M1–M4)",
+  "t86": "Відкрий <b>.dmg</b> і перетягни Stray Client у «Програми».",
+  "t87": "Якщо macOS пише <b>«пошкоджено»</b> — натисни <b>«Скасувати»</b> (не Кошик) і введи одну команду в Терміналі. <a href=\"#\" data-open-tutorial=\"mac\">Покрокова інструкція →</a>",
+  "t88": "Увійди через Microsoft і натисни <b>«Грати»</b>.",
+  "t89": "Часті запитання",
+  "t90": "Це безкоштовно?",
+  "t91": "Так. Клієнт безкоштовний і з відкритим кодом. Для гри потрібна ліцензійна Minecraft Java Edition на акаунті Microsoft.",
+  "t92": "Які версії Minecraft підтримуються?",
+  "t93": "Усі релізи від 1.20 до найновішої, для яких є Fabric, Sodium і FerriteCore. За замовчуванням вибирається остання, змінити версію можна на головному екрані.",
+  "t94": "Чи можна додати свої моди?",
+  "t95": "Так. На вкладці «Моди» шукай у Modrinth або CurseForge й встановлюй в один клік. Можна й просто покласти .jar у папку модів: кнопка «Папка модів» її відкриє.",
+  "t96": "Чому Windows/macOS попереджає під час встановлення?",
+  "t97": "Збірки поки що без платного цифрового підпису Apple і Microsoft. На Mac це виглядає як «застосунок пошкоджено» — одна команда в Терміналі це виправляє (див. інструкцію під час завантаження). Код відкритий на GitHub, а інсталятори збираються автоматично через GitHub Actions прямо з вихідного коду.",
+  "t98": "Скільки RAM виділити?",
+  "t99": "Клієнт підкаже: зазвичай 4 ГБ, на ПК з 16 ГБ і більше — 6 ГБ. Більше не означає швидше: забагато пам'яті дає довгі паузи збирача сміття.",
+  "t100": "Готовий до гри?",
+  "t101": "Завантаж Stray Client, увійди через Microsoft і натисни «Грати». Решту він зробить сам.",
+  "t102": "Завантажити Stray Client",
+  "t103": "\n<span>© 2026 Stray Client · офіційний клієнт StraySMP · <a href=\"https://github.com/MuMaFi/StrayClient\">GitHub</a></span>\n<span>Не є офіційним продуктом Minecraft. Не пов'язано з Mojang чи Microsoft.</span>\n",
+  "d.nav": "Демо",
+  "d.eyebrow": "Живе демо",
+  "d.title": "Спробуй клієнт<br />прямо в браузері",
+  "d.lead": "Це справжній інтерфейс Stray Client: перемикай акаунти, шукай моди в Modrinth, змінюй налаштування та мову. Лише Minecraft у браузері не запуститься.",
+  "d.start": "Запустити демо",
+  "d.hint": "Працює без встановлення · дані модів — живі з Modrinth",
+  "d.full": "Відкрити у великому вікні",
+  "d.try1": "Натисни на акаунт праворуч угорі — перемикання як у Lunar",
+  "d.try2": "Вкладка «Моди» → Modrinth: пошук у справжньому каталозі",
+  "d.try3": "«Грати» показує, як клієнт готує гру",
+  "n.features": "Можливості",
+  "n.compare": "Порівняння",
+  "n.download": "Завантажити",
+  "c.title": "Stray Client, Lunar, Badlion і Dawn",
+  "c.lead": "Усі чотири клієнти безкоштовні. Stray Client робить ставку на швидкість, легкість, моди з Modrinth і CurseForge та відкритий код.",
+  "c.note": "Джерела: офіційні сайти Lunar і Dawn, огляди та каталоги програм (листопад 2026). «Немає даних» — якщо це не вдалося надійно перевірити.",
+  "c.size.0": "Розмір інсталятора",
+  "c.size.1": "2,7 МБ (Windows) · 7,1 МБ (macOS)",
+  "c.size.2": "~3 МБ (Windows), решту довантажує",
+  "c.size.3": "~138 МБ (Windows)",
+  "c.size.4": "Немає даних",
+  "c.perf.0": "Оптимізація",
+  "c.perf.1": "Sodium + FerriteCore завжди, ще 4 моди в 1 клік",
+  "c.perf.2": "Власні оптимізації",
+  "c.perf.3": "Власні оптимізації",
+  "c.perf.4": "Sodium, Lithium, FerriteCore + 3 моди",
+  "c.mods.0": "Моди з Modrinth і CurseForge",
+  "c.mods.1": "Modrinth і CurseForge, із залежностями",
+  "c.mods.2": "Вбудовані моди",
+  "c.mods.3": "Вбудовані моди",
+  "c.mods.4": "Лише Modrinth",
+  "c.login.0": "Вхід Microsoft і кілька акаунтів",
+  "c.login.1": "Так, окреме вікно + перемикач",
+  "c.login.2": "Так",
+  "c.login.3": "Так, потрібен ще акаунт Badlion",
+  "c.login.4": "Немає даних",
+  "c.oss.0": "Відкритий код",
+  "c.oss.1": "Так, на GitHub",
+  "c.oss.2": "Ні",
+  "c.oss.3": "Ні",
+  "c.oss.4": "Код не опубліковано",
+  "c.tech.0": "Технологія",
+  "c.tech.1": "Rust — для максимальної оптимізації",
+  "c.tech.2": "Electron",
+  "c.tech.3": "Electron",
+  "c.tech.4": "Немає даних",
+  "c.price.0": "Ціна",
+  "c.price.1": "Безкоштовно, без реклами",
+  "c.price.2": "Безкоштовно, косметика платна",
+  "c.price.3": "Безкоштовно, є платна підписка",
+  "c.price.4": "Безкоштовно, з рекламою, косметика платна",
+  "f.cape.t": "Скіни та плащі",
+  "f.cape.p": "Скін із PNG або від будь-якого гравця — одразу на акаунт, його бачать усі. Плюс свій плащ із PNG через мод <b>Stray Client</b>.",
+  "f.ks.t": "Keystrokes і CPS",
+  "f.ks.p": "Натискання <b>WASD</b>, кліки миші з <b>CPS</b>, пробіл, FPS і пінг — вмикаються одним перемикачем на вкладці «Модулі».",
+  "f.m1.t": "Для Apple Silicon",
+  "f.m1.p": "Окрема збірка для <b>M1–M4</b>: нативна Java без Rosetta, а збирач сміття працює лише на продуктивних ядрах.",
+  "mac.intel": "Mac із процесором Intel?",
+  "mac.intelDl": "Завантажити для Intel",
+  "g.modules.cap": "<b>Модулі</b> — Keystrokes: WASD, кліки миші з CPS, пробіл, FPS і пінг. Превʼю реагує на твої натискання.",
+  "g.modules.label": "Модулі",
+  "g.skins.cap": "<b>Скіни</b> — завантаж PNG або скопіюй скін гравця й застосуй його до акаунта: його побачать усі.",
+  "g.skins.label": "Скіни",
+  "g.capes.cap": "<b>Плащі</b> — свій плащ із PNG з превʼю, на тобі в грі та на елітрах.",
+  "g.capes.label": "Плащі",
+  "im.title": "Встановлення Stray Client",
+  "im.withTut": "З інструкцією",
+  "im.withTutSub": "Покроково: завантажити, встановити та відкрити. Радимо під час першого встановлення.",
+  "im.now": "Встановити зараз",
+  "im.nowSub": "Лише завантажити файл — якщо ти вже знаєш, що робити.",
+  "im.back": "Назад",
+  "im.next": "Далі"
  }
 };
     // Strings used by the script itself.
     const JS_T = {
       ru: { dlWin: "Скачать для Windows", dlMac: "Скачать для Apple Silicon (M1–M4)", dlMacIntel: "Скачать для Intel", haveMac: 'Есть Mac? <a href="#download">Версия для macOS</a>', havePc: 'Есть ПК? <a href="#download">Версия для Windows</a>',
             mb: "МБ", decimal: ",", locale: "ru-RU", relInfo: (v, d) => `Версия ${v} от ${d}.`, ver: (v) => `Версия ${v} · бесплатно · открытый исходный код`, macSoon: "macOS — скоро" },
+      uk: { dlWin: "Завантажити для Windows", dlMac: "Завантажити для Apple Silicon (M1–M4)", dlMacIntel: "Завантажити для Intel", haveMac: 'Є Mac? <a href="#download">Версія для macOS</a>', havePc: 'Є ПК? <a href="#download">Версія для Windows</a>',
+            mb: "МБ", decimal: ",", locale: "uk-UA", relInfo: (v, d) => `Версія ${v} від ${d}.`, ver: (v) => `Версія ${v} · безкоштовно · відкритий код`, macSoon: "macOS — незабаром" },
       en: { dlWin: "Download for Windows", dlMac: "Download for Apple Silicon (M1–M4)", dlMacIntel: "Download for Intel", haveMac: 'Have a Mac? <a href="#download">macOS version</a>', havePc: 'Have a PC? <a href="#download">Windows version</a>',
             mb: "MB", decimal: ".", locale: "en-US", relInfo: (v, d) => `Version ${v}, released ${d}.`, ver: (v) => `Version ${v} · free · open source`, macSoon: "macOS — coming soon" },
     };
@@ -875,12 +1032,14 @@
 
       let gi = 0;
 
-      // Language: ?lang= → saved choice → browser language (Russian-speaking → RU, otherwise EN).
+      // Language: ?lang= → saved choice → browser language (uk → UA, ru/be/kk → RU, otherwise EN).
+      const LANGS = ["ru", "uk", "en"];
       const fromUrl = new URLSearchParams(location.search).get("lang");
       let saved = null;
       try { saved = localStorage.getItem("stray-lang"); } catch {}
-      const browserRu = /^(ru|uk|be|kk)/i.test(navigator.language || "");
-      let lang = ["ru", "en"].includes(fromUrl) ? fromUrl : ["ru", "en"].includes(saved) ? saved : browserRu ? "ru" : "en";
+      const nav = navigator.language || "";
+      const browserLang = /^uk/i.test(nav) ? "uk" : /^(ru|be|kk)/i.test(nav) ? "ru" : "en";
+      let lang = LANGS.includes(fromUrl) ? fromUrl : LANGS.includes(saved) ? saved : browserLang;
 
       // Remember the Russian originals so we can switch back.
       $$("[data-img-en]").forEach((el) => (el.dataset.imgRu = el.getAttribute("src")));
@@ -895,8 +1054,9 @@
           const [attr, k] = pair.split(":");
           if (dict[k] != null) el.setAttribute(attr, dict[k]);
         }));
-        $$("[data-img-en]").forEach((el) => el.setAttribute("src", l === "en" ? el.dataset.imgEn : el.dataset.imgRu));
-        $$("[data-src-en]").forEach((el) => (el.dataset.src = l === "en" ? el.dataset.srcEn : el.dataset.srcRu));
+        const pick = (el, kind) => el.dataset[kind + l[0].toUpperCase() + l.slice(1)] || el.dataset[kind + "Ru"];
+        $$("[data-img-en]").forEach((el) => el.setAttribute("src", pick(el, "img")));
+        $$("[data-src-en]").forEach((el) => (el.dataset.src = pick(el, "src")));
         $$(".lang button").forEach((b) => b.classList.toggle("on", b.dataset.lang === l));
         try { localStorage.setItem("stray-lang", l); } catch {}
         const url = new URL(location.href);
@@ -907,7 +1067,7 @@
         if (window.__imRerender) window.__imRerender();
         $("#demo-full").href = `ui/index.html?lang=${l}`;
         const poster = $("#demo-start");
-        if (poster) poster.style.backgroundImage = `url(${l === "en" ? "docs/en/home.png" : "docs/home.png"})`;
+        if (poster) poster.style.backgroundImage = `url(${l === "ru" ? "docs/home.png" : `docs/${l}/home.png`})`;
         if (demoFrame) demoFrame.src = `ui/index.html?lang=${l}`;
       }
       $$(".lang button").forEach((b) => b.addEventListener("click", () => applyLang(b.dataset.lang)));
@@ -1005,6 +1165,24 @@
           copy: "Копировать", copied: "Скопировано!", done: "Готово", next: "Дальше", step: "Шаг {n} из {m}",
           file: "Файл: {file}",
         },
+        uk: {
+          mac: [
+            { t: "Завантаження почалося", p: "Файл <b>{file}</b> завантажується в папку «Завантаження». Якщо завантаження не почалося — <a href=\"{url}\">натисни сюди</a>.", art: "download" },
+            { t: "Перетягни у «Програми»", p: "Відкрий завантажений <b>.dmg</b> і перетягни значок <b>Stray Client</b> у папку <b>Програми</b> (Applications).", art: "drag" },
+            { t: "«Пошкоджено» — це не так", p: "Під час першого запуску macOS може написати: <i>«Програма Stray Client пошкоджена, і її не вдається відкрити»</i>. Натисни <b>«Скасувати»</b> — <b>не</b> переміщуй у Кошик. Із програмою все гаразд: так macOS блокує програми, які ще не засвідчені Apple.", art: "damaged" },
+            { t: "Відкрий Термінал", p: "Натисни <kbd>⌘</kbd> + <kbd>Пробіл</kbd>, введи <b>Термінал</b> (або Terminal) і натисни <kbd>Enter</kbd>.", art: "spotlight" },
+            { t: "Встав команду", p: "Скопіюй команду, встав її в Термінал (<kbd>⌘</kbd> + <kbd>V</kbd>) і натисни <kbd>Enter</kbd>. Якщо нічого не з'явилося — усе вийшло. Команда знімає позначку «завантажено з інтернету» й підписує програму на твоєму Mac. Якщо написано <b>«Operation not permitted»</b>: Системні параметри → Приватність і безпека → <b>Повний доступ до диска</b> → увімкни Термінал і повтори.", art: "terminal", cmd: true },
+            { t: "Готово — запускай!", p: "Відкрий <b>Stray Client</b> з «Програм» або Launchpad, увійди через Microsoft і натисни <b>«Грати»</b>. Команду треба ввести лише один раз (і знову після встановлення нової версії).", art: "done" },
+          ],
+          win: [
+            { t: "Завантаження почалося", p: "Файл <b>{file}</b> завантажується. Якщо завантаження не почалося — <a href=\"{url}\">натисни сюди</a>.", art: "download" },
+            { t: "Запусти інсталятор", p: "Відкрий завантажений <b>setup.exe</b>.", art: "setup" },
+            { t: "Якщо з'явиться SmartScreen", p: "Windows може показати <i>«Windows захистила ваш ПК»</i>. Натисни <b>«Докладніше»</b>, потім <b>«Усе одно запустити»</b>. Програма поки що без платного цифрового підпису.", art: "smartscreen" },
+            { t: "Готово — запускай!", p: "Stray Client з'явиться в меню «Пуск». Увійди через Microsoft і натисни <b>«Грати»</b>.", art: "done" },
+          ],
+          copy: "Копіювати", copied: "Скопійовано!", done: "Готово", next: "Далі", step: "Крок {n} з {m}",
+          file: "Файл: {file}",
+        },
         en: {
           mac: [
             { t: "Your download has started", p: "<b>{file}</b> is downloading to your Downloads folder. If it didn't start, <a href=\"{url}\">click here</a>.", art: "download" },
@@ -1036,6 +1214,7 @@
       };
       const ART_T = {
         ru: { damaged: "Приложение «Stray Client» повреждено, и его не удаётся открыть.", trash: "Переместить в Корзину", cancel: "Отменить", ss: "Система Windows защитила ваш компьютер", more: "Подробнее", run: "Выполнить в любом случае" },
+        uk: { damaged: "Програма «Stray Client» пошкоджена, і її не вдається відкрити.", trash: "Перемістити в Кошик", cancel: "Скасувати", ss: "Windows захистила ваш ПК", more: "Докладніше", run: "Усе одно запустити" },
         en: { damaged: "“Stray Client” is damaged and can't be opened.", trash: "Move to Trash", cancel: "Cancel", ss: "Windows protected your PC", more: "More info", run: "Run anyway" },
       };
       const im = $("#im");
