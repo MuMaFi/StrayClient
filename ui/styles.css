@@ -324,6 +324,13 @@ label.btn svg { width: 18px; height: 18px; }
 .module-ico { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); flex: none; }
 .module-text { flex: 1; }
 .module-text p { font-size: 13px; margin-top: 2px; }
+.ex-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 10px; padding: 14px 18px 18px; }
+.ex-row { align-items: flex-start; padding: 10px 12px; border-radius: 12px; background: var(--panel-2, rgba(255,255,255,.03)); }
+.ex-row i { margin-top: 2px; }
+.ex-row span { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.ex-row b { font-weight: 700; }
+.ex-row small { color: var(--muted, #9ba0b4); font-size: 12px; line-height: 1.35; }
+.ex-row.na { opacity: .55; }
 .toggle.big i { width: 48px; height: 28px; }
 .toggle.big i::after { width: 22px; height: 22px; }
 .toggle.big input:checked + i::after { transform: translateX(20px); }

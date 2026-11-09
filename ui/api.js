@@ -154,7 +154,7 @@
       return file;
     },
     async cape_remove({ file }) { capes = capes.filter((c) => c.file !== file); },
-    async modules_availability({ game }) { return { capes: parseInt(game, 10) >= 26, keystrokes: true, pvpPlus: game === "26.3" || game.startsWith("26.3.") }; },
+    async modules_availability({ game }) { return { capes: parseInt(game, 10) >= 26, keystrokes: true, pvpPlus: game === "26.3" || game.startsWith("26.3."), extras: Object.fromEntries(["freelook","appleskin","chat-heads","shulkerboxtooltip","mouse-tweaks","dynamic-fps","xaeros-minimap","xaeros-world-map","replaymod","lambdynamiclights"].map((id) => [id, parseInt(game, 10) >= 26])) }; },
     async modules_apply() {},
     async open_dir() {},
     async open_url({ url }) { window.open(url, "_blank"); },

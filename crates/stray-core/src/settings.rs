@@ -44,6 +44,19 @@ pub struct Settings {
     /// `auto`: direct Microsoft login when the build has a client ID, otherwise play through
     /// the official Minecraft Launcher. `direct` / `official` force one of the two.
     pub play_mode: String,
+    /// Standard mods (like in Lunar) switched on/off by the player; missing → the default.
+    pub extras: std::collections::BTreeMap<String, bool>,
+}
+
+impl Settings {
+    /// Whether a standard mod (see `cosmetics::EXTRAS`) is on.
+    pub fn extra_enabled(&self, id: &str) -> bool {
+        self.extras.get(id).copied().unwrap_or_else(|| {
+            crate::cosmetics::EXTRAS
+                .iter()
+                .any(|e| e.id == id && e.default_on)
+        })
+    }
 }
 
 /// HUD module: WASD, mouse buttons with CPS, space bar, FPS and ping (Modern Keystrokes).
@@ -91,6 +104,7 @@ impl Default for Settings {
             keystrokes: Keystrokes::default(),
             pvp_plus: false,
             play_mode: "auto".into(),
+            extras: Default::default(),
         }
     }
 }

@@ -102,9 +102,13 @@ pub async fn installed(paths: &Paths, game: &str) -> Vec<InstalledMod> {
 
 /// Enable/disable a mod by its jar name in an instance folder (used for changes made in the
 /// in-game menu). Locked mods stay on; unknown names outside `mods/` are ignored.
-pub async fn set_enabled_file(instance: &Path, file_name: &str, enabled: bool) -> Result<()> {
+pub async fn set_enabled_file(
+    instance: &Path,
+    file_name: &str,
+    enabled: bool,
+) -> Result<Option<String>> {
     if file_name.contains(['/', '\\']) || file_name.contains("..") || !file_name.ends_with(".jar") {
-        return Ok(());
+        return Ok(None);
     }
     let list_path = instance.join("stray-mods.json");
     let mut list: ModList = match tokio::fs::read(&list_path).await {
@@ -117,7 +121,7 @@ pub async fn set_enabled_file(instance: &Path, file_name: &str, enabled: bool) -
         .any(|m| m.file_name == file_name && m.locked)
         && !enabled
     {
-        return Ok(());
+        return Ok(None);
     }
     let dir = instance.join("mods");
     let on = dir.join(file_name);
@@ -127,11 +131,13 @@ pub async fn set_enabled_file(instance: &Path, file_name: &str, enabled: bool) -
     } else if !enabled && on.exists() {
         tokio::fs::rename(&on, &off).await?;
     }
+    let mut slug = None;
     if let Some(m) = list.mods.iter_mut().find(|m| m.file_name == file_name) {
         m.enabled = enabled;
+        slug = Some(m.slug.clone());
         tokio::fs::write(&list_path, serde_json::to_vec_pretty(&list)?).await?;
     }
-    Ok(())
+    Ok(slug)
 }
 
 // ───────────────────────── Modrinth ─────────────────────────

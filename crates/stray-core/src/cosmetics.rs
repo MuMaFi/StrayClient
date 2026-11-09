@@ -47,6 +47,69 @@ pub struct Cape {
     pub data_url: String,
 }
 
+/// A standard mod offered as a module (what Lunar has built in), installed from Modrinth.
+pub struct Extra {
+    /// Modrinth slug, also the settings key.
+    pub id: &'static str,
+    pub name: &'static str,
+    pub default_on: bool,
+}
+
+/// Lunar-style standard mods. Zoom, fullbright, armor/effect HUD and toggle sprint are already
+/// part of PvP Plus, so they are not repeated here.
+pub const EXTRAS: &[Extra] = &[
+    Extra {
+        id: "freelook",
+        name: "Freelook",
+        default_on: true,
+    },
+    Extra {
+        id: "appleskin",
+        name: "AppleSkin",
+        default_on: true,
+    },
+    Extra {
+        id: "chat-heads",
+        name: "Chat Heads",
+        default_on: true,
+    },
+    Extra {
+        id: "shulkerboxtooltip",
+        name: "Shulker Box Tooltip",
+        default_on: true,
+    },
+    Extra {
+        id: "mouse-tweaks",
+        name: "Mouse Tweaks",
+        default_on: true,
+    },
+    Extra {
+        id: "dynamic-fps",
+        name: "Dynamic FPS",
+        default_on: true,
+    },
+    Extra {
+        id: "xaeros-minimap",
+        name: "Xaero's Minimap",
+        default_on: false,
+    },
+    Extra {
+        id: "xaeros-world-map",
+        name: "Xaero's World Map",
+        default_on: false,
+    },
+    Extra {
+        id: "replaymod",
+        name: "Replay Mod",
+        default_on: false,
+    },
+    Extra {
+        id: "lambdynamiclights",
+        name: "LambDynamicLights",
+        default_on: false,
+    },
+];
+
 #[derive(Debug, Clone, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Availability {
@@ -54,6 +117,8 @@ pub struct Availability {
     pub capes: bool,
     pub keystrokes: bool,
     pub pvp_plus: bool,
+    /// Standard mods available for this game version (by id).
+    pub extras: BTreeMap<String, bool>,
 }
 
 fn library(paths: &Paths) -> PathBuf {
@@ -73,10 +138,21 @@ pub async fn availability(game: &str) -> Availability {
         .await
         .map(|v| v.contains(game))
         .unwrap_or(false);
+    let checks = EXTRAS.iter().map(|e| async move {
+        let ok = mods::modrinth_game_versions(e.id)
+            .await
+            .map(|v| v.contains(game))
+            .unwrap_or(false);
+        (e.id.to_string(), ok)
+    });
     Availability {
         capes: capes_supported(game),
         keystrokes,
         pvp_plus: pvp_plus_supported(game),
+        extras: futures_util::future::join_all(checks)
+            .await
+            .into_iter()
+            .collect(),
     }
 }
 
@@ -279,6 +355,26 @@ pub async fn apply(
         )
         .await?;
     }
+
+    // ── Standard mods (Lunar-style) ──
+    for e in EXTRAS {
+        let want = settings.extra_enabled(e.id);
+        let installed = mods::installed(paths, game).await;
+        match installed.iter().find(|m| m.slug == e.id) {
+            None if want => {
+                // Not every mod exists for every version: skip it then, never block the launch.
+                if let Err(err) =
+                    mods::install(paths, Source::Modrinth, e.id, game, "", progress).await
+                {
+                    eprintln!("standard mod {} not installed for {game}: {err}", e.id);
+                }
+            }
+            Some(m) if m.enabled != want => {
+                mods::set_enabled(paths, game, &m.project_id, want).await?;
+            }
+            _ => {}
+        }
+    }
     Ok(())
 }
 
@@ -321,7 +417,14 @@ pub async fn take_ingame_changes(paths: &Paths, settings: &mut Settings) -> bool
                 }
                 _ => {
                     if let Some(jar) = k.strip_prefix("mod.") {
-                        let _ = mods::set_enabled_file(&instance, jar, v == "on").await;
+                        let on = v == "on";
+                        if let Ok(Some(slug)) = mods::set_enabled_file(&instance, jar, on).await {
+                            // a standard mod switched in game stays that way on the next launch
+                            if EXTRAS.iter().any(|e| e.id == slug) {
+                                changed |= settings.extra_enabled(&slug) != on;
+                                settings.extras.insert(slug, on);
+                            }
+                        }
                     }
                 }
             }
@@ -449,6 +552,8 @@ mod tests {
         let mut s = Settings {
             cape_mode: "local".into(),
             cape: f.clone(),
+            // no downloads in this test
+            extras: EXTRAS.iter().map(|e| (e.id.to_string(), false)).collect(),
             ..Default::default()
         };
         let noop: ProgressFn = std::sync::Arc::new(|_| {});
@@ -536,5 +641,19 @@ mod tests {
         // nothing pending → nothing changes
         assert!(!take_ingame_changes(&paths, &mut s).await);
         let _ = std::fs::remove_dir_all(root);
+    }
+
+    #[test]
+    fn standard_mod_defaults_and_overrides() {
+        let mut s = Settings::default();
+        assert!(s.extra_enabled("freelook"));
+        assert!(!s.extra_enabled("replaymod"));
+        assert!(!s.extra_enabled("unknown"));
+        s.extras.insert("freelook".into(), false);
+        assert!(!s.extra_enabled("freelook"));
+        // ids are Modrinth slugs, unique
+        let mut ids: Vec<_> = EXTRAS.iter().map(|e| e.id).collect();
+        ids.dedup();
+        assert_eq!(ids.len(), EXTRAS.len());
     }
 }

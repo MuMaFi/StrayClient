@@ -667,9 +667,32 @@
     $("#pvp-card").classList.toggle("off", !on);
     $("#pvp-feats").innerHTML = Array.from({ length: 10 }, (_, i) => `<span><b>✓</b>${t("pvp.f" + (i + 1))}</span>`).join("");
   }
+  // Standard mods (Lunar-style); ids are Modrinth slugs, defaults match the launcher core.
+  const EXTRAS = [
+    ["freelook", "Freelook", true], ["appleskin", "AppleSkin", true], ["chat-heads", "Chat Heads", true],
+    ["shulkerboxtooltip", "Shulker Box Tooltip", true], ["mouse-tweaks", "Mouse Tweaks", true], ["dynamic-fps", "Dynamic FPS", true],
+    ["xaeros-minimap", "Xaero's Minimap", false], ["xaeros-world-map", "Xaero's World Map", false],
+    ["replaymod", "Replay Mod", false], ["lambdynamiclights", "LambDynamicLights", false],
+  ];
+  const extraOn = (id, def) => (S.settings.extras && id in S.settings.extras ? !!S.settings.extras[id] : def);
+  function renderExtras(av) {
+    const avail = (av && av.extras) || {};
+    $("#ex-list").innerHTML = EXTRAS.map(([id, name, def]) => {
+      const na = avail[id] === false;
+      return `<label class="toggle ex-row${na ? " na" : ""}"><input type="checkbox" data-ex="${id}" data-def="${def}"${extraOn(id, def) ? " checked" : ""}${na ? " disabled" : ""}/><i></i>` +
+        `<span><b>${esc(name)}</b><small>${na ? esc(t("ex.na", currentGame())) : esc(t("ex." + id))}</small></span></label>`;
+    }).join("");
+  }
+  $("#ex-list").addEventListener("change", (e) => {
+    const el = e.target.closest("[data-ex]");
+    if (!el) return;
+    S.settings.extras = { ...(S.settings.extras || {}), [el.dataset.ex]: el.checked };
+    applyModulesSoon();
+  });
   async function loadModules() {
     renderKeystrokes();
     renderPvp();
+    renderExtras();
     const av = await availability();
     const n = $("#ks-notice");
     n.hidden = av.keystrokes;
@@ -677,6 +700,7 @@
     const pn = $("#pvp-notice");
     pn.hidden = av.pvpPlus !== false;
     pn.textContent = av.pvpPlus === false ? t("pvp.unavailable", currentGame()) : "";
+    renderExtras(av);
   }
   $("#pvp-enabled").addEventListener("change", (e) => {
     S.settings.pvpPlus = e.target.checked;
