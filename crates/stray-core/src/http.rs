@@ -4,7 +4,7 @@ use std::time::Duration;
 pub const USER_AGENT: &str = concat!(
     "StrayLauncher/",
     env!("CARGO_PKG_VERSION"),
-    " (github.com/MuMaFi/stray-launcher)"
+    " (github.com/MuMaFi/StrayClient)"
 );
 
 /// One shared connection pool for the whole app (HTTP/2 + keep-alive = far fewer TLS handshakes).
