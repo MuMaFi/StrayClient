@@ -82,6 +82,83 @@
     ::-webkit-scrollbar-thumb { background: var(--panel-2); border-radius: 10px; border: 3px solid var(--bg); }
     .stat b { font-variant-numeric: tabular-nums; }
     @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; } }
+    /* install chooser + tutorial */
+    .im { position: fixed; inset: 0; z-index: 50; display: grid; place-items: center; padding: 16px; background: rgba(10,10,16,.62); backdrop-filter: blur(8px); animation: imIn .2s ease both; }
+    .im[hidden], .im-choose[hidden], .im-tut[hidden] { display: none; }
+    @keyframes imIn { from { opacity: 0; } }
+    .im-card { position: relative; width: min(520px, 100%); max-height: calc(100vh - 32px); overflow: auto; padding: 30px; border-radius: 26px; background: var(--panel); box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 0 0 1px var(--ring-2), 0 40px 90px rgba(0,0,0,.55); animation: imUp .25s cubic-bezier(.2,.9,.3,1.1) both; }
+    @keyframes imUp { from { transform: translateY(14px) scale(.98); opacity: 0; } }
+    .im-x { position: absolute; top: 14px; right: 14px; width: 34px; height: 34px; border: 0; border-radius: 10px; background: transparent; color: var(--muted); cursor: pointer; font-size: 14px; }
+    .im-x:hover { background: var(--panel-2); color: #fff; }
+    .im-choose { display: flex; flex-direction: column; align-items: center; text-align: center; gap: 8px; }
+    .im-os-ico { width: 58px; height: 58px; border-radius: 18px; display: grid; place-items: center; background: var(--panel-2); margin-bottom: 6px; }
+    .im-os-ico svg { width: 28px; height: 28px; fill: currentColor; stroke: none; }
+    .im-choose h3 { font-size: 22px; }
+    .im-choose .muted { font-size: 13px; word-break: break-all; }
+    .im-options { display: grid; gap: 10px; width: 100%; margin-top: 16px; }
+    .im-opt { display: flex; flex-direction: column; gap: 3px; padding: 16px 18px; border: 0; border-radius: 16px; text-align: left; cursor: pointer; color: #fff; font: inherit; background: var(--bg); box-shadow: inset 0 0 0 1px var(--ring-2); transition: box-shadow .15s, transform .15s, background .15s; }
+    .im-opt b { font-family: var(--display); font-size: 15px; font-weight: 600; }
+    .im-opt span { font-size: 13px; color: var(--muted); }
+    .im-opt:hover { transform: translateY(-1px); box-shadow: inset 0 0 0 1px var(--accent); }
+    .im-opt-main { background: linear-gradient(180deg, rgba(81,162,255,.16), rgba(43,127,255,.08)); box-shadow: inset 0 0 0 1px rgba(81,162,255,.45); }
+    .im-opt-main b { color: var(--accent); }
+    .im-progress { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; padding-right: 36px; font-size: 12px; font-weight: 700; color: var(--muted); }
+    .im-progress div { display: flex; gap: 5px; }
+    .im-progress i { width: 22px; height: 4px; border-radius: 4px; background: var(--panel-3); transition: background .2s; }
+    .im-progress i.on { background: var(--accent); }
+    .im-steps { min-height: 280px; animation: imIn .2s ease both; }
+    .im-steps h3 { font-size: 20px; margin-top: 18px; }
+    .im-steps p { margin-top: 8px; font-size: 15px; color: rgba(255,255,255,.8); }
+    .im-steps a { color: var(--accent); font-weight: 700; }
+    kbd { display: inline-block; min-width: 22px; padding: 1px 6px; border-radius: 6px; background: var(--panel-2); box-shadow: inset 0 -2px 0 rgba(0,0,0,.35), inset 0 0 0 1px var(--ring-2); font: 700 12px var(--body); text-align: center; }
+    .im-cmd { display: flex; align-items: center; gap: 10px; margin-top: 14px; padding: 10px 10px 10px 14px; border-radius: 14px; background: #0f1016; box-shadow: inset 0 0 0 1px var(--ring-2); }
+    .im-cmd code { flex: 1; font: 13px ui-monospace, "SF Mono", Menlo, monospace; color: #cfe5ff; word-break: break-all; user-select: all; }
+    .im-copy { height: 36px; padding: 0 14px; background: var(--accent-2); color: #fff; }
+    .im-copy.ok { background: #1f9d55; }
+    .im-nav { display: flex; justify-content: space-between; gap: 10px; margin-top: 22px; }
+    .im-next { background: var(--accent-2); color: #fff; padding: 0 26px; }
+    .im-next:hover { background: var(--accent); }
+    /* illustrations */
+    .art { height: 150px; border-radius: 18px; background: radial-gradient(120% 120% at 50% 0%, rgba(81,162,255,.12), transparent 60%), var(--bg); box-shadow: inset 0 0 0 1px var(--ring); display: flex; align-items: center; justify-content: center; gap: 22px; overflow: hidden; }
+    .art small { display: block; margin-top: 6px; font-size: 11px; color: var(--muted); text-align: center; }
+    .art-dl { flex-direction: column; gap: 14px; }
+    .art-file { width: 58px; height: 70px; border-radius: 8px 18px 8px 8px; background: var(--panel-2); display: grid; place-items: end center; padding-bottom: 8px; box-shadow: inset 0 0 0 1px var(--ring-2); }
+    .art-file b { font-size: 12px; color: var(--accent); }
+    .art-bar { width: 150px; height: 6px; border-radius: 6px; background: var(--panel-3); overflow: hidden; }
+    .art-bar i { display: block; height: 100%; width: 40%; background: var(--accent); border-radius: 6px; animation: dl 1.6s ease-in-out infinite; }
+    @keyframes dl { from { transform: translateX(-100%); } to { transform: translateX(260%); } }
+    .art-app img { width: 58px; height: 58px; image-rendering: pixelated; display: block; margin: 0 auto; animation: drag 2.2s ease-in-out infinite; }
+    @keyframes drag { 0%, 15% { transform: translateX(0); } 55%, 70% { transform: translateX(96px) scale(.85); opacity: .55; } 100% { transform: translateX(0); } }
+    .art-setup img { animation: none; }
+    .art-arrow { font-size: 26px; color: var(--accent); }
+    .art-folder span { display: block; width: 66px; height: 52px; border-radius: 6px 6px 10px 10px; background: linear-gradient(180deg, #6db6ff, #2b7fff); position: relative; }
+    .art-folder span::before { content: ""; position: absolute; left: 0; top: -8px; width: 28px; height: 10px; border-radius: 4px 4px 0 0; background: #6db6ff; }
+    .art-dialog { flex-direction: column; gap: 10px; padding: 16px; }
+    .art-dialog p { margin: 0; max-width: 300px; text-align: center; font-size: 13px; font-weight: 700; color: #fff; }
+    .art-warn { width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: #f5b83d; color: #222; font-weight: 900; }
+    .art-btns { display: flex; gap: 8px; }
+    .art-btns span { padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 700; background: var(--panel-2); }
+    .art-btns .bad { opacity: .45; text-decoration: line-through; }
+    .art-btns .good { background: var(--accent-2); box-shadow: 0 0 0 3px rgba(81,162,255,.3); }
+    .art-spot { gap: 10px; justify-content: flex-start; padding: 0 22px; margin: 0 auto; }
+    .art-spot { background: radial-gradient(120% 120% at 50% 0%, rgba(81,162,255,.12), transparent 60%), var(--bg); }
+    .art-mag { font-size: 26px; color: var(--muted); }
+    .art-typed { font-size: 22px; font-weight: 700; overflow: hidden; white-space: nowrap; width: 0; animation: type 2.4s steps(8) infinite; }
+    @keyframes type { 0% { width: 0; } 50%, 100% { width: 8.2ch; } }
+    .art-caret { display: inline-block; width: 2px; height: 1.1em; margin-left: 2px; vertical-align: -3px; background: var(--accent); animation: blink 1s steps(1) infinite; }
+    @keyframes blink { 50% { opacity: 0; } }
+    .art-term { flex-direction: column; align-items: stretch; justify-content: flex-start; gap: 0; padding: 0; background: #0f1016; }
+    .art-term-bar { display: flex; gap: 6px; padding: 10px 12px; background: #1b1c24; }
+    .art-term-bar i { width: 10px; height: 10px; border-radius: 50%; background: #ff5f57; }
+    .art-term-bar i:nth-child(2) { background: #febc2e; }
+    .art-term-bar i:nth-child(3) { background: #28c840; }
+    .art-term code { padding: 16px; font: 13px ui-monospace, "SF Mono", Menlo, monospace; color: #e8f2ff; word-break: break-all; }
+    .art-term .p { color: #28c840; }
+    .art-done { position: relative; }
+    .art-done img { width: 72px; height: 72px; image-rendering: pixelated; }
+    .art-done span { position: absolute; transform: translate(30px, 26px); width: 30px; height: 30px; border-radius: 50%; display: grid; place-items: center; background: #1f9d55; color: #fff; font-weight: 900; box-shadow: 0 0 0 4px var(--bg); }
+    .art-ss { background: radial-gradient(120% 120% at 50% 0%, rgba(43,127,255,.25), transparent 70%), #0b3a75; }
+    @media (prefers-reduced-motion: reduce) { .art * { animation: none !important; } .art-typed { width: 8.2ch; } }
     @media (max-width: 900px) { .demo-wrap { grid-template-columns: 1fr; } }
     /* hero */
     .hero { position: relative; margin-top: 28px; border-radius: 28px; overflow: hidden; isolation: isolate; min-height: 560px; display: flex; align-items: center; }
@@ -387,7 +464,7 @@
 <a class="btn btn-dl" data-i18n="t78" href="https://github.com/MuMaFi/StrayClient/releases/latest" id="dl-win">Скачать для Windows (.exe)</a>
 <ol>
 <li data-i18n="t79">Запусти скачанный <b>setup.exe</b>.</li>
-<li data-i18n="t80">Если появится SmartScreen: <b>Подробнее → Выполнить в любом случае</b> (приложение пока без цифровой подписи).</li>
+<li data-i18n="t80">Если появится SmartScreen: <b>Подробнее → Выполнить в любом случае</b>. <a href="#" data-open-tutorial="win">Инструкция →</a></li>
 <li data-i18n="t81">Войди через Microsoft и нажми <b>«Играть»</b>.</li>
 </ol>
 </div>
@@ -400,7 +477,7 @@
 <span class="muted" style="font-size:13px"><span data-i18n="mac.intel">Mac с процессором Intel?</span> <a href="https://github.com/MuMaFi/StrayClient/releases/latest" id="dl-mac-intel" style="color:var(--accent);font-weight:700" data-i18n="mac.intelDl">Скачать для Intel</a></span>
 <ol>
 <li data-i18n="t86">Открой <b>.dmg</b> и перетащи Stray Client в «Программы».</li>
-<li data-i18n="t87">При первом запуске: <b>правый клик → Открыть</b> (приложение пока не нотаризовано). Или в Терминале: <code>xattr -cr "/Applications/Stray Client.app"</code></li>
+<li data-i18n="t87">Если macOS пишет <b>«повреждено»</b> — нажми <b>«Отменить»</b> (не Корзину) и введи одну команду в Терминале. <a href="#" data-open-tutorial="mac">Пошаговая инструкция →</a></li>
 <li data-i18n="t88">Войди через Microsoft и нажми <b>«Играть»</b>.</li>
 </ol>
 </div>
@@ -411,7 +488,7 @@
 <details><summary data-i18n="t90">Это бесплатно?</summary><p data-i18n="t91">Да. Клиент бесплатный и с открытым исходным кодом. Для игры нужна лицензионная Minecraft Java Edition на аккаунте Microsoft.</p></details>
 <details><summary data-i18n="t92">Какие версии Minecraft поддерживаются?</summary><p data-i18n="t93">Все релизы от 1.20 до самой новой, для которых есть Fabric, Sodium и FerriteCore. По умолчанию выбирается последняя, сменить версию можно на главном экране.</p></details>
 <details><summary data-i18n="t94">Можно ли добавить свои моды?</summary><p data-i18n="t95">Да. Во вкладке «Моды» ищи в Modrinth или CurseForge и ставь в один клик. Можно и просто положить .jar в папку модов: кнопка «Папка модов» её откроет.</p></details>
-<details><summary data-i18n="t96">Почему Windows/macOS предупреждает при установке?</summary><p data-i18n="t97">Сборки пока без платной цифровой подписи. Код открыт на GitHub, а установщики собираются автоматически через GitHub Actions прямо из исходников.</p></details>
+<details><summary data-i18n="t96">Почему Windows/macOS предупреждает при установке?</summary><p data-i18n="t97">Сборки пока без платной цифровой подписи Apple и Microsoft. На Mac это выглядит как «приложение повреждено» — одна команда в Терминале это исправляет (см. инструкцию при скачивании). Код открыт на GitHub, а установщики собираются автоматически через GitHub Actions прямо из исходников.</p></details>
 <details><summary data-i18n="t98">Сколько RAM выделить?</summary><p data-i18n="t99">Клиент подскажет: обычно 4 ГБ, на ПК с 16 ГБ и больше — 6 ГБ. Больше не значит быстрее: слишком много памяти даёт длинные паузы сборщика мусора.</p></details>
 </section>
 <div class="cta">
@@ -426,6 +503,39 @@
 <span>© 2026 Stray Client · официальный клиент StraySMP · <a href="https://github.com/MuMaFi/StrayClient">GitHub</a></span>
 <span>Не является официальным продуктом Minecraft. Не связано с Mojang или Microsoft.</span>
 </footer>
+</div>
+<!-- Install chooser + step-by-step tutorial -->
+<div class="im" id="im" hidden aria-modal="true" role="dialog" aria-labelledby="im-title">
+<div class="im-card">
+<button class="im-x" id="im-close" aria-label="Close">✕</button>
+
+<!-- step 0: choose -->
+<div class="im-choose" id="im-choose">
+<div class="im-os-ico" id="im-os-ico"></div>
+<h3 id="im-title" data-i18n="im.title">Установка Stray Client</h3>
+<p class="muted" id="im-file"></p>
+<div class="im-options">
+<button class="im-opt im-opt-main" id="im-tutorial">
+<b data-i18n="im.withTut">С инструкцией</b>
+<span data-i18n="im.withTutSub">Пошагово: скачать, установить и открыть. Рекомендуем при первой установке.</span>
+</button>
+<button class="im-opt" id="im-now">
+<b data-i18n="im.now">Установить сейчас</b>
+<span data-i18n="im.nowSub">Только скачать файл — если ты уже знаешь, что делать.</span>
+</button>
+</div>
+</div>
+
+<!-- tutorial -->
+<div class="im-tut" id="im-tut" hidden>
+<div class="im-progress" id="im-progress"></div>
+<div class="im-steps" id="im-steps"></div>
+<div class="im-nav">
+<button class="btn btn-panel" id="im-back" data-i18n="im.back">Назад</button>
+<button class="btn im-next" id="im-next" data-i18n="im.next">Дальше</button>
+</div>
+</div>
+</div>
 </div>
 <script>
     // All page texts in both languages (data-i18n keys).
@@ -488,12 +598,12 @@
   "t77": "Windows 10 / 11 · 64 бит",
   "t78": "Скачать для Windows (.exe)",
   "t79": "Запусти скачанный <b>setup.exe</b>.",
-  "t80": "Если появится SmartScreen: <b>Подробнее → Выполнить в любом случае</b> (приложение пока без цифровой подписи).",
+  "t80": "Если появится SmartScreen: <b>Подробнее → Выполнить в любом случае</b>. <a href=\"#\" data-open-tutorial=\"win\">Инструкция →</a>",
   "t81": "Войди через Microsoft и нажми <b>«Играть»</b>.",
   "t84": "macOS 11+ · Apple Silicon и Intel",
   "t85": "Скачать для Apple Silicon (M1–M4)",
   "t86": "Открой <b>.dmg</b> и перетащи Stray Client в «Программы».",
-  "t87": "При первом запуске: <b>правый клик → Открыть</b> (приложение пока не нотаризовано). Или в Терминале: <code>xattr -cr \"/Applications/Stray Client.app\"</code>",
+  "t87": "Если macOS пишет <b>«повреждено»</b> — нажми <b>«Отменить»</b> (не Корзину) и введи одну команду в Терминале. <a href=\"#\" data-open-tutorial=\"mac\">Пошаговая инструкция →</a>",
   "t88": "Войди через Microsoft и нажми <b>«Играть»</b>.",
   "t89": "Частые вопросы",
   "t90": "Это бесплатно?",
@@ -503,7 +613,7 @@
   "t94": "Можно ли добавить свои моды?",
   "t95": "Да. Во вкладке «Моды» ищи в Modrinth или CurseForge и ставь в один клик. Можно и просто положить .jar в папку модов: кнопка «Папка модов» её откроет.",
   "t96": "Почему Windows/macOS предупреждает при установке?",
-  "t97": "Сборки пока без платной цифровой подписи. Код открыт на GitHub, а установщики собираются автоматически через GitHub Actions прямо из исходников.",
+  "t97": "Сборки пока без платной цифровой подписи Apple и Microsoft. На Mac это выглядит как «приложение повреждено» — одна команда в Терминале это исправляет (см. инструкцию при скачивании). Код открыт на GitHub, а установщики собираются автоматически через GitHub Actions прямо из исходников.",
   "t98": "Сколько RAM выделить?",
   "t99": "Клиент подскажет: обычно 4 ГБ, на ПК с 16 ГБ и больше — 6 ГБ. Больше не значит быстрее: слишком много памяти даёт длинные паузы сборщика мусора.",
   "t100": "Готов к игре?",
@@ -574,7 +684,14 @@
   "g.skins.cap": "<b>Скины</b> — загрузи PNG или скопируй скин игрока и примени его к аккаунту: его увидят все.",
   "g.skins.label": "Скины",
   "g.capes.cap": "<b>Плащи</b> — свой плащ из PNG с превью, на тебе в игре и на элитрах.",
-  "g.capes.label": "Плащи"
+  "g.capes.label": "Плащи",
+  "im.title": "Установка Stray Client",
+  "im.withTut": "С инструкцией",
+  "im.withTutSub": "Пошагово: скачать, установить и открыть. Рекомендуем при первой установке.",
+  "im.now": "Установить сейчас",
+  "im.nowSub": "Только скачать файл — если ты уже знаешь, что делать.",
+  "im.back": "Назад",
+  "im.next": "Дальше"
  },
  "en": {
   "t1": "Stray Client — fast Minecraft client",
@@ -634,12 +751,12 @@
   "t77": "Windows 10 / 11 · 64-bit",
   "t78": "Download for Windows (.exe)",
   "t79": "Run the downloaded <b>setup.exe</b>.",
-  "t80": "If SmartScreen appears: <b>More info → Run anyway</b> (the app isn't code-signed yet).",
+  "t80": "If SmartScreen appears: <b>More info → Run anyway</b>. <a href=\"#\" data-open-tutorial=\"win\">Guide →</a>",
   "t81": "Sign in with Microsoft and hit <b>Play</b>.",
   "t84": "macOS 11+ · Apple Silicon and Intel",
   "t85": "Download for Apple Silicon (M1–M4)",
   "t86": "Open the <b>.dmg</b> and drag Stray Client into Applications.",
-  "t87": "On first launch: <b>right-click → Open</b> (the app isn't notarized yet). Or in Terminal: <code>xattr -cr \"/Applications/Stray Client.app\"</code>",
+  "t87": "If macOS says <b>“damaged”</b>, click <b>Cancel</b> (not Trash) and run one command in Terminal. <a href=\"#\" data-open-tutorial=\"mac\">Step-by-step guide →</a>",
   "t88": "Sign in with Microsoft and hit <b>Play</b>.",
   "t89": "Questions",
   "t90": "Is it free?",
@@ -649,7 +766,7 @@
   "t94": "Can I add my own mods?",
   "t95": "Yes. Search Modrinth or CurseForge in the Mods tab and install with one click. You can also drop a .jar into the mods folder; the \"Mods folder\" button opens it.",
   "t96": "Why does Windows/macOS show a warning?",
-  "t97": "The builds don't have a paid code signature yet. The code is open on GitHub, and the installers are built automatically from source by GitHub Actions.",
+  "t97": "The builds don't have a paid Apple or Microsoft code signature yet. On a Mac this shows up as “the app is damaged”; one Terminal command fixes it (see the guide when you download). The code is open on GitHub, and the installers are built automatically from source by GitHub Actions.",
   "t98": "How much RAM should I give it?",
   "t99": "The client suggests a value: usually 4 GB, or 6 GB on PCs with 16 GB or more. More isn't faster: too much memory causes long garbage-collection pauses.",
   "t100": "Ready to play?",
@@ -720,7 +837,14 @@
   "g.skins.cap": "<b>Skins</b> — upload a PNG or copy a player's skin and apply it to your account, so everyone sees it.",
   "g.skins.label": "Skins",
   "g.capes.cap": "<b>Capes</b> — your own cape from a PNG with a live preview, on you in game and on elytra.",
-  "g.capes.label": "Capes"
+  "g.capes.label": "Capes",
+  "im.title": "Install Stray Client",
+  "im.withTut": "With a guide",
+  "im.withTutSub": "Step by step: download, install and open. Recommended for your first install.",
+  "im.now": "Install now",
+  "im.nowSub": "Just download the file, if you already know what to do.",
+  "im.back": "Back",
+  "im.next": "Next"
  }
 };
     // Strings used by the script itself.
@@ -780,6 +904,7 @@
         history.replaceState(null, "", url);
         applyDownloads();
         showSlide(gi, false);
+        if (window.__imRerender) window.__imRerender();
         $("#demo-full").href = `ui/index.html?lang=${l}`;
         const poster = $("#demo-start");
         if (poster) poster.style.backgroundImage = `url(${l === "en" ? "docs/en/home.png" : "docs/home.png"})`;
@@ -857,6 +982,152 @@
         sx = null;
       });
 
+
+      // ───────── install chooser + tutorial ─────────
+      const CMD = 'xattr -cr "/Applications/Stray Client.app"';
+      const IM = {
+        ru: {
+          mac: [
+            { t: "Скачивание началось", p: "Файл <b>{file}</b> загружается в папку «Загрузки». Если загрузка не началась — <a href=\"{url}\">нажми сюда</a>.", art: "download" },
+            { t: "Перетащи в «Программы»", p: "Открой скачанный <b>.dmg</b> и перетащи значок <b>Stray Client</b> в папку <b>Программы</b> (Applications).", art: "drag" },
+            { t: "«Повреждено» — это не так", p: "При первом запуске macOS может написать: <i>«Приложение Stray Client повреждено, и его не удаётся открыть»</i>. Нажми <b>«Отменить»</b> — <b>не</b> перемещай в Корзину. Приложение в порядке: macOS так блокирует программы, которые ещё не заверены Apple.", art: "damaged" },
+            { t: "Открой Терминал", p: "Нажми <kbd>⌘</kbd> + <kbd>Пробел</kbd>, введи <b>Терминал</b> (или Terminal) и нажми <kbd>Enter</kbd>.", art: "spotlight" },
+            { t: "Вставь команду", p: "Скопируй команду, вставь её в Терминал (<kbd>⌘</kbd> + <kbd>V</kbd>) и нажми <kbd>Enter</kbd>. Если ничего не появилось — всё получилось. Команда снимает с приложения отметку «скачано из интернета».", art: "terminal", cmd: true },
+            { t: "Готово — запускай!", p: "Открой <b>Stray Client</b> из «Программ» или Launchpad, войди через Microsoft и нажми <b>«Играть»</b>. Команду нужно ввести только один раз (и снова после установки новой версии).", art: "done" },
+          ],
+          win: [
+            { t: "Скачивание началось", p: "Файл <b>{file}</b> загружается. Если загрузка не началась — <a href=\"{url}\">нажми сюда</a>.", art: "download" },
+            { t: "Запусти установщик", p: "Открой скачанный <b>setup.exe</b>.", art: "setup" },
+            { t: "Если появится SmartScreen", p: "Windows может показать <i>«Система Windows защитила ваш компьютер»</i>. Нажми <b>«Подробнее»</b>, затем <b>«Выполнить в любом случае»</b>. Приложение пока без платной цифровой подписи.", art: "smartscreen" },
+            { t: "Готово — запускай!", p: "Stray Client появится в меню «Пуск». Войди через Microsoft и нажми <b>«Играть»</b>.", art: "done" },
+          ],
+          copy: "Копировать", copied: "Скопировано!", done: "Готово", next: "Дальше", step: "Шаг {n} из {m}",
+          file: "Файл: {file}",
+        },
+        en: {
+          mac: [
+            { t: "Your download has started", p: "<b>{file}</b> is downloading to your Downloads folder. If it didn't start, <a href=\"{url}\">click here</a>.", art: "download" },
+            { t: "Drag it into Applications", p: "Open the downloaded <b>.dmg</b> and drag the <b>Stray Client</b> icon into the <b>Applications</b> folder.", art: "drag" },
+            { t: "“Damaged” — it isn't", p: "On first launch macOS may say: <i>“Stray Client is damaged and can't be opened”</i>. Click <b>Cancel</b>, do <b>not</b> move it to the Trash. The app is fine: this is how macOS blocks apps that Apple hasn't notarized yet.", art: "damaged" },
+            { t: "Open Terminal", p: "Press <kbd>⌘</kbd> + <kbd>Space</kbd>, type <b>Terminal</b> and press <kbd>Enter</kbd>.", art: "spotlight" },
+            { t: "Paste the command", p: "Copy the command, paste it into Terminal (<kbd>⌘</kbd> + <kbd>V</kbd>) and press <kbd>Enter</kbd>. If nothing is printed, it worked. The command removes the “downloaded from the internet” flag from the app.", art: "terminal", cmd: true },
+            { t: "Done — let's play!", p: "Open <b>Stray Client</b> from Applications or Launchpad, sign in with Microsoft and hit <b>Play</b>. You only need the command once (and again after installing a new version).", art: "done" },
+          ],
+          win: [
+            { t: "Your download has started", p: "<b>{file}</b> is downloading. If it didn't start, <a href=\"{url}\">click here</a>.", art: "download" },
+            { t: "Run the installer", p: "Open the downloaded <b>setup.exe</b>.", art: "setup" },
+            { t: "If SmartScreen appears", p: "Windows may show <i>“Windows protected your PC”</i>. Click <b>More info</b>, then <b>Run anyway</b>. The app doesn't have a paid code signature yet.", art: "smartscreen" },
+            { t: "Done — let's play!", p: "Stray Client is now in your Start menu. Sign in with Microsoft and hit <b>Play</b>.", art: "done" },
+          ],
+          copy: "Copy", copied: "Copied!", done: "Done", next: "Next", step: "Step {n} of {m}",
+          file: "File: {file}",
+        },
+      };
+      const ART = {
+        download: '<div class="art art-dl"><div class="art-file"><b>.{ext}</b></div><div class="art-bar"><i></i></div></div>',
+        drag: '<div class="art art-drag"><div class="art-app"><img src="ui/assets/logo.svg" alt=""/><small>Stray Client</small></div><div class="art-arrow">→</div><div class="art-folder"><span></span><small>Applications</small></div></div>',
+        damaged: '<div class="art art-dialog"><div class="art-warn">!</div><p>{damaged}</p><div class="art-btns"><span class="bad">{trash}</span><span class="good">{cancel}</span></div></div>',
+        spotlight: '<div class="art art-spot"><span class="art-mag">⌕</span><span class="art-typed">Terminal</span><span class="art-caret"></span></div>',
+        terminal: '<div class="art art-term"><div class="art-term-bar"><i></i><i></i><i></i></div><code><span class="p">~ %</span> {cmd}<span class="art-caret"></span></code></div>',
+        setup: '<div class="art art-setup"><div class="art-app"><img src="ui/assets/logo.svg" alt=""/><small>setup.exe</small></div></div>',
+        smartscreen: '<div class="art art-dialog art-ss"><p>{ss}</p><div class="art-btns"><span class="good">{more}</span><span class="good">{run}</span></div></div>',
+        done: '<div class="art art-done"><img src="ui/assets/logo.svg" alt=""/><span>✓</span></div>',
+      };
+      const ART_T = {
+        ru: { damaged: "Приложение «Stray Client» повреждено, и его не удаётся открыть.", trash: "Переместить в Корзину", cancel: "Отменить", ss: "Система Windows защитила ваш компьютер", more: "Подробнее", run: "Выполнить в любом случае" },
+        en: { damaged: "“Stray Client” is damaged and can't be opened.", trash: "Move to Trash", cancel: "Cancel", ss: "Windows protected your PC", more: "More info", run: "Run anyway" },
+      };
+      const im = $("#im");
+      let imState = { os: "mac", url: "", file: "", step: 0 };
+      const fill = (str, vars) => str.replace(/\{(\w+)\}/g, (_, k) => (vars[k] ?? `{${k}}`));
+      const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+      function startDownload(url) {
+        const a = document.createElement("a");
+        a.href = url;
+        a.rel = "noopener";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+      }
+      function renderTutorial() {
+        const T = IM[lang], steps = T[imState.os], s = imState.step, st = steps[s];
+        const vars = { file: esc(imState.file), url: esc(imState.url), cmd: esc(CMD), ext: imState.os === "mac" ? "dmg" : "exe", ...ART_T[lang] };
+        $("#im-progress").innerHTML = `<span>${fill(T.step, { n: s + 1, m: steps.length })}</span><div>${steps.map((_, i) => `<i class="${i <= s ? "on" : ""}"></i>`).join("")}</div>`;
+        $("#im-steps").innerHTML =
+          fill(ART[st.art], vars) +
+          `<h3>${st.t}</h3><p>${fill(st.p, vars)}</p>` +
+          (st.cmd ? `<div class="im-cmd"><code>${esc(CMD)}</code><button class="btn im-copy" id="im-copy">${T.copy}</button></div>` : "");
+        $("#im-back").style.visibility = s === 0 ? "hidden" : "visible";
+        $("#im-next").textContent = s === steps.length - 1 ? T.done : T.next;
+        const copy = $("#im-copy");
+        if (copy)
+          copy.addEventListener("click", async () => {
+            try { await navigator.clipboard.writeText(CMD); } catch {}
+            copy.textContent = T.copied;
+            copy.classList.add("ok");
+            setTimeout(() => { copy.textContent = T.copy; copy.classList.remove("ok"); }, 1600);
+          });
+      }
+      function openInstaller(os, url) {
+        imState = { os, url, file: decodeURIComponent(url.split("/").pop() || ""), step: 0 };
+        $("#im-choose").hidden = false;
+        $("#im-tut").hidden = true;
+        $("#im-os-ico").innerHTML = (os === "mac" ? $("#os-mac .os-logo") : $("#os-win .os-logo")).innerHTML;
+        $("#im-file").textContent = fill(IM[lang].file, { file: imState.file });
+        im.hidden = false;
+        document.body.style.overflow = "hidden";
+        $("#im-tutorial").focus();
+      }
+      function closeInstaller() {
+        im.hidden = true;
+        document.body.style.overflow = "";
+      }
+      $("#im-now").addEventListener("click", () => { startDownload(imState.url); closeInstaller(); });
+      $("#im-tutorial").addEventListener("click", () => {
+        startDownload(imState.url);
+        $("#im-choose").hidden = true;
+        $("#im-tut").hidden = false;
+        renderTutorial();
+      });
+      $("#im-next").addEventListener("click", () => {
+        if (imState.step >= IM[lang][imState.os].length - 1) return closeInstaller();
+        imState.step++;
+        renderTutorial();
+      });
+      $("#im-back").addEventListener("click", () => { imState.step = Math.max(0, imState.step - 1); renderTutorial(); });
+      $("#im-close").addEventListener("click", closeInstaller);
+      im.addEventListener("click", (e) => { if (e.target === im) closeInstaller(); });
+      document.addEventListener("keydown", (e) => {
+        if (im.hidden) return;
+        if (e.key === "Escape") closeInstaller();
+        if (!$("#im-tut").hidden && e.key === "ArrowRight") $("#im-next").click();
+        if (!$("#im-tut").hidden && e.key === "ArrowLeft" && imState.step > 0) $("#im-back").click();
+      });
+      // Every real installer link opens the chooser instead of downloading straight away.
+      document.addEventListener("click", (e) => {
+        const a = e.target.closest("#dl-main, #dl-win, #dl-mac, #dl-mac-intel");
+        if (!a) return;
+        const href = a.getAttribute("href") || "";
+        const os = /\.dmg$/i.test(href) ? "mac" : /\.(exe|msi)$/i.test(href) ? "win" : null;
+        if (!os) return; // release not resolved yet → normal link to GitHub / #download
+        e.preventDefault();
+        openInstaller(os, href);
+      });
+      // "Step-by-step guide" links in the download cards (delegated: they survive language switches).
+      document.addEventListener("click", (e) => {
+        const b = e.target.closest("[data-open-tutorial]");
+        if (!b) return;
+        e.preventDefault();
+        const os = b.dataset.openTutorial;
+        const href = $(os === "win" ? "#dl-win" : "#dl-mac").getAttribute("href") || "";
+        imState = { os, url: href, file: decodeURIComponent(href.split("/").pop() || ""), step: 1 };
+        $("#im-choose").hidden = true;
+        $("#im-tut").hidden = false;
+        im.hidden = false;
+        document.body.style.overflow = "hidden";
+        renderTutorial();
+      });
+      window.__imRerender = () => { if (!im.hidden && !$("#im-tut").hidden) renderTutorial(); else if (!im.hidden) $("#im-file").textContent = fill(IM[lang].file, { file: imState.file }); };
 
       if (lang !== "ru") applyLang(lang); else applyDownloads();
     })();
