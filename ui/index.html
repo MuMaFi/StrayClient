@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Stray Launcher</title>
+  <title>Stray Client</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -13,7 +13,7 @@
   <header class="top" data-tauri-drag-region>
     <a class="brand" data-page="home">
       <img src="assets/logo.svg" alt="" width="40" height="40" />
-      <span>STRAYSMP</span>
+      <span>STRAY CLIENT</span>
     </a>
     <nav class="nav">
       <button class="nav-btn active" data-page="home">
@@ -72,18 +72,18 @@
           <div class="stage" id="stage"></div>
         </div>
         <div class="notch notch-ip">
-          <button class="ip" id="copy-ip">
-            <span>play.straysmp.cc</span>
-            <svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="3"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>
+          <button class="ip" id="mods-chip" data-page="mods">
+            <svg viewBox="0 0 24 24"><path d="M12 2 3 7v10l9 5 9-5V7zM12 12 3 7m9 5 9-5m-9 5v10"/></svg>
+            <span id="mods-chip-label"></span>
           </button>
         </div>
         <div class="notch notch-online">
           <div class="online-card">
             <div class="online-row">
-              <span><span data-i18n="online"></span> — <b id="online-count">…</b><span class="muted" id="online-max"></span></span>
-              <span class="ping" id="ping"></span>
+              <span><span data-i18n="mem"></span> — <b id="mem-use">…</b><span class="muted" id="mem-total"></span></span>
+              <span class="ping up" id="gc-label"></span>
             </div>
-            <div class="bar"><i id="online-bar"></i></div>
+            <div class="bar"><i id="mem-bar"></i></div>
           </div>
         </div>
       </div>
@@ -114,7 +114,7 @@
           <p class="muted" data-i18n="zii.sub"></p>
           <div class="zii-actions">
             <button class="btn btn-soft" data-url="https://www.tiktok.com/@strayzii"><span>@StrayZii</span></button>
-            <button class="btn btn-ghost" data-url="https://shop.straysmp.cc">shop.straysmp.cc</button>
+            <button class="btn btn-ghost" data-url="https://github.com/MuMaFi/StrayClient">GitHub</button>
           </div>
         </div>
       </div>

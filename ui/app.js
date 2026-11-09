@@ -39,6 +39,7 @@
     renderVersionSelects();
     renderAccount();
     updateMemHint();
+    renderStatus();
     if (!S.busy && !S.running) $("#play-label").textContent = t("play");
   }
 
@@ -94,23 +95,23 @@
   const syncPause = () => document.body.classList.toggle("paused", document.hidden || S.running);
   document.addEventListener("visibilitychange", syncPause);
 
-  // ───────── server status ─────────
-  async function refreshStatus() {
-    if (document.hidden || S.running) return;
-    const s = await api.call("server_status").catch(() => null);
-    const up = s && s.online;
-    $("#online-count").textContent = up ? `${s.players} ${t("players")}` : t("offline");
-    $("#online-max").textContent = up && s.max ? ` / ${s.max}` : "";
-    $("#online-count").title = up ? s.version : "";
-    $("#online-bar").style.width = up && s.max ? Math.max(2, Math.min(100, (s.players / s.max) * 100)) + "%" : "0";
-    const ping = $("#ping");
-    ping.classList.toggle("up", !!up);
-    ping.textContent = up ? `${s.ping_ms} ms` : "";
+  // ───────── client status (hero cards) ─────────
+  function renderStatus() {
+    if (!S.init) return;
+    const gb = (mb) => (mb / 1024).toFixed(mb % 1024 ? 1 : 0) + " GB";
+    const total = S.init.totalMemoryMb || 0;
+    $("#mem-use").textContent = gb(S.settings.memoryMb);
+    $("#mem-total").textContent = total ? ` / ${gb(total)}` : "";
+    $("#mem-bar").style.width = total ? Math.max(2, Math.min(100, (S.settings.memoryMb / total) * 100)) + "%" : "0";
+    $("#gc-label").textContent = S.settings.gc === "lowlatency" ? "ZGC" : "G1";
+    const n = S.installed.length || 2;
+    let word;
+    if (S.settings.language === "ru") {
+      const m10 = n % 10, m100 = n % 100;
+      word = m10 === 1 && m100 !== 11 ? "мод" : m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14) ? "мода" : "модов";
+    } else word = n === 1 ? "mod" : "mods";
+    $("#mods-chip-label").textContent = t("modsCount", n, word);
   }
-  $("#copy-ip").addEventListener("click", async () => {
-    try { await navigator.clipboard.writeText("play.straysmp.cc"); } catch {}
-    toast(t("copy"));
-  });
 
   // ───────── versions ─────────
   const currentGame = () => S.settings.gameVersion || S.versions[0] || "";
@@ -213,7 +214,6 @@
       S.running = false;
       setPlay("idle", t("play"));
       if (g.code && g.code !== 0) toast(t("game.crashed", g.code), true);
-      refreshStatus();
     }
     syncPause();
   });
@@ -234,6 +234,7 @@
 
   // ───────── performance extras on home ─────────
   function renderPerf() {
+    renderStatus();
     const have = new Set(S.installed.map((m) => m.slug));
     $("#perf-extras").innerHTML = PERF.map(
       (p) => `<button class="extra ${have.has(p.slug) ? "on" : ""} ${S.installing.has(p.slug) ? "busy" : ""}" data-slug="${p.slug}">${p.title}</button>`
@@ -426,6 +427,7 @@
     mem.addEventListener("input", () => {
       s.memoryMb = +mem.value;
       updateMemHint();
+      renderStatus();
       saveSoon();
     });
     const checks = { "#set-autojoin": "autoJoin", "#set-close": "closeOnLaunch", "#set-motion": "reduceMotion" };
@@ -464,6 +466,7 @@
         s[key] = b.dataset.v;
         sync();
         after?.();
+        renderStatus();
         saveSoon();
       });
     };
@@ -490,8 +493,6 @@
     bindSettings();
     applyI18n();
     makeLeaves();
-    refreshStatus();
-    setInterval(refreshStatus, 30000);
     S.versions = await api.call("game_versions").catch(() => []);
     renderVersionSelects();
     S.installed = await api.call("mods_list", { game: currentGame() }).catch(() => []);

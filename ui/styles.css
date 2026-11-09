@@ -234,6 +234,7 @@ main { position: relative; z-index: 2; height: calc(100% - 93px); overflow-y: au
 .icon-btn svg { width: 17px; height: 17px; }
 .empty { grid-column: 1/-1; padding: 50px 0; text-align: center; color: var(--muted); }
 .more { display: flex; margin: 16px auto 0; }
+.more[hidden], .notice[hidden] { display: none; }
 .skeleton { height: 84px; border-radius: 18px; background: linear-gradient(90deg, var(--panel) 0%, var(--panel-2) 50%, var(--panel) 100%) 0 0 / 200% 100%; animation: sk 1.2s linear infinite; }
 @keyframes sk { to { background-position: -200% 0; } }
 

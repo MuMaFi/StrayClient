@@ -2,7 +2,7 @@
 
 <img src="ui/assets/logo.svg" width="72" alt="" />
 
-# Stray Launcher
+# Stray Client
 
 **Fast, native Minecraft launcher for [StraySMP](https://shop.straysmp.cc) · by the StrayZii community**
 
@@ -46,8 +46,8 @@ The goal is to beat Dawn for StraySMP players: get people into the game faster a
 
 Download page (RU): **https://mumafi.github.io/StrayClient/** · or grab the latest installer from **[Releases](../../releases)**:
 
-- **macOS:** `Stray.Launcher_x.y.z_universal.dmg`. The app isn't notarized yet, so on first launch right-click → *Open*, or run `xattr -cr "/Applications/Stray Launcher.app"`.
-- **Windows:** `Stray.Launcher_x.y.z_x64-setup.exe` (or `.msi`). SmartScreen may warn about an unknown publisher → *More info* → *Run anyway*.
+- **macOS:** `Stray.Client_x.y.z_universal.dmg`. The app isn't notarized yet, so on first launch right-click → *Open*, or run `xattr -cr "/Applications/Stray Client.app"`.
+- **Windows:** `Stray.Client_x.y.z_x64-setup.exe` (or `.msi`). SmartScreen may warn about an unknown publisher → *More info* → *Run anyway*.
 
 Every push to `main` also produces installers as workflow artifacts under **Actions → Build**.
 

@@ -1,6 +1,6 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Stray Launcher",
+  "productName": "Stray Client",
   "version": "0.1.0",
   "identifier": "cc.straysmp.launcher",
   "build": {
@@ -11,7 +11,7 @@
     "windows": [
       {
         "label": "main",
-        "title": "Stray Launcher",
+        "title": "Stray Client",
         "width": 1180,
         "height": 740,
         "minWidth": 980,
@@ -30,8 +30,8 @@
     "active": true,
     "targets": ["dmg", "app", "nsis", "msi"],
     "category": "Game",
-    "shortDescription": "Minecraft launcher for StraySMP",
-    "longDescription": "Fast, lightweight Minecraft launcher for StraySMP with Sodium and FerriteCore preinstalled and Modrinth + CurseForge mod support.",
+    "shortDescription": "Fast, lightweight Minecraft client",
+    "longDescription": "Fast, lightweight Minecraft client with Sodium and FerriteCore preinstalled and Modrinth + CurseForge mod support.",
     "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"],
     "macOS": { "minimumSystemVersion": "11.0" },
     "windows": {

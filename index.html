@@ -96,10 +96,23 @@
     .stat b { display: block; font-family: var(--display); font-size: 34px; font-weight: 700; color: var(--accent); }
     .stat span { font-size: 14px; color: var(--muted); }
 
-    .shots { display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px; }
-    .shots img { width: 100%; border-radius: 20px; display: block; box-shadow: 0 0 0 1px var(--ring-2), 0 30px 60px rgba(0,0,0,.35); }
-    .shots .col { display: grid; gap: 16px; }
 
+    .gallery { display: grid; gap: 14px; }
+    .viewer { position: relative; margin: 0; border-radius: 22px; overflow: hidden; background: var(--panel); box-shadow: 0 0 0 1px var(--ring-2), 0 30px 60px rgba(0,0,0,.35); }
+    .viewer img { width: 100%; height: auto; display: block; aspect-ratio: 1180 / 740; transition: opacity .2s; }
+    .viewer img.fade { opacity: .25; }
+    .viewer figcaption { padding: 16px 22px; font-size: 15px; color: var(--muted); border-top: 1px solid var(--ring); }
+    .viewer figcaption b { color: var(--text); }
+    .g-nav { position: absolute; top: calc(50% - 50px); width: 46px; height: 46px; border-radius: 50%; border: 0; display: grid; place-items: center; background: rgba(26,27,36,.75); backdrop-filter: blur(8px); color: #fff; cursor: pointer; box-shadow: 0 0 0 1px var(--ring-2); transition: background .15s; }
+    .g-nav:hover { background: var(--accent-2); }
+    .g-prev { left: 14px; } .g-next { right: 14px; }
+    .thumbs { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
+    .thumbs button { padding: 0; border: 0; background: var(--panel); border-radius: 14px; overflow: hidden; cursor: pointer; color: var(--muted); font: 700 12px var(--body); box-shadow: inset 0 0 0 1px var(--ring); transition: box-shadow .15s, color .15s, transform .15s; }
+    .thumbs button:hover { color: var(--text); transform: translateY(-2px); }
+    .thumbs button.on { color: var(--accent); box-shadow: inset 0 0 0 2px var(--accent); }
+    .thumbs img { width: 100%; aspect-ratio: 1180 / 740; object-fit: cover; display: block; }
+    .thumbs span { display: block; padding: 8px 6px 9px; }
+    @media (max-width: 900px) { .thumbs { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 140px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 6px; } .thumbs button { scroll-snap-align: start; } .g-nav { display: none; } }
     table { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--panel); border-radius: 22px; overflow: hidden; box-shadow: inset 0 0 0 1px var(--ring); }
     th, td { padding: 16px 22px; text-align: left; border-bottom: 1px solid var(--ring); font-size: 15px; }
     th { font-family: var(--display); font-size: 13px; font-weight: 600; color: var(--muted); background: rgba(255,255,255,.015); }
@@ -146,7 +159,7 @@
     @media (max-width: 900px) {
       nav { display: none; }
       .grid, .stats { grid-template-columns: 1fr 1fr; }
-      .shots, .os-cards { grid-template-columns: 1fr; }
+      .os-cards { grid-template-columns: 1fr; }
       .hero-inner { padding: 44px 28px 100px; }
     }
     @media (max-width: 560px) {
@@ -249,13 +262,23 @@
     <section>
       <div class="sec-head">
         <div><div class="eyebrow">Интерфейс</div><h2>Чистый и быстрый</h2></div>
-        <p class="muted">Тёмная тема, всё важное на одном экране. Русский и английский язык.</p>
+        <p class="muted">Тёмная тема, всё важное на одном экране. Русский и английский язык. Листай скриншоты →</p>
       </div>
-      <div class="shots">
-        <img src="docs/home.png" alt="Главный экран клиента" loading="lazy" />
-        <div class="col">
-          <img src="docs/mods.png" alt="Поиск модов" loading="lazy" />
-          <img src="docs/settings.png" alt="Настройки" loading="lazy" />
+      <div class="gallery">
+        <figure class="viewer">
+          <img id="g-main" src="docs/home.png" alt="Главный экран Stray Client" width="1180" height="740" />
+          <figcaption id="g-cap"><b>Главный экран</b> — выбор версии, кнопка «Играть» и встроенная оптимизация.</figcaption>
+          <button class="g-nav g-prev" aria-label="Назад"><svg viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"/></svg></button>
+          <button class="g-nav g-next" aria-label="Вперёд"><svg viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></svg></button>
+        </figure>
+        <div class="thumbs" id="g-thumbs">
+          <button class="on" data-src="docs/home.png" data-cap="<b>Главный экран</b> — выбор версии, кнопка «Играть» и встроенная оптимизация."><img src="docs/home.png" alt="" loading="lazy" /><span>Главная</span></button>
+          <button data-src="docs/progress.png" data-cap="<b>Запуск</b> — Java, библиотеки и ресурсы качаются параллельно, прогресс прямо на кнопке."><img src="docs/progress.png" alt="" loading="lazy" /><span>Запуск</span></button>
+          <button data-src="docs/mods.png" data-cap="<b>Поиск модов</b> — Modrinth и CurseForge, только совместимые версии, установка в один клик."><img src="docs/mods.png" alt="" loading="lazy" /><span>Моды</span></button>
+          <button data-src="docs/installed.png" data-cap="<b>Установленные моды</b> — включай, выключай и удаляй. Sodium и FerriteCore всегда на месте."><img src="docs/installed.png" alt="" loading="lazy" /><span>Установленные</span></button>
+          <button data-src="docs/settings.png" data-cap="<b>Настройки</b> — память, сборщик мусора, размер окна, своя Java и аргументы JVM."><img src="docs/settings.png" alt="" loading="lazy" /><span>Настройки</span></button>
+          <button data-src="docs/login.png" data-cap="<b>Вход через Microsoft</b> — по коду на сайте Microsoft, без ввода пароля в клиенте."><img src="docs/login.png" alt="" loading="lazy" /><span>Вход</span></button>
+          <button data-src="docs/home-en.png" data-cap="<b>English</b> — язык переключается одной кнопкой, без перезапуска."><img src="docs/home-en.png" alt="" loading="lazy" /><span>English</span></button>
         </div>
       </div>
     </section>
@@ -304,8 +327,8 @@
           </div>
           <a class="btn btn-dl" id="dl-mac" href="https://github.com/MuMaFi/StrayClient/releases/latest">Скачать для macOS (.dmg)</a>
           <ol>
-            <li>Открой <b>.dmg</b> и перетащи Stray Launcher в «Программы».</li>
-            <li>При первом запуске: <b>правый клик → Открыть</b> (приложение пока не нотаризовано). Или в Терминале: <code>xattr -cr "/Applications/Stray Launcher.app"</code></li>
+            <li>Открой <b>.dmg</b> и перетащи Stray Client в «Программы».</li>
+            <li>При первом запуске: <b>правый клик → Открыть</b> (приложение пока не нотаризовано). Или в Терминале: <code>xattr -cr "/Applications/Stray Client.app"</code></li>
             <li>Войди через Microsoft и нажми <b>«Играть»</b>.</li>
           </ol>
         </div>
@@ -374,6 +397,32 @@
         })
         .catch(() => {});
 
+
+      // Screenshot gallery
+      const thumbs = [...document.querySelectorAll("#g-thumbs button")];
+      let gi = 0;
+      const show = (i) => {
+        gi = (i + thumbs.length) % thumbs.length;
+        const b = thumbs[gi], img = $("#g-main");
+        thumbs.forEach((x) => x.classList.toggle("on", x === b));
+        img.classList.add("fade");
+        const pre = new Image();
+        pre.onload = () => { img.src = b.dataset.src; img.classList.remove("fade"); };
+        pre.src = b.dataset.src;
+        $("#g-cap").innerHTML = b.dataset.cap;
+        img.alt = b.querySelector("span").textContent;
+      };
+      thumbs.forEach((b, i) => b.addEventListener("click", () => show(i)));
+      document.querySelector(".g-prev").addEventListener("click", () => show(gi - 1));
+      document.querySelector(".g-next").addEventListener("click", () => show(gi + 1));
+      let sx = null;
+      $("#g-main").addEventListener("touchstart", (e) => (sx = e.touches[0].clientX), { passive: true });
+      $("#g-main").addEventListener("touchend", (e) => {
+        if (sx === null) return;
+        const dx = e.changedTouches[0].clientX - sx;
+        if (Math.abs(dx) > 40) show(gi + (dx < 0 ? 1 : -1));
+        sx = null;
+      });
 
       // Falling leaves, like on shop.straysmp.cc. Transform-only, so it's cheap.
       const box = $("#leaves");
