@@ -275,14 +275,22 @@ pub async fn apply(
         write_keystrokes_config(
             &instance.join("config").join("modern-keystrokes.properties"),
             settings,
+            settings.pvp_plus && pvp_plus_supported(game),
         )
         .await?;
     }
     Ok(())
 }
 
+/// Default Keystrokes position (GUI pixels, top-left anchored).
+const KS_Y_DEFAULT: &str = "10";
+/// Below the PvP Plus info HUD, which is fixed at the top left (≈ 70 px tall).
+const KS_Y_BELOW_PVP: &str = "80";
+
 /// Java properties file; keeps the HUD position/scale the player set in game (`/keystrokes`).
-async fn write_keystrokes_config(path: &Path, settings: &Settings) -> Result<()> {
+/// With PvP Plus active the HUD moves below the PvP Plus HUD (unless the player placed it
+/// themselves) and FPS/ping are left to PvP Plus, which already shows them.
+async fn write_keystrokes_config(path: &Path, settings: &Settings, pvp_plus: bool) -> Result<()> {
     let mut props: BTreeMap<String, String> = BTreeMap::new();
     if let Ok(text) = tokio::fs::read_to_string(path).await {
         for line in text.lines() {
@@ -296,7 +304,17 @@ async fn write_keystrokes_config(path: &Path, settings: &Settings) -> Result<()>
         }
     }
     props.entry("x".into()).or_insert_with(|| "25".into());
-    props.entry("y".into()).or_insert_with(|| "10".into());
+    let y = props
+        .entry("y".into())
+        .or_insert_with(|| KS_Y_DEFAULT.into());
+    if *y == KS_Y_DEFAULT || *y == KS_Y_BELOW_PVP {
+        *y = if pvp_plus {
+            KS_Y_BELOW_PVP
+        } else {
+            KS_Y_DEFAULT
+        }
+        .into();
+    }
     props.entry("scale".into()).or_insert_with(|| "1.0".into());
     let ks = &settings.keystrokes;
     for (k, v) in [
@@ -304,8 +322,8 @@ async fn write_keystrokes_config(path: &Path, settings: &Settings) -> Result<()>
         ("showKeys", ks.keys),
         ("showCPS", ks.mouse),
         ("showSpace", ks.space),
-        ("showFPS", ks.fps),
-        ("showPing", ks.ping),
+        ("showFPS", ks.fps && !pvp_plus),
+        ("showPing", ks.ping && !pvp_plus),
     ] {
         props.insert(k.into(), v.to_string());
     }
@@ -410,7 +428,7 @@ mod tests {
             mouse: false,
             ..Default::default()
         };
-        write_keystrokes_config(&ks, &s).await.unwrap();
+        write_keystrokes_config(&ks, &s, false).await.unwrap();
         let text = std::fs::read_to_string(&ks).unwrap();
         assert!(text.contains("x=300") && text.contains("scale=0.8"));
         assert!(
@@ -418,6 +436,24 @@ mod tests {
                 && text.contains("showCPS=false")
                 && text.contains("isEnabled=false")
         );
+        // a position the player chose survives PvP Plus
+        write_keystrokes_config(&ks, &s, true).await.unwrap();
+        assert!(std::fs::read_to_string(&ks).unwrap().contains("y=40"));
+
+        // default position moves below the PvP Plus HUD and back; FPS/ping go to PvP Plus
+        std::fs::write(&ks, "x=25\ny=10\n").unwrap();
+        s.keystrokes.fps = true;
+        s.keystrokes.ping = true;
+        write_keystrokes_config(&ks, &s, true).await.unwrap();
+        let text = std::fs::read_to_string(&ks).unwrap();
+        assert!(
+            text.contains("y=80")
+                && text.contains("showFPS=false")
+                && text.contains("showPing=false")
+        );
+        write_keystrokes_config(&ks, &s, false).await.unwrap();
+        let text = std::fs::read_to_string(&ks).unwrap();
+        assert!(text.contains("y=10") && text.contains("showFPS=true"));
         let _ = std::fs::remove_dir_all(root);
     }
 }
