@@ -4,7 +4,9 @@
 
 # Stray Client
 
-**Fast, native Minecraft launcher for [StraySMP](https://shop.straysmp.cc) · by the StrayZii community**
+**The official [StraySMP](https://shop.straysmp.cc) client · by StrayZii**
+
+A fast, native Minecraft client built in Rust
 
 macOS (Apple Silicon + Intel) · Windows · Русский / English
 
@@ -116,7 +118,7 @@ Data lives in `%APPDATA%\StrayLauncher` (Windows) or `~/Library/Application Supp
 
 ## Русский
 
-**Stray Launcher** — быстрый лаунчер Minecraft для сервера **StraySMP** (play.straysmp.cc) от сообщества StrayZii.
+**Stray Client** — официальный клиент сервера **StraySMP** (play.straysmp.cc) от StrayZii: быстрый и лёгкий клиент Minecraft.
 
 - Нативное приложение на Rust (~10 МБ), macOS и Windows.
 - **Sodium и FerriteCore** предустановлены и всегда включены. Lithium, ImmediatelyFast, EntityCulling и ModernFix ставятся в один клик.
@@ -129,4 +131,4 @@ Data lives in `%APPDATA%\StrayLauncher` (Windows) or `~/Library/Application Supp
 
 ---
 
-<sub>Not an official Minecraft product. Not approved by or associated with Mojang or Microsoft. StraySMP and StrayZii names are used for the community this launcher is made for.</sub>
+<sub>The official client of StraySMP, developed together with the StraySMP team. Not an official Minecraft product. Not approved by or associated with Mojang or Microsoft.</sub>
