@@ -2,6 +2,7 @@ name: Remove pre-1.0 test releases
 
 # One-off: v0.1.0–v0.3.0 were test builds. Runs once when this file is added
 # (or manually), deletes those releases and their tags, then can be removed.
+# Re-run after a still-running 0.3.0 build re-created its release.
 on:
   push:
     branches: [main]
