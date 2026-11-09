@@ -984,7 +984,8 @@
 
 
       // ───────── install chooser + tutorial ─────────
-      const CMD = 'xattr -cr "/Applications/Stray Client.app"';
+      // Removes the quarantine flag and re-signs locally (ad-hoc); covers unsigned arm64 builds too.
+      const CMD = 'xattr -cr "/Applications/Stray Client.app" && codesign --force --deep --sign - "/Applications/Stray Client.app"';
       const IM = {
         ru: {
           mac: [
@@ -992,7 +993,7 @@
             { t: "Перетащи в «Программы»", p: "Открой скачанный <b>.dmg</b> и перетащи значок <b>Stray Client</b> в папку <b>Программы</b> (Applications).", art: "drag" },
             { t: "«Повреждено» — это не так", p: "При первом запуске macOS может написать: <i>«Приложение Stray Client повреждено, и его не удаётся открыть»</i>. Нажми <b>«Отменить»</b> — <b>не</b> перемещай в Корзину. Приложение в порядке: macOS так блокирует программы, которые ещё не заверены Apple.", art: "damaged" },
             { t: "Открой Терминал", p: "Нажми <kbd>⌘</kbd> + <kbd>Пробел</kbd>, введи <b>Терминал</b> (или Terminal) и нажми <kbd>Enter</kbd>.", art: "spotlight" },
-            { t: "Вставь команду", p: "Скопируй команду, вставь её в Терминал (<kbd>⌘</kbd> + <kbd>V</kbd>) и нажми <kbd>Enter</kbd>. Если ничего не появилось — всё получилось. Команда снимает с приложения отметку «скачано из интернета».", art: "terminal", cmd: true },
+            { t: "Вставь команду", p: "Скопируй команду, вставь её в Терминал (<kbd>⌘</kbd> + <kbd>V</kbd>) и нажми <kbd>Enter</kbd>. Если ничего не появилось — всё получилось. Команда снимает отметку «скачано из интернета» и подписывает приложение на твоём Mac. Если написано <b>«Operation not permitted»</b>: Системные настройки → Конфиденциальность и безопасность → <b>Полный доступ к диску</b> → включи Терминал и повтори.", art: "terminal", cmd: true },
             { t: "Готово — запускай!", p: "Открой <b>Stray Client</b> из «Программ» или Launchpad, войди через Microsoft и нажми <b>«Играть»</b>. Команду нужно ввести только один раз (и снова после установки новой версии).", art: "done" },
           ],
           win: [
@@ -1010,7 +1011,7 @@
             { t: "Drag it into Applications", p: "Open the downloaded <b>.dmg</b> and drag the <b>Stray Client</b> icon into the <b>Applications</b> folder.", art: "drag" },
             { t: "“Damaged” — it isn't", p: "On first launch macOS may say: <i>“Stray Client is damaged and can't be opened”</i>. Click <b>Cancel</b>, do <b>not</b> move it to the Trash. The app is fine: this is how macOS blocks apps that Apple hasn't notarized yet.", art: "damaged" },
             { t: "Open Terminal", p: "Press <kbd>⌘</kbd> + <kbd>Space</kbd>, type <b>Terminal</b> and press <kbd>Enter</kbd>.", art: "spotlight" },
-            { t: "Paste the command", p: "Copy the command, paste it into Terminal (<kbd>⌘</kbd> + <kbd>V</kbd>) and press <kbd>Enter</kbd>. If nothing is printed, it worked. The command removes the “downloaded from the internet” flag from the app.", art: "terminal", cmd: true },
+            { t: "Paste the command", p: "Copy the command, paste it into Terminal (<kbd>⌘</kbd> + <kbd>V</kbd>) and press <kbd>Enter</kbd>. If nothing is printed, it worked. The command removes the “downloaded from the internet” flag and signs the app on your Mac. If it says <b>“Operation not permitted”</b>: System Settings → Privacy &amp; Security → <b>Full Disk Access</b> → turn on Terminal and try again.", art: "terminal", cmd: true },
             { t: "Done — let's play!", p: "Open <b>Stray Client</b> from Applications or Launchpad, sign in with Microsoft and hit <b>Play</b>. You only need the command once (and again after installing a new version).", art: "done" },
           ],
           win: [

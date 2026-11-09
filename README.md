@@ -54,9 +54,9 @@ The goal: a faster, lighter client than Lunar, Badlion and Dawn, with an open mo
 Download page (RU/EN switch at the top): **https://mumafi.github.io/StrayClient/** · or grab the latest installer from **[Releases](../../releases)**:
 
 - **macOS:** `Stray.Client_x.y.z_aarch64.dmg` for Apple Silicon (M1–M4), `Stray.Client_x.y.z_x64.dmg` for Intel Macs. Open the `.dmg` and drag Stray Client into Applications.
-  The app isn't notarized by Apple yet, so macOS may say **“Stray Client is damaged and can't be opened”**. It isn't damaged: click **Cancel** (not *Move to Trash*), open Terminal and run once:
+  The app isn't notarized by Apple yet, so macOS may say **“Stray Client is damaged and can't be opened”**. It isn't damaged: click **Cancel** (not *Move to Trash*), make sure the app is in Applications, open Terminal and run once (removes the download flag and signs the app locally):
   ```bash
-  xattr -cr "/Applications/Stray Client.app"
+  xattr -cr "/Applications/Stray Client.app" && codesign --force --deep --sign - "/Applications/Stray Client.app"
   ```
   The website shows this as a step-by-step guide when you download.
 - **Windows:** `Stray.Client_x.y.z_x64-setup.exe` (or `.msi`). SmartScreen may warn about an unknown publisher → *More info* → *Run anyway*.
