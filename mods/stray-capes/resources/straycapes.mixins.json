@@ -1,0 +1,8 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "cc.straysmp.capes.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": ["AbstractClientPlayerMixin"],
+  "injectors": { "defaultRequire": 1 }
+}

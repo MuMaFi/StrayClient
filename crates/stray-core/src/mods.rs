@@ -189,7 +189,7 @@ async fn modrinth_versions(project: &str, game: Option<&str>) -> Result<Vec<MrVe
 }
 
 /// Every game version a Modrinth project has a Fabric build for.
-async fn modrinth_game_versions(project: &str) -> Result<HashSet<String>> {
+pub async fn modrinth_game_versions(project: &str) -> Result<HashSet<String>> {
     let fabric: Vec<MrVersion> = modrinth_versions(project, None).await?;
     Ok(fabric.into_iter().flat_map(|v| v.game_versions).collect())
 }

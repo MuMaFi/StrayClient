@@ -279,6 +279,21 @@
 <h3 data-i18n="t30">Вход через Microsoft</h3>
 <p data-i18n="t31">Как в Lunar: страница входа Microsoft открывается <b>в отдельном окне</b> и закрывается сама. Пароль клиент не видит.</p>
 </div>
+<div class="card feat">
+<div class="ico"><svg viewbox="0 0 24 24"><path d="M7 3h10l2 18-7-3-7 3z"></path><path d="M9 3c0 2 1.3 3 3 3s3-1 3-3"></path></svg></div>
+<h3 data-i18n="f.cape.t">Свои плащи</h3>
+<p data-i18n="f.cape.p">Загрузи любой плащ в PNG — в игре он на тебе и на элитрах. Свой мод <b>Stray Capes</b> для Minecraft 26.x.</p>
+</div>
+<div class="card feat">
+<div class="ico"><svg viewbox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="3"></rect><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"></path></svg></div>
+<h3 data-i18n="f.ks.t">Keystrokes и CPS</h3>
+<p data-i18n="f.ks.p">Нажатия <b>WASD</b>, клики мыши с <b>CPS</b>, пробел, FPS и пинг — включаются одним переключателем во вкладке «Модули».</p>
+</div>
+<div class="card feat">
+<div class="ico"><svg viewbox="0 0 24 24"><rect x="5" y="5" width="14" height="14" rx="3"></rect><path d="M9 2v3M15 2v3M9 19v3M15 19v3M2 9h3M2 15h3M19 9h3M19 15h3"></path></svg></div>
+<h3 data-i18n="f.m1.t">Для Apple Silicon</h3>
+<p data-i18n="f.m1.p">Отдельная сборка для <b>M1–M4</b>: нативная Java без Rosetta, а сборщик мусора работает только на производительных ядрах.</p>
+</div>
 </div>
 </section>
 <section>
@@ -371,7 +386,8 @@
 <div class="os-logo"><svg viewbox="0 0 24 24"><path d="M16.4 12.6c0-2.6 2.1-3.8 2.2-3.9a4.8 4.8 0 0 0-3.8-2c-1.6-.2-3.1.9-3.9.9s-2-.9-3.4-.9a5 5 0 0 0-4.2 2.6c-1.8 3.1-.5 7.7 1.3 10.2.9 1.2 1.9 2.6 3.2 2.6s1.8-.8 3.3-.8 2 .8 3.4.8 2.2-1.3 3-2.5a10 10 0 0 0 1.4-2.8 4.3 4.3 0 0 1-2.5-4.2zM13.9 5c.7-.9 1.2-2 1-3.2-1 .1-2.2.7-2.9 1.6-.6.7-1.2 1.9-1 3 1.1.1 2.2-.6 2.9-1.4z"></path></svg></div>
 <div><h3>macOS</h3><span class="muted" data-i18n="t84">macOS 11+ · Apple Silicon и Intel</span></div>
 </div>
-<a class="btn btn-dl" data-i18n="t85" href="https://github.com/MuMaFi/StrayClient/releases/latest" id="dl-mac">Скачать для macOS (.dmg)</a>
+<a class="btn btn-dl" data-i18n="t85" href="https://github.com/MuMaFi/StrayClient/releases/latest" id="dl-mac">Скачать для Apple Silicon (M1–M4)</a>
+<span class="muted" style="font-size:13px"><span data-i18n="mac.intel">Mac с процессором Intel?</span> <a href="https://github.com/MuMaFi/StrayClient/releases/latest" id="dl-mac-intel" style="color:var(--accent);font-weight:700" data-i18n="mac.intelDl">Скачать для Intel</a></span>
 <ol>
 <li data-i18n="t86">Открой <b>.dmg</b> и перетащи Stray Client в «Программы».</li>
 <li data-i18n="t87">При первом запуске: <b>правый клик → Открыть</b> (приложение пока не нотаризовано). Или в Терминале: <code>xattr -cr "/Applications/Stray Client.app"</code></li>
@@ -467,7 +483,7 @@
   "t82": "Нужен .msi?",
   "t83": "Скачать MSI",
   "t84": "macOS 11+ · Apple Silicon и Intel",
-  "t85": "Скачать для macOS (.dmg)",
+  "t85": "Скачать для Apple Silicon (M1–M4)",
   "t86": "Открой <b>.dmg</b> и перетащи Stray Client в «Программы».",
   "t87": "При первом запуске: <b>правый клик → Открыть</b> (приложение пока не нотаризовано). Или в Терминале: <code>xattr -cr \"/Applications/Stray Client.app\"</code>",
   "t88": "Войди через Microsoft и нажми <b>«Играть»</b>.",
@@ -536,7 +552,15 @@
   "c.price.1": "Бесплатно, без рекламы",
   "c.price.2": "Бесплатно, косметика платная",
   "c.price.3": "Бесплатно, есть платная подписка",
-  "c.price.4": "Бесплатно, с рекламой, косметика платная"
+  "c.price.4": "Бесплатно, с рекламой, косметика платная",
+  "f.cape.t": "Свои плащи",
+  "f.cape.p": "Загрузи любой плащ в PNG — в игре он на тебе и на элитрах. Свой мод <b>Stray Capes</b> для Minecraft 26.x.",
+  "f.ks.t": "Keystrokes и CPS",
+  "f.ks.p": "Нажатия <b>WASD</b>, клики мыши с <b>CPS</b>, пробел, FPS и пинг — включаются одним переключателем во вкладке «Модули».",
+  "f.m1.t": "Для Apple Silicon",
+  "f.m1.p": "Отдельная сборка для <b>M1–M4</b>: нативная Java без Rosetta, а сборщик мусора работает только на производительных ядрах.",
+  "mac.intel": "Mac с процессором Intel?",
+  "mac.intelDl": "Скачать для Intel"
  },
  "en": {
   "t1": "Stray Client — fast Minecraft client",
@@ -601,7 +625,7 @@
   "t82": "Need an .msi?",
   "t83": "Download MSI",
   "t84": "macOS 11+ · Apple Silicon and Intel",
-  "t85": "Download for macOS (.dmg)",
+  "t85": "Download for Apple Silicon (M1–M4)",
   "t86": "Open the <b>.dmg</b> and drag Stray Client into Applications.",
   "t87": "On first launch: <b>right-click → Open</b> (the app isn't notarized yet). Or in Terminal: <code>xattr -cr \"/Applications/Stray Client.app\"</code>",
   "t88": "Sign in with Microsoft and hit <b>Play</b>.",
@@ -670,14 +694,22 @@
   "c.price.1": "Free, no ads",
   "c.price.2": "Free, paid cosmetics",
   "c.price.3": "Free, paid subscription available",
-  "c.price.4": "Free, ad-supported, paid cosmetics"
+  "c.price.4": "Free, ad-supported, paid cosmetics",
+  "f.cape.t": "Custom capes",
+  "f.cape.p": "Upload any cape as a PNG and wear it in game, elytra included. Our own <b>Stray Capes</b> mod for Minecraft 26.x.",
+  "f.ks.t": "Keystrokes and CPS",
+  "f.ks.p": "<b>WASD</b> presses, mouse clicks with <b>CPS</b>, space bar, FPS and ping, switched on with one toggle in the Modules tab.",
+  "f.m1.t": "Built for Apple Silicon",
+  "f.m1.p": "A separate build for <b>M1–M4</b>: native Java without Rosetta, and garbage collection runs only on the performance cores.",
+  "mac.intel": "Mac with an Intel chip?",
+  "mac.intelDl": "Download for Intel"
  }
 };
     // Strings used by the script itself.
     const JS_T = {
-      ru: { dlWin: "Скачать для Windows", dlMac: "Скачать для macOS", haveMac: 'Есть Mac? <a href="#download">Версия для macOS</a>', havePc: 'Есть ПК? <a href="#download">Версия для Windows</a>',
+      ru: { dlWin: "Скачать для Windows", dlMac: "Скачать для Apple Silicon (M1–M4)", dlMacIntel: "Скачать для Intel", haveMac: 'Есть Mac? <a href="#download">Версия для macOS</a>', havePc: 'Есть ПК? <a href="#download">Версия для Windows</a>',
             mb: "МБ", decimal: ",", locale: "ru-RU", relInfo: (v, d) => `Версия ${v} от ${d}.`, ver: (v) => `Версия ${v} · бесплатно · открытый исходный код`, macSoon: "macOS — скоро" },
-      en: { dlWin: "Download for Windows", dlMac: "Download for macOS", haveMac: 'Have a Mac? <a href="#download">macOS version</a>', havePc: 'Have a PC? <a href="#download">Windows version</a>',
+      en: { dlWin: "Download for Windows", dlMac: "Download for Apple Silicon (M1–M4)", dlMacIntel: "Download for Intel", haveMac: 'Have a Mac? <a href="#download">macOS version</a>', havePc: 'Have a PC? <a href="#download">Windows version</a>',
             mb: "MB", decimal: ".", locale: "en-US", relInfo: (v, d) => `Version ${v}, released ${d}.`, ver: (v) => `Version ${v} · free · open source`, macSoon: "macOS — coming soon" },
     };
 
@@ -689,6 +721,16 @@
       const mobile = /iPhone|iPad|iPod|Android/.test(ua) || (navigator.maxTouchPoints > 1 && /Mac/.test(ua));
       const os = mobile ? "other" : /Mac/.test(ua) ? "mac" : /Win/.test(ua) ? "win" : "other";
       let rel = null;
+      // Apple Silicon or Intel Mac? Browsers don't say directly; the GPU name does ("Apple M1", "Intel Iris").
+      const macIntel = os === "mac" && (() => {
+        try {
+          const gl = document.createElement("canvas").getContext("webgl");
+          const ext = gl && gl.getExtension("WEBGL_debug_renderer_info");
+          const r = ext ? String(gl.getParameter(ext.UNMASKED_RENDERER_WEBGL)) : "";
+          return /intel|amd|radeon/i.test(r) && !/apple/i.test(r);
+        } catch { return false; }
+      })();
+
       let gi = 0;
 
       // Language: ?lang= → saved choice → browser language (Russian-speaking → RU, otherwise EN).
@@ -732,17 +774,21 @@
         const T = JS_T[lang];
         if (os === "other") $("#dl-main").href = "#download";
         if (os === "win" || os === "mac") {
-          $("#dl-label").textContent = os === "win" ? T.dlWin : T.dlMac;
+          $("#dl-label").textContent = os === "win" ? T.dlWin : macIntel ? `${T.dlMacIntel} (macOS)` : T.dlMac;
           $("#os-" + os).classList.add("suggested");
           $("#dl-alt").innerHTML = os === "win" ? T.haveMac : T.havePc;
         }
         if (!rel) return;
         const find = (re) => rel.assets.find((a) => re.test(a.name));
-        const exe = find(/setup\.exe$/i), msi = find(/\.msi$/i), dmg = find(/\.dmg$/i);
+        const exe = find(/setup\.exe$/i), msi = find(/\.msi$/i);
+        const dmgArm = find(/aarch64\.dmg$/i) || find(/universal\.dmg$/i);
+        const dmgIntel = find(/x64\.dmg$/i) || find(/universal\.dmg$/i);
+        const dmg = macIntel ? dmgIntel : dmgArm;
         const mb = (a) => (a.size / 1048576).toFixed(1).replace(".", T.decimal) + " " + T.mb;
+        if (dmgIntel) { $("#dl-mac-intel").href = dmgIntel.browser_download_url; $("#dl-mac-intel").textContent = `${T.dlMacIntel} · ${mb(dmgIntel)}`; }
         if (exe) { $("#dl-win").href = exe.browser_download_url; $("#dl-win").textContent = `${T.dlWin} · ${mb(exe)}`; }
         if (msi) $("#dl-msi").href = msi.browser_download_url;
-        if (dmg) { $("#dl-mac").href = dmg.browser_download_url; $("#dl-mac").textContent = `${T.dlMac} · ${mb(dmg)}`; }
+        if (dmgArm) { $("#dl-mac").href = dmgArm.browser_download_url; $("#dl-mac").textContent = `${T.dlMac} · ${mb(dmgArm)}`; }
         else $("#dl-mac").textContent = T.macSoon;
         const pick = os === "win" ? exe : os === "mac" ? dmg : null;
         if (pick) { $("#dl-main").href = pick.browser_download_url; $("#dl-sub").textContent = `${rel.tag_name} · ${mb(pick)}`; }

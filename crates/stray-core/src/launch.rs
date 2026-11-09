@@ -69,12 +69,31 @@ pub async fn prepare(
         mojang::install_assets(paths, &version, progress),
         mods::ensure_core(paths, game, progress),
     )?;
+    // Capes + HUD modules. A failure here (e.g. keystrokes not built for this version yet)
+    // must not stop the game from starting.
+    let _ = crate::cosmetics::apply(paths, game, settings, progress).await;
     Ok(Prepared {
         game: game.to_string(),
         version,
         java,
         java_major: major,
     })
+}
+
+/// Number of performance cores on Apple Silicon (M1: 4, M1 Pro: 8, …), None elsewhere.
+pub fn apple_performance_cores() -> Option<u32> {
+    if !(cfg!(target_os = "macos") && cfg!(target_arch = "aarch64")) {
+        return None;
+    }
+    let out = std::process::Command::new("/usr/sbin/sysctl")
+        .args(["-n", "hw.perflevel0.physicalcpu"])
+        .output()
+        .ok()?;
+    String::from_utf8_lossy(&out.stdout)
+        .trim()
+        .parse()
+        .ok()
+        .filter(|n: &u32| *n > 0)
 }
 
 /// Performance JVM flags. G1 settings follow the well-known client tuning (short young-gen
@@ -113,6 +132,12 @@ pub fn jvm_flags(settings: &Settings, java_major: u32) -> Vec<String> {
             }
             f.extend(["-XX:+PerfDisableSharedMem", "-XX:+DisableExplicitGC"].map(String::from));
         }
+    }
+    // Apple Silicon: size the GC thread pools to the performance cores. By default the JVM
+    // counts all cores, and GC threads parked on efficiency cores make every pause longer.
+    if let Some(p) = apple_performance_cores() {
+        f.push(format!("-XX:ParallelGCThreads={p}"));
+        f.push(format!("-XX:ConcGCThreads={}", (p / 2).max(1)));
     }
     // JDK 25+: 8-byte object headers → ~10-20 % less heap for Minecraft's millions of small objects.
     if java_major >= 25 {

@@ -320,3 +320,76 @@ body.no-motion .leaves { display: none; }
 
 /* Browser demo marker */
 .demo-badge { font-style: normal; white-space: nowrap; margin-left: 2px; padding: 3px 8px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); font: 800 10px var(--body); letter-spacing: .1em; }
+
+/* ───────── page header (modules / capes) ───────── */
+.page-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; margin-bottom: 16px; }
+.page-head h2 { font-family: var(--display); font-size: 24px; font-weight: 600; margin: 0 0 4px; }
+.page-head p { font-size: 13px; max-width: 560px; }
+label.btn { cursor: pointer; }
+label.btn svg { width: 18px; height: 18px; }
+
+/* ───────── modules ───────── */
+.module-card { padding: 0; overflow: hidden; }
+.module-top { display: flex; align-items: center; gap: 16px; padding: 20px 22px; border-bottom: 1px solid var(--ring); }
+.module-ico { width: 46px; height: 46px; border-radius: 14px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); flex: none; }
+.module-text { flex: 1; }
+.module-text p { font-size: 13px; margin-top: 2px; }
+.toggle.big i { width: 48px; height: 28px; }
+.toggle.big i::after { width: 22px; height: 22px; }
+.toggle.big input:checked + i::after { transform: translateX(20px); }
+.module-body { display: grid; grid-template-columns: 1fr 320px; gap: 0; }
+.module-card.off .module-body { opacity: .45; pointer-events: none; filter: saturate(.5); }
+.ks-options { padding: 18px 22px; display: flex; flex-direction: column; gap: 4px; border-left: 1px solid var(--ring); }
+.ks-options .small { margin-top: 8px; }
+
+/* live keystrokes preview — press W A S D / space or click inside */
+.ks-preview { position: relative; padding: 28px; display: flex; flex-direction: column; align-items: center; gap: 6px; outline: none; cursor: pointer;
+  background: linear-gradient(180deg, rgba(26,27,36,.2), rgba(26,27,36,.85)), url(assets/hero.png) center 75% / cover; image-rendering: pixelated; }
+.ks-preview:focus-visible { box-shadow: inset 0 0 0 2px var(--accent); }
+.ks-row { display: flex; gap: 6px; }
+.ks-row b, .ks-row span { width: 56px; height: 56px; }
+.ks-row b { display: grid; place-items: center; border-radius: 10px; background: rgba(0,0,0,.45); color: #fff; font: 700 15px var(--display); image-rendering: auto; backdrop-filter: blur(4px); transition: background .06s, color .06s, transform .06s; }
+.ks-row b.down { background: rgba(255,255,255,.85); color: #111; transform: scale(.96); }
+.ks-mouse b { width: 87px; flex-direction: column; gap: 0; font-size: 13px; }
+.ks-mouse small { font: 600 10px var(--body); opacity: .8; }
+.ks-space b { width: 180px; height: 26px; }
+.ks-space i { width: 50px; height: 3px; border-radius: 2px; background: currentColor; }
+.ks-extra b { width: 87px; height: 30px; font-size: 11px; gap: 4px; display: flex; justify-content: center; align-items: center; }
+.ks-extra em { font-style: normal; color: var(--accent); }
+.ks-preview .hide { display: none !important; }
+.ks-try { position: absolute; bottom: 10px; font-size: 11px; image-rendering: auto; }
+
+/* ───────── capes ───────── */
+.cape-layout { display: grid; grid-template-columns: 320px 1fr; gap: 16px; align-items: start; }
+.cape-stage { display: flex; flex-direction: column; align-items: center; gap: 14px; transition: box-shadow .15s, background .15s; }
+.cape-stage.drag { box-shadow: inset 0 0 0 2px var(--accent); background: var(--accent-soft); }
+.cape-3d { display: flex; gap: 18px; padding: 18px 0 6px; perspective: 600px; }
+.cape-3d canvas { width: 90px; height: 144px; image-rendering: pixelated; border-radius: 3px; box-shadow: 0 18px 30px rgba(0,0,0,.45); background: var(--panel-2); }
+#cape-front { transform: rotateY(18deg); animation: sway 3.5s ease-in-out infinite alternate; transform-origin: top center; }
+#cape-back { transform: rotateY(-18deg); animation: sway 3.5s ease-in-out infinite alternate-reverse; transform-origin: top center; }
+@keyframes sway { from { rotate: x -4deg; } to { rotate: x 8deg; } }
+body.no-motion .cape-3d canvas { animation: none; }
+.cape-stage-label { display: flex; flex-direction: column; align-items: center; font-size: 13px; }
+.cape-stage-label b { font-family: var(--display); font-weight: 600; }
+.cape-stage .seg { width: 100%; }
+.drop-hint { text-align: center; }
+.cape-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 12px; }
+.cape-card { position: relative; display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 14px 10px 10px; border-radius: 16px; background: var(--panel); box-shadow: inset 0 0 0 1px var(--ring); cursor: pointer; transition: box-shadow .15s, transform .15s; }
+.cape-card:hover { transform: translateY(-2px); }
+.cape-card.on { box-shadow: inset 0 0 0 2px var(--accent); }
+.cape-card canvas { width: 50px; height: 80px; image-rendering: pixelated; border-radius: 2px; }
+.cape-card span { font-size: 11px; font-weight: 700; color: var(--muted); max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.cape-card .cape-del { position: absolute; top: 6px; right: 6px; width: 24px; height: 24px; border-radius: 7px; font-size: 11px; color: var(--muted); opacity: 0; }
+.cape-card:hover .cape-del { opacity: 1; }
+.cape-card .cape-del:hover { background: rgba(255,100,103,.15); color: var(--danger); }
+.cape-card.add { justify-content: center; min-height: 128px; color: var(--accent); background: transparent; box-shadow: inset 0 0 0 2px var(--ring-2); border: 0; }
+.cape-card.add b { font-size: 28px; line-height: 1; }
+.cape-card.add span { color: var(--accent); }
+@media (max-width: 1100px) { .module-body { grid-template-columns: 1fr; } .ks-options { border-left: 0; border-top: 1px solid var(--ring); } .cape-layout { grid-template-columns: 1fr; } }
+
+/* five tabs: keep the header on one line in the default 1180px window */
+.brand span { white-space: nowrap; }
+.top { gap: 24px; }
+.nav { gap: 2px; }
+.nav-btn { padding: 9px 11px; }
+@media (max-width: 1280px) { .top-right .social { display: none; } }

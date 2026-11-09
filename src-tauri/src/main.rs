@@ -9,7 +9,7 @@ use stray_core::mods::{self, InstalledMod, SearchHit, Source};
 use stray_core::paths::Paths;
 use stray_core::ping::{self, ServerStatus};
 use stray_core::settings::Settings;
-use stray_core::{launch, Progress, ProgressFn, SERVER_HOST, SERVER_PORT};
+use stray_core::{cosmetics, launch, Progress, ProgressFn, SERVER_HOST, SERVER_PORT};
 use tauri::{AppHandle, Emitter, Manager, State};
 use tauri_plugin_opener::OpenerExt;
 use tokio::sync::RwLock;
@@ -44,6 +44,9 @@ struct Init {
     has_cf_key: bool,
     app_version: &'static str,
     os: &'static str,
+    arch: &'static str,
+    /// Apple Silicon performance cores (None elsewhere).
+    perf_cores: Option<u32>,
     data_dir: String,
 }
 
@@ -61,6 +64,8 @@ async fn get_init(state: State<'_, AppState>) -> Res<Init> {
         has_client_id: auth::client_id().is_some(),
         app_version: env!("CARGO_PKG_VERSION"),
         os: std::env::consts::OS,
+        arch: std::env::consts::ARCH,
+        perf_cores: launch::apple_performance_cores(),
         data_dir: state.paths.root.to_string_lossy().into_owned(),
     })
 }
@@ -238,6 +243,50 @@ async fn account_remove(state: State<'_, AppState>, uuid: String) -> Res<Account
 }
 
 #[tauri::command]
+async fn capes_list(state: State<'_, AppState>) -> Res<Vec<cosmetics::Cape>> {
+    Ok(cosmetics::list(&state.paths).await)
+}
+
+/// `data` is the PNG as base64 (from a file picker or drag & drop in the UI).
+#[tauri::command]
+async fn cape_add(state: State<'_, AppState>, name: String, data: String) -> Res<String> {
+    use base64::Engine;
+    let bytes = base64::engine::general_purpose::STANDARD
+        .decode(data.trim())
+        .map_err(|_| "cape_not_png".to_string())?;
+    cosmetics::add(&state.paths, &name, &bytes)
+        .await
+        .map_err(err)
+}
+
+#[tauri::command]
+async fn cape_remove(state: State<'_, AppState>, file: String) -> Res<()> {
+    cosmetics::remove(&state.paths, &file).await.map_err(err)
+}
+
+#[tauri::command]
+async fn modules_availability(
+    state: State<'_, AppState>,
+    game: Option<String>,
+) -> Res<cosmetics::Availability> {
+    let game = match game {
+        Some(g) if !g.is_empty() => g,
+        _ => current_game(&state).await?,
+    };
+    Ok(cosmetics::availability(&game).await)
+}
+
+/// Apply cape + module settings to the instance right away (also done on every launch).
+#[tauri::command]
+async fn modules_apply(app: AppHandle, state: State<'_, AppState>) -> Res<()> {
+    let settings = state.settings.read().await.clone();
+    let game = current_game(&state).await?;
+    cosmetics::apply(&state.paths, &game, &settings, &progress_emitter(&app))
+        .await
+        .map_err(err)
+}
+
+#[tauri::command]
 async fn logout(state: State<'_, AppState>) -> Res<()> {
     Account::delete(&state.paths).await;
     Ok(())
@@ -410,6 +459,11 @@ fn main() {
             login_window,
             login_cancel,
             accounts_list,
+            capes_list,
+            cape_add,
+            cape_remove,
+            modules_availability,
+            modules_apply,
             account_switch,
             account_remove,
             logout,

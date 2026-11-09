@@ -24,6 +24,14 @@
         <svg viewBox="0 0 24 24"><path d="M12 2 3 7v10l9 5 9-5V7zM12 12 3 7m9 5 9-5m-9 5v10"/></svg>
         <span data-i18n="nav.mods"></span>
       </button>
+      <button class="nav-btn" data-page="modules">
+        <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><path d="M17.5 14v7M14 17.5h7"/></svg>
+        <span data-i18n="nav.modules"></span>
+      </button>
+      <button class="nav-btn" data-page="capes">
+        <svg viewBox="0 0 24 24"><path d="M7 3h10l2 18-7-3-7 3z"/><path d="M9 3c0 2 1.3 3 3 3s3-1 3-3"/></svg>
+        <span data-i18n="nav.capes"></span>
+      </button>
       <button class="nav-btn" data-page="settings">
         <svg viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>
         <span data-i18n="nav.settings"></span>
@@ -144,6 +152,71 @@
     </section>
 
     <!-- SETTINGS -->
+    <!-- MODULES -->
+    <section class="page" id="page-modules">
+      <div class="page-head">
+        <div><h2 data-i18n="mod.title"></h2><p class="muted" data-i18n="mod.sub"></p></div>
+      </div>
+      <div class="notice" id="ks-notice" hidden></div>
+      <div class="module-card card">
+        <div class="module-top">
+          <div class="module-ico"><svg viewBox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="3"/><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"/></svg></div>
+          <div class="module-text">
+            <h3>Keystrokes</h3>
+            <p class="muted" data-i18n="ks.desc"></p>
+          </div>
+          <label class="toggle big"><input type="checkbox" id="ks-enabled" /><i></i></label>
+        </div>
+        <div class="module-body">
+          <div class="ks-preview" id="ks-preview" tabindex="0">
+            <div class="ks-row ks-keys"><span></span><b data-k="KeyW">W</b><span></span></div>
+            <div class="ks-row ks-keys"><b data-k="KeyA">A</b><b data-k="KeyS">S</b><b data-k="KeyD">D</b></div>
+            <div class="ks-row ks-mouse"><b data-m="0">LMB<small id="cps-l">0 CPS</small></b><b data-m="2">RMB<small id="cps-r">0 CPS</small></b></div>
+            <div class="ks-row ks-space"><b data-k="Space"><i></i></b></div>
+            <div class="ks-row ks-extra"><b class="ks-fps">FPS <em>240</em></b><b class="ks-ping">Ping <em>38 ms</em></b></div>
+            <p class="ks-try muted" data-i18n="ks.try"></p>
+          </div>
+          <div class="ks-options">
+            <label class="toggle"><input type="checkbox" data-ks="keys" /><i></i><span data-i18n="ks.keys"></span></label>
+            <label class="toggle"><input type="checkbox" data-ks="mouse" /><i></i><span data-i18n="ks.mouse"></span></label>
+            <label class="toggle"><input type="checkbox" data-ks="space" /><i></i><span data-i18n="ks.space"></span></label>
+            <label class="toggle"><input type="checkbox" data-ks="fps" /><i></i><span data-i18n="ks.fps"></span></label>
+            <label class="toggle"><input type="checkbox" data-ks="ping" /><i></i><span data-i18n="ks.ping"></span></label>
+            <p class="muted small" data-i18n="ks.hint"></p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- CAPES -->
+    <section class="page" id="page-capes">
+      <div class="page-head">
+        <div><h2 data-i18n="cape.title"></h2><p class="muted" data-i18n="cape.sub"></p></div>
+        <label class="btn btn-primary" id="cape-add-btn">
+          <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
+          <span data-i18n="cape.add"></span>
+          <input type="file" id="cape-file" accept="image/png" multiple hidden />
+        </label>
+      </div>
+      <div class="notice" id="cape-notice" hidden></div>
+      <div class="cape-layout">
+        <div class="card cape-stage" id="cape-drop">
+          <div class="cape-3d" id="cape-3d">
+            <canvas id="cape-front" width="10" height="16"></canvas>
+            <canvas id="cape-back" width="10" height="16"></canvas>
+          </div>
+          <div class="cape-stage-label"><b id="cape-name"></b><span class="muted" id="cape-size"></span></div>
+          <div class="seg" id="cape-mode">
+            <button data-v="local" data-i18n="cape.local"></button>
+            <button data-v="account" data-i18n="cape.account"></button>
+            <button data-v="none" data-i18n="cape.none"></button>
+          </div>
+          <p class="drop-hint muted small" data-i18n="cape.drop"></p>
+        </div>
+        <div class="cape-grid" id="cape-grid"></div>
+      </div>
+    </section>
+
     <section class="page" id="page-settings">
       <div class="settings">
         <div class="card set-card">

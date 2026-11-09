@@ -31,20 +31,43 @@ jobs:
       - run: cargo clippy --all-targets -- -D warnings
       - run: cargo test -p stray-core
 
+  # Rebuild the Stray Capes mod against the real Minecraft 26.3 client, so a broken
+  # change to mods/stray-capes is caught before it ships inside the launcher.
+  capes-mod:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "25"
+      - name: Download Minecraft 26.3 + Fabric libraries
+        run: python3 mods/stray-capes/fetch_deps.py 26.3 /tmp/mc
+      - name: Compile
+        run: mods/stray-capes/build.sh /tmp/mc/client.jar /tmp/mc/libraries "$(command -v javac)"
+
   bundle:
-    needs: check
+    needs: [check, capes-mod]
     strategy:
       fail-fast: false
       matrix:
         include:
-          - name: macOS (Apple Silicon + Intel)
+          # Native Apple Silicon build, tuned for the M1 and newer (no universal fat binary).
+          - name: macOS Apple Silicon (M1–M4)
             os: macos-latest
-            target: universal-apple-darwin
-            args: --target universal-apple-darwin
+            target: aarch64-apple-darwin
+            args: --target aarch64-apple-darwin
+            rustflags: -C target-cpu=apple-m1
+          - name: macOS Intel
+            os: macos-latest
+            target: x86_64-apple-darwin
+            args: --target x86_64-apple-darwin
+            rustflags: ""
           - name: Windows x64
             os: windows-latest
             target: x86_64-pc-windows-msvc
             args: ""
+            rustflags: ""
     name: ${{ matrix.name }}
     runs-on: ${{ matrix.os }}
     env:
@@ -52,11 +75,12 @@ jobs:
       # Microsoft login / CurseForge need to be configured by the user.
       STRAY_MSA_CLIENT_ID: ${{ secrets.STRAY_MSA_CLIENT_ID }}
       CURSEFORGE_API_KEY: ${{ secrets.CURSEFORGE_API_KEY }}
+      RUSTFLAGS: ${{ matrix.rustflags }}
     steps:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
         with:
-          targets: ${{ matrix.os == 'macos-latest' && 'aarch64-apple-darwin,x86_64-apple-darwin' || '' }}
+          targets: ${{ matrix.target }}
       - uses: swatinem/rust-cache@v2
         with:
           key: ${{ matrix.target }}
@@ -70,8 +94,8 @@ jobs:
           # Pushes to main publish/update the GitHub Release for the current app version
           # (tag v<version> is created automatically). Bump the version to cut a new release.
           tagName: ${{ (github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))) && 'v__VERSION__' || '' }}
-          releaseName: "Stray Launcher v__VERSION__"
-          releaseBody: "Download the .dmg for macOS or the -setup.exe for Windows. / Скачайте .dmg для macOS или -setup.exe для Windows."
+          releaseName: "Stray Client v__VERSION__"
+          releaseBody: "macOS: *_aarch64.dmg for Apple Silicon (M1–M4), *_x64.dmg for Intel Macs. Windows: *_x64-setup.exe. / macOS: *_aarch64.dmg для Apple Silicon (M1–M4), *_x64.dmg для Intel. Windows: *_x64-setup.exe."
           releaseDraft: false
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4

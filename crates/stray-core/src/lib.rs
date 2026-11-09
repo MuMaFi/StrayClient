@@ -9,6 +9,7 @@
 //! * `ping`     – Server List Ping for the live player counter
 
 pub mod auth;
+pub mod cosmetics;
 pub mod download;
 pub mod error;
 pub mod fabric;

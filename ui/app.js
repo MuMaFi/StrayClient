@@ -50,6 +50,8 @@
     if (s === "not logged in") return t("acc.need");
     if (s === "cf_no_key") return t("mods.cfKey");
     if (s.startsWith("no_version:")) return `${s.slice(11)}: ${S.settings.language === "ru" ? "нет версии для" : "no build for"} ${currentGame()}`;
+    if (s.startsWith("cape_bad_size:")) return t("err.cape_bad_size", s.slice(14).replace("x", "×"));
+    if (s.startsWith("keystrokes_unavailable:")) return t("ks.unavailable", s.slice(23));
     if (s.startsWith("cf_no_download:")) return `${s.slice(15)}: ${S.settings.language === "ru" ? "автор запретил сторонние загрузки" : "author disabled third-party downloads"}`;
     return t("err.generic", s);
   }
@@ -69,6 +71,8 @@
     $$(".page").forEach((p) => p.classList.toggle("active", p.id === "page-" + page));
     $$(".nav-btn").forEach((b) => b.classList.toggle("active", b.dataset.page === page));
     if (page === "mods") loadMods();
+    if (page === "modules") loadModules();
+    if (page === "capes") loadCapes();
   }
   $$("[data-page]").forEach((b) => b.addEventListener("click", () => go(b.dataset.page)));
   document.addEventListener("click", (e) => {
@@ -558,6 +562,215 @@
   }
 
   // ───────── boot ─────────
+  // ───────── modules (keystrokes HUD) ─────────
+  let applyTimer;
+  function applyModulesSoon() {
+    clearTimeout(applyTimer);
+    applyTimer = setTimeout(async () => {
+      await saveSettings();
+      try {
+        await api.call("modules_apply");
+        S.installed = await api.call("mods_list", { game: currentGame() }).catch(() => S.installed);
+        renderPerf();
+      } catch (e) {
+        toast(errText(e), true);
+      }
+    }, 450);
+  }
+  async function availability() {
+    return api.call("modules_availability", { game: currentGame() }).catch(() => ({ capes: true, keystrokes: true }));
+  }
+  function renderKeystrokes() {
+    const ks = S.settings.keystrokes;
+    $("#ks-enabled").checked = ks.enabled;
+    $(".module-card").classList.toggle("off", !ks.enabled);
+    $$("[data-ks]").forEach((el) => (el.checked = !!ks[el.dataset.ks]));
+    const pv = $("#ks-preview");
+    pv.querySelectorAll(".ks-keys").forEach((r) => r.classList.toggle("hide", !ks.keys));
+    pv.querySelector(".ks-mouse").classList.toggle("hide", !ks.mouse);
+    pv.querySelector(".ks-space").classList.toggle("hide", !ks.space);
+    pv.querySelector(".ks-fps").classList.toggle("hide", !ks.fps);
+    pv.querySelector(".ks-ping").classList.toggle("hide", !ks.ping);
+    pv.querySelector(".ks-extra").classList.toggle("hide", !ks.fps && !ks.ping);
+  }
+  async function loadModules() {
+    renderKeystrokes();
+    const av = await availability();
+    const n = $("#ks-notice");
+    n.hidden = av.keystrokes;
+    n.textContent = av.keystrokes ? "" : t("ks.unavailable", currentGame());
+  }
+  $("#ks-enabled").addEventListener("change", (e) => {
+    S.settings.keystrokes.enabled = e.target.checked;
+    renderKeystrokes();
+    applyModulesSoon();
+  });
+  $$("[data-ks]").forEach((el) =>
+    el.addEventListener("change", () => {
+      S.settings.keystrokes[el.dataset.ks] = el.checked;
+      renderKeystrokes();
+      applyModulesSoon();
+    })
+  );
+  // Live preview: real key presses and clicks light up the HUD, with a real CPS counter.
+  const clicks = { 0: [], 2: [] };
+  const keyEl = (code) => $(`#ks-preview [data-k="${code}"]`);
+  const typing = (e) => /INPUT|TEXTAREA|SELECT/.test(e.target.tagName);
+  document.addEventListener("keydown", (e) => {
+    if (!$("#page-modules").classList.contains("active") || typing(e)) return;
+    const el = keyEl(e.code);
+    if (el) {
+      el.classList.add("down");
+      if (e.code === "Space") e.preventDefault();
+    }
+  });
+  document.addEventListener("keyup", (e) => keyEl(e.code)?.classList.remove("down"));
+  const ksPreview = $("#ks-preview");
+  ksPreview.addEventListener("contextmenu", (e) => e.preventDefault());
+  ksPreview.addEventListener("mousedown", (e) => {
+    const b = ksPreview.querySelector(`[data-m="${e.button}"]`);
+    if (!b) return;
+    b.classList.add("down");
+    clicks[e.button].push(performance.now());
+  });
+  document.addEventListener("mouseup", (e) => ksPreview.querySelector(`[data-m="${e.button}"]`)?.classList.remove("down"));
+  setInterval(() => {
+    if (!$("#page-modules").classList.contains("active")) return;
+    const now = performance.now();
+    for (const b of [0, 2]) {
+      clicks[b] = clicks[b].filter((t0) => now - t0 < 1000);
+      $(b === 0 ? "#cps-l" : "#cps-r").textContent = `${clicks[b].length} CPS`;
+    }
+  }, 100);
+
+  // ───────── capes ─────────
+  S.capes = [];
+  function drawCape(canvas, src, side = "front") {
+    const ctx = canvas.getContext("2d");
+    if (!src) {
+      canvas.width = 10;
+      canvas.height = 16;
+      ctx.clearRect(0, 0, 10, 16);
+      return;
+    }
+    const img = new Image();
+    img.onload = () => {
+      const u = img.width === 22 ? 1 : img.width / 64; // 64×32 layout (22×17 = old OptiFine)
+      canvas.width = Math.round(10 * u);
+      canvas.height = Math.round(16 * u);
+      ctx.imageSmoothingEnabled = false;
+      const sx = (side === "front" ? 1 : 12) * u;
+      ctx.drawImage(img, sx, u, 10 * u, 16 * u, 0, 0, canvas.width, canvas.height);
+    };
+    img.src = src;
+  }
+  function renderCapes() {
+    const sel = S.settings.capeMode === "local" ? S.capes.find((c) => c.file === S.settings.cape) : null;
+    drawCape($("#cape-front"), sel?.dataUrl, "front");
+    drawCape($("#cape-back"), sel?.dataUrl, "back");
+    $("#cape-name").textContent = sel
+      ? sel.file.replace(/\.png$/, "")
+      : S.settings.capeMode === "none"
+        ? t("cape.hidden")
+        : S.settings.capeMode === "account"
+          ? t("cape.accountName")
+          : t("cape.noneSelected");
+    $("#cape-size").textContent = sel ? `${sel.width}×${sel.height}` : "";
+    $$("#cape-mode button").forEach((b) => b.classList.toggle("on", b.dataset.v === S.settings.capeMode));
+    const grid = $("#cape-grid");
+    grid.innerHTML =
+      S.capes
+        .map(
+          (c) => `<div class="cape-card ${sel && sel.file === c.file ? "on" : ""}" data-file="${esc(c.file)}">
+          <button class="cape-del" data-del="${esc(c.file)}" title="${t("mods.remove")}">✕</button>
+          <canvas></canvas><span>${esc(c.file.replace(/\.png$/, ""))}</span></div>`
+        )
+        .join("") +
+      `<label class="cape-card add"><b>+</b><span>${t("cape.add")}</span><input type="file" accept="image/png" multiple hidden /></label>`;
+    grid.querySelectorAll(".cape-card[data-file]").forEach((card) => {
+      const c = S.capes.find((x) => x.file === card.dataset.file);
+      drawCape(card.querySelector("canvas"), c.dataUrl, "front");
+    });
+    grid.querySelector(".cape-card.add input").addEventListener("change", (e) => addCapeFiles(e.target.files));
+  }
+  async function loadCapes() {
+    S.capes = await api.call("capes_list").catch(() => []);
+    renderCapes();
+    const av = await availability();
+    const n = $("#cape-notice");
+    n.hidden = av.capes;
+    n.textContent = av.capes ? "" : t("cape.unsupported", currentGame());
+  }
+  const readB64 = (file) =>
+    new Promise((res, rej) => {
+      const r = new FileReader();
+      r.onload = () => res(String(r.result).split(",")[1] || "");
+      r.onerror = rej;
+      r.readAsDataURL(file);
+    });
+  async function addCapeFiles(files) {
+    let last = null;
+    for (const f of files) {
+      try {
+        last = await api.call("cape_add", { name: f.name, data: await readB64(f) });
+        toast(t("cape.added", last.replace(/\.png$/, "")));
+      } catch (e) {
+        toast(errText(e), true);
+      }
+    }
+    if (last) {
+      S.settings.capeMode = "local";
+      S.settings.cape = last;
+      applyModulesSoon();
+    }
+    loadCapes();
+  }
+  $("#cape-file").addEventListener("change", (e) => {
+    addCapeFiles(e.target.files);
+    e.target.value = "";
+  });
+  $("#cape-mode").addEventListener("click", (e) => {
+    const b = e.target.closest("button");
+    if (!b) return;
+    S.settings.capeMode = b.dataset.v;
+    if (b.dataset.v === "local" && !S.settings.cape && S.capes[0]) S.settings.cape = S.capes[0].file;
+    renderCapes();
+    applyModulesSoon();
+  });
+  $("#cape-grid").addEventListener("click", async (e) => {
+    const del = e.target.closest("[data-del]");
+    if (del) {
+      e.stopPropagation();
+      await api.call("cape_remove", { file: del.dataset.del });
+      if (S.settings.cape === del.dataset.del) {
+        S.settings.cape = "";
+        S.settings.capeMode = "account";
+        applyModulesSoon();
+      }
+      return loadCapes();
+    }
+    const card = e.target.closest(".cape-card[data-file]");
+    if (!card) return;
+    S.settings.capeMode = "local";
+    S.settings.cape = card.dataset.file;
+    renderCapes();
+    applyModulesSoon();
+  });
+  const capeDrop = $("#cape-drop");
+  ["dragenter", "dragover"].forEach((ev) =>
+    capeDrop.addEventListener(ev, (e) => {
+      e.preventDefault();
+      capeDrop.classList.add("drag");
+    })
+  );
+  ["dragleave", "drop"].forEach((ev) =>
+    capeDrop.addEventListener(ev, (e) => {
+      e.preventDefault();
+      capeDrop.classList.remove("drag");
+    })
+  );
+  capeDrop.addEventListener("drop", (e) => addCapeFiles(e.dataTransfer.files));
+
   if (api.demo && !new URLSearchParams(location.search).has("shot")) {
     const b = document.createElement("em");
     b.className = "demo-badge";
@@ -568,6 +781,9 @@
   async function boot() {
     S.init = await api.call("get_init");
     S.settings = S.init.settings;
+    S.settings.keystrokes ||= { enabled: false, keys: true, mouse: true, space: true, fps: false, ping: false };
+    S.settings.capeMode ||= "account";
+    S.settings.cape ||= "";
     S.accounts = S.init.accounts || { active: null, accounts: S.init.account ? [S.init.account] : [] };
     document.body.classList.toggle("no-motion", S.settings.reduceMotion);
     bindSettings();

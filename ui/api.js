@@ -25,6 +25,15 @@
     language: ["ru", "en"].includes(urlLang) ? urlLang : store.get("mock-lang") || "ru",
     gameVersion: "", memoryMb: 4096, gc: "balanced", extraJvmArgs: "", javaPath: "",
     autoJoin: true, closeOnLaunch: false, curseforgeKey: "", width: 1280, height: 720, reduceMotion: false,
+    capeMode: "local", cape: "straysmp.png",
+    keystrokes: { enabled: true, keys: true, mouse: true, space: true, fps: true, ping: false },
+  };
+  // Demo cape library (the real client keeps PNGs in its data folder).
+  let capes = [{ file: "straysmp.png", width: 64, height: 32, dataUrl: "assets/demo-cape.png" }];
+  const b64Size = (b64) => {
+    const bin = atob(b64.slice(0, 64));
+    const u = (i) => ((bin.charCodeAt(i) << 24) | (bin.charCodeAt(i + 1) << 16) | (bin.charCodeAt(i + 2) << 8) | bin.charCodeAt(i + 3)) >>> 0;
+    return bin.slice(1, 4) === "PNG" && bin.slice(12, 16) === "IHDR" ? [u(16), u(20)] : null;
   };
   // Demo accounts for the Lunar-style switcher.
   let accounts = params.has("guest") ? [] : [{ name: "StrayZii", uuid: "" }, { name: "Alex", uuid: "" }];
@@ -97,6 +106,21 @@
     },
     async mod_toggle({ projectId, enabled }) { const m = installed.find((m) => m.projectId === projectId); if (m) m.enabled = enabled; },
     async mod_remove({ projectId }) { const i = installed.findIndex((m) => m.projectId === projectId); if (i >= 0) installed.splice(i, 1); },
+    async capes_list() { return capes.slice(); },
+    async cape_add({ name, data }) {
+      const size = b64Size(data);
+      if (!size) throw "cape_not_png";
+      const [w, h] = size;
+      if (!((w === 2 * h && w >= 32 && w <= 4096) || (w === 22 && h === 17))) throw `cape_bad_size:${w}x${h}`;
+      let base = name.replace(/\.png$/i, "").toLowerCase().replace(/[^a-z0-9_-]/g, "_").slice(0, 40) || "cape";
+      let file = `${base}.png`, n = 2;
+      while (capes.some((c) => c.file === file)) file = `${base}-${n++}.png`;
+      capes.push({ file, width: w, height: h, dataUrl: `data:image/png;base64,${data}` });
+      return file;
+    },
+    async cape_remove({ file }) { capes = capes.filter((c) => c.file !== file); },
+    async modules_availability({ game }) { return { capes: parseInt(game, 10) >= 26, keystrokes: true }; },
+    async modules_apply() {},
     async open_dir() {},
     async open_url({ url }) { window.open(url, "_blank"); },
     async play() {

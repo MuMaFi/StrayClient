@@ -34,6 +34,36 @@ pub struct Settings {
     pub height: u32,
     /// Turn off the falling-leaves animation.
     pub reduce_motion: bool,
+    /// `account` (Mojang cape), `local` (PNG from the cape library) or `none`.
+    pub cape_mode: String,
+    /// File name in the cape library used when `cape_mode` is `local`.
+    pub cape: String,
+    pub keystrokes: Keystrokes,
+}
+
+/// HUD module: WASD, mouse buttons with CPS, space bar, FPS and ping (Modern Keystrokes).
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(default, rename_all = "camelCase")]
+pub struct Keystrokes {
+    pub enabled: bool,
+    pub keys: bool,
+    pub mouse: bool,
+    pub space: bool,
+    pub fps: bool,
+    pub ping: bool,
+}
+
+impl Default for Keystrokes {
+    fn default() -> Self {
+        Self {
+            enabled: false,
+            keys: true,
+            mouse: true,
+            space: true,
+            fps: false,
+            ping: false,
+        }
+    }
 }
 
 impl Default for Settings {
@@ -51,6 +81,9 @@ impl Default for Settings {
             width: 1280,
             height: 720,
             reduce_motion: false,
+            cape_mode: "account".into(),
+            cape: String::new(),
+            keystrokes: Keystrokes::default(),
         }
     }
 }
