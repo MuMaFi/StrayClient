@@ -127,7 +127,7 @@
     .g-nav { position: absolute; top: calc(50% - 50px); width: 46px; height: 46px; border-radius: 50%; border: 0; display: grid; place-items: center; background: rgba(26,27,36,.75); backdrop-filter: blur(8px); color: #fff; cursor: pointer; box-shadow: 0 0 0 1px var(--ring-2); transition: background .15s; }
     .g-nav:hover { background: var(--accent-2); }
     .g-prev { left: 14px; } .g-next { right: 14px; }
-    .thumbs { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
+    .thumbs { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
     .thumbs button { padding: 0; border: 0; background: var(--panel); border-radius: 14px; overflow: hidden; cursor: pointer; color: var(--muted); font: 700 12px var(--body); box-shadow: inset 0 0 0 1px var(--ring); transition: box-shadow .15s, color .15s, transform .15s; }
     .thumbs button:hover { color: var(--text); transform: translateY(-2px); }
     .thumbs button.on { color: var(--accent); box-shadow: inset 0 0 0 2px var(--accent); }
@@ -281,8 +281,8 @@
 </div>
 <div class="card feat">
 <div class="ico"><svg viewbox="0 0 24 24"><path d="M7 3h10l2 18-7-3-7 3z"></path><path d="M9 3c0 2 1.3 3 3 3s3-1 3-3"></path></svg></div>
-<h3 data-i18n="f.cape.t">Свои плащи</h3>
-<p data-i18n="f.cape.p">Загрузи любой плащ в PNG — в игре он на тебе и на элитрах. Свой мод <b>Stray Capes</b> для Minecraft 26.x.</p>
+<h3 data-i18n="f.cape.t">Скины и плащи</h3>
+<p data-i18n="f.cape.p">Скин из PNG или от любого игрока — сразу на аккаунт, его видят все. Плюс свой плащ из PNG через мод <b>Stray Capes</b>.</p>
 </div>
 <div class="card feat">
 <div class="ico"><svg viewbox="0 0 24 24"><rect x="2" y="6" width="20" height="12" rx="3"></rect><path d="M6 10h.01M10 10h.01M14 10h.01M18 10h.01M7 14h10"></path></svg></div>
@@ -316,6 +316,9 @@
 <button data-cap="&lt;b&gt;Настройки&lt;/b&gt; — память, сборщик мусора, размер окна, своя Java и аргументы JVM." data-i18n-attr="data-cap:t47" data-src="docs/settings.png" data-src-en="docs/en/settings.png"><img alt="" loading="lazy" src="docs/settings.png" data-img-en="docs/en/settings.png"/><span data-i18n="t48">Настройки</span></button>
 <button data-cap="&lt;b&gt;Вход через Microsoft&lt;/b&gt; — как в Lunar: страница Microsoft открывается в отдельном окне, пароль вводится только там." data-i18n-attr="data-cap:t49" data-src="docs/login.png" data-src-en="docs/en/login.png"><img alt="" loading="lazy" src="docs/login.png" data-img-en="docs/en/login.png"/><span data-i18n="t50">Вход</span></button>
 <button data-cap="&lt;b&gt;Аккаунты&lt;/b&gt; — несколько аккаунтов Microsoft, переключение в один клик, как в Lunar." data-i18n-attr="data-cap:t51" data-src="docs/accounts.png" data-src-en="docs/en/accounts.png"><img alt="" loading="lazy" src="docs/accounts.png" data-img-en="docs/en/accounts.png"/><span data-i18n="t52">Аккаунты</span></button>
+<button data-cap="&lt;b&gt;Модули&lt;/b&gt; — Keystrokes: WASD, клики мыши с CPS, пробел, FPS и пинг. Превью реагирует на твои нажатия." data-i18n-attr="data-cap:g.modules.cap" data-src="docs/modules.png" data-src-en="docs/en/modules.png"><img alt="" loading="lazy" src="docs/modules.png" data-img-en="docs/en/modules.png"/><span data-i18n="g.modules.label">Модули</span></button>
+<button data-cap="&lt;b&gt;Скины&lt;/b&gt; — загрузи PNG или скопируй скин игрока и примени его к аккаунту: его увидят все." data-i18n-attr="data-cap:g.skins.cap" data-src="docs/skins.png" data-src-en="docs/en/skins.png"><img alt="" loading="lazy" src="docs/skins.png" data-img-en="docs/en/skins.png"/><span data-i18n="g.skins.label">Скины</span></button>
+<button data-cap="&lt;b&gt;Плащи&lt;/b&gt; — свой плащ из PNG с превью, на тебе в игре и на элитрах." data-i18n-attr="data-cap:g.capes.cap" data-src="docs/capes.png" data-src-en="docs/en/capes.png"><img alt="" loading="lazy" src="docs/capes.png" data-img-en="docs/en/capes.png"/><span data-i18n="g.capes.label">Плащи</span></button>
 </div>
 </div>
 </section>
@@ -553,14 +556,20 @@
   "c.price.2": "Бесплатно, косметика платная",
   "c.price.3": "Бесплатно, есть платная подписка",
   "c.price.4": "Бесплатно, с рекламой, косметика платная",
-  "f.cape.t": "Свои плащи",
-  "f.cape.p": "Загрузи любой плащ в PNG — в игре он на тебе и на элитрах. Свой мод <b>Stray Capes</b> для Minecraft 26.x.",
+  "f.cape.t": "Скины и плащи",
+  "f.cape.p": "Скин из PNG или от любого игрока — сразу на аккаунт, его видят все. Плюс свой плащ из PNG через мод <b>Stray Capes</b>.",
   "f.ks.t": "Keystrokes и CPS",
   "f.ks.p": "Нажатия <b>WASD</b>, клики мыши с <b>CPS</b>, пробел, FPS и пинг — включаются одним переключателем во вкладке «Модули».",
   "f.m1.t": "Для Apple Silicon",
   "f.m1.p": "Отдельная сборка для <b>M1–M4</b>: нативная Java без Rosetta, а сборщик мусора работает только на производительных ядрах.",
   "mac.intel": "Mac с процессором Intel?",
-  "mac.intelDl": "Скачать для Intel"
+  "mac.intelDl": "Скачать для Intel",
+  "g.modules.cap": "<b>Модули</b> — Keystrokes: WASD, клики мыши с CPS, пробел, FPS и пинг. Превью реагирует на твои нажатия.",
+  "g.modules.label": "Модули",
+  "g.skins.cap": "<b>Скины</b> — загрузи PNG или скопируй скин игрока и примени его к аккаунту: его увидят все.",
+  "g.skins.label": "Скины",
+  "g.capes.cap": "<b>Плащи</b> — свой плащ из PNG с превью, на тебе в игре и на элитрах.",
+  "g.capes.label": "Плащи"
  },
  "en": {
   "t1": "Stray Client — fast Minecraft client",
@@ -695,14 +704,20 @@
   "c.price.2": "Free, paid cosmetics",
   "c.price.3": "Free, paid subscription available",
   "c.price.4": "Free, ad-supported, paid cosmetics",
-  "f.cape.t": "Custom capes",
-  "f.cape.p": "Upload any cape as a PNG and wear it in game, elytra included. Our own <b>Stray Capes</b> mod for Minecraft 26.x.",
+  "f.cape.t": "Skins and capes",
+  "f.cape.p": "A skin from a PNG or from any player goes straight to your account, so everyone sees it. Plus your own PNG cape via the <b>Stray Capes</b> mod.",
   "f.ks.t": "Keystrokes and CPS",
   "f.ks.p": "<b>WASD</b> presses, mouse clicks with <b>CPS</b>, space bar, FPS and ping, switched on with one toggle in the Modules tab.",
   "f.m1.t": "Built for Apple Silicon",
   "f.m1.p": "A separate build for <b>M1–M4</b>: native Java without Rosetta, and garbage collection runs only on the performance cores.",
   "mac.intel": "Mac with an Intel chip?",
-  "mac.intelDl": "Download for Intel"
+  "mac.intelDl": "Download for Intel",
+  "g.modules.cap": "<b>Modules</b> — Keystrokes: WASD, mouse clicks with CPS, space bar, FPS and ping. The preview reacts to your presses.",
+  "g.modules.label": "Modules",
+  "g.skins.cap": "<b>Skins</b> — upload a PNG or copy a player's skin and apply it to your account, so everyone sees it.",
+  "g.skins.label": "Skins",
+  "g.capes.cap": "<b>Capes</b> — your own cape from a PNG with a live preview, on you in game and on elytra.",
+  "g.capes.label": "Capes"
  }
 };
     // Strings used by the script itself.

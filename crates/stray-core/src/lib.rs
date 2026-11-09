@@ -21,6 +21,7 @@ pub mod mojang;
 pub mod paths;
 pub mod ping;
 pub mod settings;
+pub mod skins;
 
 pub use error::{Error, Result};
 

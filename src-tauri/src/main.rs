@@ -9,7 +9,7 @@ use stray_core::mods::{self, InstalledMod, SearchHit, Source};
 use stray_core::paths::Paths;
 use stray_core::ping::{self, ServerStatus};
 use stray_core::settings::Settings;
-use stray_core::{cosmetics, launch, Progress, ProgressFn, SERVER_HOST, SERVER_PORT};
+use stray_core::{cosmetics, launch, skins, Progress, ProgressFn, SERVER_HOST, SERVER_PORT};
 use tauri::{AppHandle, Emitter, Manager, State};
 use tauri_plugin_opener::OpenerExt;
 use tokio::sync::RwLock;
@@ -287,6 +287,63 @@ async fn modules_apply(app: AppHandle, state: State<'_, AppState>) -> Res<()> {
 }
 
 #[tauri::command]
+async fn skins_list(state: State<'_, AppState>) -> Res<Vec<skins::Skin>> {
+    Ok(skins::list(&state.paths).await)
+}
+
+#[tauri::command]
+async fn skin_add(
+    state: State<'_, AppState>,
+    name: String,
+    data: String,
+    variant: skins::Variant,
+) -> Res<String> {
+    use base64::Engine;
+    let bytes = base64::engine::general_purpose::STANDARD
+        .decode(data.trim())
+        .map_err(|_| "skin_not_png".to_string())?;
+    skins::add(&state.paths, &name, &bytes, variant)
+        .await
+        .map_err(err)
+}
+
+#[tauri::command]
+async fn skin_variant(
+    state: State<'_, AppState>,
+    file: String,
+    variant: skins::Variant,
+) -> Res<()> {
+    skins::set_variant(&state.paths, &file, variant)
+        .await
+        .map_err(err)
+}
+
+#[tauri::command]
+async fn skin_remove(state: State<'_, AppState>, file: String) -> Res<()> {
+    skins::remove(&state.paths, &file).await.map_err(err)
+}
+
+#[tauri::command]
+async fn skin_apply(state: State<'_, AppState>, file: String) -> Res<()> {
+    skins::apply(&state.paths, &file).await.map_err(err)
+}
+
+#[tauri::command]
+async fn skin_current(state: State<'_, AppState>) -> Res<skins::CurrentSkin> {
+    skins::current(&state.paths).await.map_err(err)
+}
+
+#[tauri::command]
+async fn skin_reset(state: State<'_, AppState>) -> Res<()> {
+    skins::reset(&state.paths).await.map_err(err)
+}
+
+#[tauri::command]
+async fn skin_import(state: State<'_, AppState>, name: String) -> Res<String> {
+    skins::import_player(&state.paths, &name).await.map_err(err)
+}
+
+#[tauri::command]
 async fn logout(state: State<'_, AppState>) -> Res<()> {
     Account::delete(&state.paths).await;
     Ok(())
@@ -460,6 +517,14 @@ fn main() {
             login_cancel,
             accounts_list,
             capes_list,
+            skins_list,
+            skin_add,
+            skin_variant,
+            skin_remove,
+            skin_apply,
+            skin_current,
+            skin_reset,
+            skin_import,
             cape_add,
             cape_remove,
             modules_availability,

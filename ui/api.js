@@ -29,6 +29,9 @@
     keystrokes: { enabled: true, keys: true, mouse: true, space: true, fps: true, ping: false },
   };
   // Demo cape library (the real client keeps PNGs in its data folder).
+  let skins = [{ file: "straysmp.png", variant: "classic", width: 64, height: 64, dataUrl: "assets/demo-skin.png" }];
+  let accountSkin = { variant: "classic", dataUrl: "assets/demo-skin.png" };
+  const blobB64 = (blob) => new Promise((res) => { const r = new FileReader(); r.onload = () => res(String(r.result).split(",")[1]); r.readAsDataURL(blob); });
   let capes = [{ file: "straysmp.png", width: 64, height: 32, dataUrl: "assets/demo-cape.png" }];
   const b64Size = (b64) => {
     const bin = atob(b64.slice(0, 64));
@@ -49,7 +52,7 @@
 
   const handlers = {
     async get_init() {
-      return { settings, account: current() && { name: active, uuid: active }, accounts: list(), totalMemoryMb: 16384, hasClientId: true, hasCfKey: false, appVersion: "0.2.0", os: "macos", dataDir: "~/Library/Application Support/StrayLauncher" };
+      return { settings, account: current() && { name: active, uuid: active }, accounts: list(), totalMemoryMb: 16384, hasClientId: true, hasCfKey: false, appVersion: "0.3.0", os: "macos", dataDir: "~/Library/Application Support/StrayLauncher" };
     },
     async save_settings({ settings: s }) { settings = s; store.set("mock-lang", s.language); return !!s.curseforgeKey; },
     async game_versions() { return ["26.3", "26.2", "26.1.2", "26.1.1", "26.1", "1.21.11", "1.21.10", "1.21.8", "1.21.4", "1.21.1", "1.20.6", "1.20.4", "1.20.1"]; },
@@ -106,6 +109,35 @@
     },
     async mod_toggle({ projectId, enabled }) { const m = installed.find((m) => m.projectId === projectId); if (m) m.enabled = enabled; },
     async mod_remove({ projectId }) { const i = installed.findIndex((m) => m.projectId === projectId); if (i >= 0) installed.splice(i, 1); },
+    async skins_list() { return skins.map((x) => ({ ...x })); },
+    async skin_add({ name, data, variant }) {
+      const size = b64Size(data);
+      if (!size) throw "skin_not_png";
+      const [w, h] = size;
+      if (!(w === 64 && (h === 64 || h === 32))) throw `skin_bad_size:${w}x${h}`;
+      let base = name.replace(/\.png$/i, "").toLowerCase().replace(/[^a-z0-9_-]/g, "_").slice(0, 40) || "skin";
+      let file = `${base}.png`, n = 2;
+      while (skins.some((x) => x.file === file)) file = `${base}-${n++}.png`;
+      skins.push({ file, variant, width: w, height: h, dataUrl: `data:image/png;base64,${data}` });
+      return file;
+    },
+    async skin_variant({ file, variant }) { const x = skins.find((y) => y.file === file); if (x) x.variant = variant; },
+    async skin_remove({ file }) { skins = skins.filter((x) => x.file !== file); },
+    async skin_current() { return { ...accountSkin }; },
+    async skin_apply({ file }) {
+      if (!current()) throw "not logged in";
+      await wait(1200);
+      const x = skins.find((y) => y.file === file);
+      accountSkin = { variant: x.variant, dataUrl: x.dataUrl };
+    },
+    async skin_reset() { await wait(500); accountSkin = { variant: "classic", dataUrl: null }; },
+    // Demo: public skin mirror (the real client asks Mojang's API directly).
+    async skin_import({ name }) {
+      if (!/^[A-Za-z0-9_]{1,16}$/.test(name)) throw "skin_bad_name";
+      const r = await fetch(`https://mc-heads.net/skin/${encodeURIComponent(name)}`).catch(() => null);
+      if (!r || !r.ok) throw `skin_no_player:${name}`;
+      return handlers.skin_add({ name, data: await blobB64(await r.blob()), variant: "classic" });
+    },
     async capes_list() { return capes.slice(); },
     async cape_add({ name, data }) {
       const size = b64Size(data);

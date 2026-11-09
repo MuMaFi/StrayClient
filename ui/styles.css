@@ -393,3 +393,19 @@ body.no-motion .cape-3d canvas { animation: none; }
 .nav { gap: 2px; }
 .nav-btn { padding: 9px 11px; }
 @media (max-width: 1280px) { .top-right .social { display: none; } }
+
+/* ───────── wardrobe: skins ───────── */
+.wr-tabs { display: inline-flex; margin-bottom: 18px; }
+.wr-pane[hidden] { display: none; }
+.skin-3d { display: flex; gap: 22px; padding: 14px 0 4px; perspective: 700px; }
+.skin-3d canvas { width: 96px; height: 192px; image-rendering: pixelated; filter: drop-shadow(0 16px 18px rgba(0,0,0,.45)); }
+#skin-front { transform: rotateY(14deg); }
+#skin-back { transform: rotateY(-14deg); }
+.btn.wide { width: 100%; }
+.link-btn { font-size: 12px; font-weight: 700; color: var(--muted); }
+.link-btn:hover { color: var(--danger); }
+.skin-import { display: flex; gap: 8px; margin-bottom: 12px; }
+.skin-import input { flex: 1; height: 40px; padding: 0 14px; border-radius: 12px; border: 0; outline: none; background: rgba(80,80,80,.1); box-shadow: inset 0 0 0 1px #3a3a3a; user-select: text; }
+.skin-import input:focus { box-shadow: inset 0 0 0 1px var(--accent); }
+.cape-card canvas.skin-thumb { width: 40px; height: 80px; }
+.cape-card .badge-mini { position: absolute; top: 8px; left: 8px; font-size: 9px; font-weight: 800; letter-spacing: .06em; padding: 2px 6px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); text-transform: uppercase; }

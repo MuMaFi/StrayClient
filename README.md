@@ -27,6 +27,10 @@ macOS (Apple Silicon + Intel) · Windows · Русский / English
 | 🧠 **Tuned JVM** | Tuned G1 flags by default, or generational ZGC for machines with plenty of RAM. On JDK 25+ we add `-XX:+UseCompactObjectHeaders` (smaller heap). RAM recommendation is based on your system. |
 | 🔐 **Microsoft login** | Like Lunar Client: Microsoft's own sign-in page opens in a separate window (OAuth code flow + PKCE) and closes itself when you're done. Keep several accounts and switch with one click from the account menu. Signing in with a code is available as a fallback. Tokens never reach the UI. |
 | 🌍 **RU / EN** | Switch any time in the header or Settings. |
+| 👕 **Skins** | Upload a PNG (64×64 / 64×32) or copy any player's skin, pick Classic/Slim, and apply it to your account through the official Minecraft API, so everyone sees it on every server. |
+| 🧣 **Capes** | Your own cape from a PNG with a live front/back preview. Powered by our small **Stray Capes** mod (`mods/stray-capes`, MIT) for Minecraft 26.x; the cape is shown on your own player. |
+| ⌨️ **Modules** | Keystrokes HUD: WASD, mouse clicks with CPS, space bar, FPS and ping. The launcher installs and configures *Modern Keystrokes* for you. |
+| 🍎 **Apple Silicon** | A separate native build for M1–M4 (`target-cpu=apple-m1`), native ARM Java without Rosetta, and GC threads sized to the performance cores. |
 
 <img src="docs/en/accounts.png" width="49%" alt="Account switcher" /> <img src="docs/en/mods.png" width="49%" alt="Mods" />
 <img src="docs/en/settings.png" width="49%" alt="Settings" /> <img src="docs/en/login.png" width="49%" alt="Microsoft sign-in" />
@@ -47,7 +51,7 @@ The goal: a faster, lighter client than Lunar, Badlion and Dawn, with an open mo
 
 Download page (RU/EN switch at the top): **https://mumafi.github.io/StrayClient/** · or grab the latest installer from **[Releases](../../releases)**:
 
-- **macOS:** `Stray.Client_x.y.z_universal.dmg`. The app isn't notarized yet, so on first launch right-click → *Open*, or run `xattr -cr "/Applications/Stray Client.app"`.
+- **macOS:** `Stray.Client_x.y.z_aarch64.dmg` for Apple Silicon (M1–M4), `Stray.Client_x.y.z_x64.dmg` for Intel Macs. The app isn't notarized yet, so on first launch right-click → *Open*, or run `xattr -cr "/Applications/Stray Client.app"`.
 - **Windows:** `Stray.Client_x.y.z_x64-setup.exe` (or `.msi`). SmartScreen may warn about an unknown publisher → *More info* → *Run anyway*.
 
 Every push to `main` also produces installers as workflow artifacts under **Actions → Build**.
@@ -102,6 +106,7 @@ crates/stray-core/   Launcher logic, no GUI (testable on its own)
   download.rs        parallel verified downloader
 src-tauri/           Tauri shell + commands
 ui/                  Interface (Unbounded + Manrope fonts, StraySMP palette)
+mods/stray-capes/    our cape mod for Minecraft 26.x (build.sh + fetch_deps.py)
 tools/gen_hero.py    generates the pixel-art hero image
 ```
 

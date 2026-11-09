@@ -34,6 +34,7 @@
     document.documentElement.lang = S.settings.language;
     $$("[data-i18n]").forEach((el) => (el.textContent = t(el.dataset.i18n)));
     $("#search").placeholder = t("mods.search");
+    $("#skin-import-name").placeholder = t("skin.importPh");
     $$(".lang button").forEach((b) => b.classList.toggle("on", b.dataset.lang === S.settings.language));
     $$("#set-lang button").forEach((b) => b.classList.toggle("on", b.dataset.v === S.settings.language));
     renderVersionSelects();
@@ -50,6 +51,9 @@
     if (s === "not logged in") return t("acc.need");
     if (s === "cf_no_key") return t("mods.cfKey");
     if (s.startsWith("no_version:")) return `${s.slice(11)}: ${S.settings.language === "ru" ? "нет версии для" : "no build for"} ${currentGame()}`;
+    if (s.startsWith("skin_bad_size:")) return t("err.skin_bad_size", s.slice(14).replace("x", "×"));
+    if (s.startsWith("skin_no_player:")) return t("err.skin_no_player", s.slice(15));
+    if (s.startsWith("skin_upload_failed:")) return t("err.skin_upload_failed", s.slice(19));
     if (s.startsWith("cape_bad_size:")) return t("err.cape_bad_size", s.slice(14).replace("x", "×"));
     if (s.startsWith("keystrokes_unavailable:")) return t("ks.unavailable", s.slice(23));
     if (s.startsWith("cf_no_download:")) return `${s.slice(15)}: ${S.settings.language === "ru" ? "автор запретил сторонние загрузки" : "author disabled third-party downloads"}`;
@@ -72,7 +76,7 @@
     $$(".nav-btn").forEach((b) => b.classList.toggle("active", b.dataset.page === page));
     if (page === "mods") loadMods();
     if (page === "modules") loadModules();
-    if (page === "capes") loadCapes();
+    if (page === "capes") loadWardrobe();
   }
   $$("[data-page]").forEach((b) => b.addEventListener("click", () => go(b.dataset.page)));
   document.addEventListener("click", (e) => {
@@ -770,6 +774,232 @@
     })
   );
   capeDrop.addEventListener("drop", (e) => addCapeFiles(e.dataTransfer.files));
+
+  // ───────── wardrobe: skins ─────────
+  S.skins = [];
+  S.skinSel = null; // library file, or "__current" for the account skin
+  S.currentSkin = null;
+  $("#wr-tabs").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-wr]");
+    if (!b) return;
+    $$("#wr-tabs .tab").forEach((x) => x.classList.toggle("active", x === b));
+    $("#wr-skin").hidden = b.dataset.wr !== "skin";
+    $("#wr-cape").hidden = b.dataset.wr !== "cape";
+    if (b.dataset.wr === "cape") loadCapes();
+  });
+  async function loadWardrobe() {
+    if (!$("#wr-cape").hidden) loadCapes();
+    await loadSkins();
+  }
+
+  // Draws the front or back of a skin as a flat 16×32 figure (64×64 and legacy 64×32 layouts).
+  function drawSkin(canvas, src, variant = "classic", side = "front") {
+    const ctx = canvas.getContext("2d");
+    canvas.width = 16;
+    canvas.height = 32;
+    ctx.clearRect(0, 0, 16, 32);
+    if (!src) return;
+    const img = new Image();
+    img.onload = () => {
+      ctx.imageSmoothingEnabled = false;
+      const legacy = img.height === 32;
+      const aw = variant === "slim" ? 3 : 4;
+      const part = (sx, sy, w, h, dx, dy, mirror = false) => {
+        if (!mirror) return ctx.drawImage(img, sx, sy, w, h, dx, dy, w, h);
+        ctx.save();
+        ctx.translate(dx + w, dy);
+        ctx.scale(-1, 1);
+        ctx.drawImage(img, sx, sy, w, h, 0, 0, w, h);
+        ctx.restore();
+      };
+      if (side === "front") {
+        part(8, 8, 8, 8, 4, 0);                                   // head
+        part(20, 20, 8, 12, 4, 8);                                // body
+        part(44, 20, aw, 12, 4 - aw, 8);                          // right arm
+        part(4, 20, 4, 12, 4, 20);                                // right leg
+        if (legacy) {
+          part(44, 20, aw, 12, 12, 8, true);
+          part(4, 20, 4, 12, 8, 20, true);
+        } else {
+          part(36, 52, aw, 12, 12, 8);                            // left arm
+          part(20, 52, 4, 12, 8, 20);                             // left leg
+          part(20, 36, 8, 12, 4, 8);                              // jacket
+          part(44, 36, aw, 12, 4 - aw, 8);                        // sleeves
+          part(52, 52, aw, 12, 12, 8);
+          part(4, 36, 4, 12, 4, 20);                              // trousers
+          part(4, 52, 4, 12, 8, 20);
+        }
+        part(40, 8, 8, 8, 4, 0);                                  // hat layer
+      } else {
+        part(24, 8, 8, 8, 4, 0);
+        part(32, 20, 8, 12, 4, 8);
+        part(48 + aw, 20, aw, 12, 12, 8);                         // right arm back (now on the right)
+        part(12, 20, 4, 12, 8, 20);
+        if (legacy) {
+          part(48 + aw, 20, aw, 12, 4 - aw, 8, true);
+          part(12, 20, 4, 12, 4, 20, true);
+        } else {
+          part(40 + aw, 52, aw, 12, 4 - aw, 8);                   // left arm back
+          part(28, 52, 4, 12, 4, 20);                             // left leg
+          part(32, 36, 8, 12, 4, 8);
+          part(48 + aw, 36, aw, 12, 12, 8);
+          part(56 + aw, 52, aw, 12, 4 - aw, 8);
+          part(12, 36, 4, 12, 8, 20);
+          part(12, 52, 4, 12, 4, 20);
+        }
+        part(56, 8, 8, 8, 4, 0);
+      }
+    };
+    img.src = src;
+  }
+
+  function selectedSkin() {
+    if (S.skinSel === "__current") return S.currentSkin?.dataUrl ? { file: "__current", variant: S.currentSkin.variant, dataUrl: S.currentSkin.dataUrl, current: true } : null;
+    return S.skins.find((x) => x.file === S.skinSel) || null;
+  }
+  function renderSkins() {
+    if (!S.skinSel || (S.skinSel !== "__current" && !S.skins.some((x) => x.file === S.skinSel))) {
+      S.skinSel = S.currentSkin?.dataUrl ? "__current" : S.skins[0]?.file || null;
+    }
+    const sel = selectedSkin();
+    drawSkin($("#skin-front"), sel?.dataUrl, sel?.variant, "front");
+    drawSkin($("#skin-back"), sel?.dataUrl, sel?.variant, "back");
+    $("#skin-name").textContent = sel ? (sel.current ? t("skin.current") : sel.file.replace(/\.png$/, "")) : "";
+    $("#skin-size").textContent = sel && !sel.current ? `${sel.width}×${sel.height}` : "";
+    $$("#skin-variant button").forEach((b) => {
+      b.classList.toggle("on", sel?.variant === b.dataset.v);
+      b.disabled = !sel || !!sel.current;
+    });
+    $("#skin-apply").disabled = !sel || !!sel.current;
+    $("#skin-reset").hidden = !S.init.account;
+    const cards = [];
+    if (S.currentSkin?.dataUrl) {
+      cards.push(`<div class="cape-card ${S.skinSel === "__current" ? "on" : ""}" data-skin="__current">
+        <em class="badge-mini">${t("skin.badge")}</em><canvas class="skin-thumb"></canvas><span>${esc(S.init.account?.name || "")}</span></div>`);
+    }
+    for (const x of S.skins) {
+      cards.push(`<div class="cape-card ${S.skinSel === x.file ? "on" : ""}" data-skin="${esc(x.file)}">
+        <button class="cape-del" data-skin-del="${esc(x.file)}" title="${t("mods.remove")}">✕</button>
+        <canvas class="skin-thumb"></canvas><span>${esc(x.file.replace(/\.png$/, ""))}</span></div>`);
+    }
+    cards.push(`<label class="cape-card add"><b>+</b><span>${t("skin.add")}</span><input type="file" accept="image/png" multiple hidden /></label>`);
+    const grid = $("#skin-grid");
+    grid.innerHTML = cards.join("");
+    grid.querySelectorAll("[data-skin]").forEach((card) => {
+      const f = card.dataset.skin;
+      const x = f === "__current" ? S.currentSkin : S.skins.find((s) => s.file === f);
+      drawSkin(card.querySelector("canvas"), x.dataUrl, x.variant, "front");
+    });
+    grid.querySelector(".cape-card.add input").addEventListener("change", (e) => addSkinFiles(e.target.files));
+  }
+  async function loadSkins() {
+    const [list, cur] = await Promise.all([
+      api.call("skins_list").catch(() => []),
+      S.init.account ? api.call("skin_current").catch(() => null) : Promise.resolve(null),
+    ]);
+    S.skins = list;
+    S.currentSkin = cur;
+    renderSkins();
+    const n = $("#skin-notice");
+    n.hidden = !!S.init.account;
+    n.textContent = S.init.account ? "" : t("skin.needLogin");
+  }
+  async function addSkinFiles(files) {
+    let last = null;
+    for (const f of files) {
+      try {
+        last = await api.call("skin_add", { name: f.name, data: await readB64(f), variant: "classic" });
+        toast(t("skin.imported", last.replace(/\.png$/, "")));
+      } catch (e) {
+        toast(errText(e), true);
+      }
+    }
+    if (last) S.skinSel = last;
+    loadSkins();
+  }
+  $("#skin-file").addEventListener("change", (e) => {
+    addSkinFiles(e.target.files);
+    e.target.value = "";
+  });
+  $("#skin-grid").addEventListener("click", async (e) => {
+    const del = e.target.closest("[data-skin-del]");
+    if (del) {
+      e.stopPropagation();
+      await api.call("skin_remove", { file: del.dataset.skinDel }).catch((err) => toast(errText(err), true));
+      return loadSkins();
+    }
+    const card = e.target.closest("[data-skin]");
+    if (!card) return;
+    S.skinSel = card.dataset.skin;
+    renderSkins();
+  });
+  $("#skin-variant").addEventListener("click", async (e) => {
+    const b = e.target.closest("button");
+    const sel = selectedSkin();
+    if (!b || !sel || sel.current) return;
+    sel.variant = b.dataset.v;
+    renderSkins();
+    await api.call("skin_variant", { file: sel.file, variant: sel.variant }).catch((err) => toast(errText(err), true));
+  });
+  $("#skin-apply").addEventListener("click", async () => {
+    const sel = selectedSkin();
+    if (!sel || sel.current) return;
+    if (!S.init.account) return login();
+    const btn = $("#skin-apply");
+    btn.disabled = true;
+    btn.firstElementChild.textContent = t("skin.applying");
+    try {
+      await api.call("skin_apply", { file: sel.file });
+      toast(t("skin.applied"));
+      S.skinSel = "__current";
+      await loadSkins();
+    } catch (err) {
+      toast(errText(err), true);
+    }
+    btn.firstElementChild.textContent = t("skin.apply");
+    btn.disabled = false;
+  });
+  $("#skin-reset").addEventListener("click", async () => {
+    try {
+      await api.call("skin_reset");
+      toast(t("skin.resetDone"));
+      await loadSkins();
+    } catch (err) {
+      toast(errText(err), true);
+    }
+  });
+  async function importSkin() {
+    const name = $("#skin-import-name").value.trim();
+    if (!name) return;
+    const btn = $("#skin-import");
+    btn.disabled = true;
+    try {
+      const file = await api.call("skin_import", { name });
+      toast(t("skin.imported", name));
+      $("#skin-import-name").value = "";
+      S.skinSel = file;
+      await loadSkins();
+    } catch (err) {
+      toast(errText(err), true);
+    }
+    btn.disabled = false;
+  }
+  $("#skin-import").addEventListener("click", importSkin);
+  $("#skin-import-name").addEventListener("keydown", (e) => e.key === "Enter" && importSkin());
+  const skinDrop = $("#skin-drop");
+  ["dragenter", "dragover"].forEach((ev) =>
+    skinDrop.addEventListener(ev, (e) => {
+      e.preventDefault();
+      skinDrop.classList.add("drag");
+    })
+  );
+  ["dragleave", "drop"].forEach((ev) =>
+    skinDrop.addEventListener(ev, (e) => {
+      e.preventDefault();
+      skinDrop.classList.remove("drag");
+    })
+  );
+  skinDrop.addEventListener("drop", (e) => addSkinFiles(e.dataTransfer.files));
 
   if (api.demo && !new URLSearchParams(location.search).has("shot")) {
     const b = document.createElement("em");
