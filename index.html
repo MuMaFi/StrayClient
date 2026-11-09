@@ -382,7 +382,6 @@
 <li data-i18n="t80">Если появится SmartScreen: <b>Подробнее → Выполнить в любом случае</b> (приложение пока без цифровой подписи).</li>
 <li data-i18n="t81">Войди через Microsoft и нажми <b>«Играть»</b>.</li>
 </ol>
-<span class="muted" style="font-size:13px"><span data-i18n="t82">Нужен .msi?</span> <a class="dl-alt" data-i18n="t83" href="https://github.com/MuMaFi/StrayClient/releases/latest" id="dl-msi" style="color:var(--accent);font-weight:700">Скачать MSI</a></span>
 </div>
 <div class="card os" id="os-mac">
 <div class="os-top">
@@ -483,8 +482,6 @@
   "t79": "Запусти скачанный <b>setup.exe</b>.",
   "t80": "Если появится SmartScreen: <b>Подробнее → Выполнить в любом случае</b> (приложение пока без цифровой подписи).",
   "t81": "Войди через Microsoft и нажми <b>«Играть»</b>.",
-  "t82": "Нужен .msi?",
-  "t83": "Скачать MSI",
   "t84": "macOS 11+ · Apple Silicon и Intel",
   "t85": "Скачать для Apple Silicon (M1–M4)",
   "t86": "Открой <b>.dmg</b> и перетащи Stray Client в «Программы».",
@@ -631,8 +628,6 @@
   "t79": "Run the downloaded <b>setup.exe</b>.",
   "t80": "If SmartScreen appears: <b>More info → Run anyway</b> (the app isn't code-signed yet).",
   "t81": "Sign in with Microsoft and hit <b>Play</b>.",
-  "t82": "Need an .msi?",
-  "t83": "Download MSI",
   "t84": "macOS 11+ · Apple Silicon and Intel",
   "t85": "Download for Apple Silicon (M1–M4)",
   "t86": "Open the <b>.dmg</b> and drag Stray Client into Applications.",
@@ -795,14 +790,13 @@
         }
         if (!rel) return;
         const find = (re) => rel.assets.find((a) => re.test(a.name));
-        const exe = find(/setup\.exe$/i), msi = find(/\.msi$/i);
+        const exe = find(/setup\.exe$/i);
         const dmgArm = find(/aarch64\.dmg$/i) || find(/universal\.dmg$/i);
         const dmgIntel = find(/x64\.dmg$/i) || find(/universal\.dmg$/i);
         const dmg = macIntel ? dmgIntel : dmgArm;
         const mb = (a) => (a.size / 1048576).toFixed(1).replace(".", T.decimal) + " " + T.mb;
         if (dmgIntel) { $("#dl-mac-intel").href = dmgIntel.browser_download_url; $("#dl-mac-intel").textContent = `${T.dlMacIntel} · ${mb(dmgIntel)}`; }
         if (exe) { $("#dl-win").href = exe.browser_download_url; $("#dl-win").textContent = `${T.dlWin} · ${mb(exe)}`; }
-        if (msi) $("#dl-msi").href = msi.browser_download_url;
         if (dmgArm) { $("#dl-mac").href = dmgArm.browser_download_url; $("#dl-mac").textContent = `${T.dlMac} · ${mb(dmgArm)}`; }
         else $("#dl-mac").textContent = T.macSoon;
         const pick = os === "win" ? exe : os === "mac" ? dmg : null;
