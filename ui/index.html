@@ -8,7 +8,6 @@
 </head>
 <body>
   <div class="drag" data-tauri-drag-region></div>
-  <div class="leaves" id="leaves" aria-hidden="true"></div>
 
   <header class="top" data-tauri-drag-region>
     <a class="brand" data-page="home">
@@ -132,6 +131,9 @@
 
     <!-- MODS -->
     <section class="page" id="page-mods">
+      <div class="page-head">
+        <div><h2 data-i18n="mods.title"></h2><p class="muted" data-i18n="mods.sub"></p></div>
+      </div>
       <div class="mods-bar">
         <div class="tabs" id="mod-tabs">
           <button class="tab active" data-tab="installed"><span data-i18n="mods.installed"></span> <em id="installed-count"></em></button>
@@ -262,6 +264,9 @@
     </section>
 
     <section class="page" id="page-settings">
+      <div class="page-head">
+        <div><h2 data-i18n="set.title"></h2><p class="muted" data-i18n="set.sub"></p></div>
+      </div>
       <div class="settings">
         <div class="card set-card">
           <h3 data-i18n="set.general"></h3>

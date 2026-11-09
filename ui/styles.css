@@ -40,7 +40,6 @@
   --accent: #51a2ff;
   --accent-2: #2b7fff;
   --accent-soft: rgba(81, 162, 255, 0.12);
-  --leaf: #c0603e;
   --ok: #4ade80;
   --danger: #ff6467;
   --r: 16px;
@@ -304,15 +303,6 @@ input[type=range]::-webkit-slider-thumb { -webkit-appearance: none; width: 20px;
 .toast { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); z-index: 70; padding: 12px 20px; border-radius: 14px; background: var(--panel-2); box-shadow: 0 0 0 1px var(--ring-2), 0 16px 40px rgba(0,0,0,.4); font-weight: 700; max-width: 80%; animation: in .2s ease both; }
 .toast.err { background: #3a2028; color: #ffb3b5; }
 
-/* ───────── falling leaves (GPU transforms only, paused while the game runs) ───────── */
-.leaves { position: fixed; inset: 0; pointer-events: none; z-index: 5; overflow: hidden; }
-.leaf { position: absolute; top: -30px; width: 14px; height: 14px; opacity: .75; will-change: transform; animation: fall linear infinite; }
-.leaf svg { width: 100%; height: 100%; fill: var(--leaf); stroke: none; animation: sway ease-in-out infinite alternate; animation-duration: inherit; }
-@keyframes fall { to { transform: translate3d(var(--dx, 40px), 110vh, 0) rotate(var(--rot, 300deg)); } }
-body.paused .leaf, body.paused .leaf svg { animation-play-state: paused; }
-body.no-motion .leaves { display: none; }
-@media (prefers-reduced-motion: reduce) { .leaves { display: none; } }
-
 @media (max-width: 1100px) {
   .nav-btn span { display: none; }
   .hero h1 { font-size: 36px; }
@@ -409,3 +399,103 @@ body.no-motion .cape-3d canvas { animation: none; }
 .skin-import input:focus { box-shadow: inset 0 0 0 1px var(--accent); }
 .cape-card canvas.skin-thumb { width: 40px; height: 80px; }
 .cape-card .badge-mini { position: absolute; top: 8px; left: 8px; font-size: 9px; font-weight: 800; letter-spacing: .06em; padding: 2px 6px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); text-transform: uppercase; }
+
+/* ═════════ Polish (same look, better details) ═════════ */
+
+/* typography */
+h1, h2, h3 { text-wrap: balance; }
+p { text-wrap: pretty; }
+.ks-row small, #mem-label, #cps-l, #cps-r, .online-row, .mod-meta, .stat b { font-variant-numeric: tabular-nums; }
+.field > label { letter-spacing: .07em; font-size: 11px; }
+
+
+/* header: active tab reads as a pill, hover is calmer */
+.nav-btn { position: relative; color: rgba(255,255,255,.82); }
+.nav-btn:hover { background: rgba(255,255,255,.04); color: #fff; }
+.nav-btn.active { background: var(--accent-soft); color: var(--accent); }
+.top { border-bottom-color: rgba(255,255,255,.07); }
+
+/* depth: a faint top highlight on every surface */
+.card, .mod, .online-card, .ip, .version-pill, .tabs, .seg, .acc-menu, .modal-card, .cape-card:not(.add), .account, .lang {
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.035), inset 0 0 0 1px var(--ring);
+}
+.mod { transition: transform .15s, box-shadow .15s, background .15s; }
+.mod:hover { background: #22232d; box-shadow: inset 0 1px 0 rgba(255,255,255,.05), inset 0 0 0 1px var(--ring-2); }
+.cape-card.on { box-shadow: inset 0 0 0 2px var(--accent), 0 8px 24px rgba(43,127,255,.18); }
+.module-card { box-shadow: inset 0 1px 0 rgba(255,255,255,.035), inset 0 0 0 1px var(--ring); }
+
+/* buttons: consistent press feedback */
+.btn, .play, .tab, .nav-btn, .social, .extra, .cape-card, .acc-row, .icon-btn { -webkit-tap-highlight-color: transparent; }
+.btn:active:not(:disabled), .extra:active, .tab:active, .cape-card:active { transform: translateY(1px) scale(.99); }
+.btn-primary { box-shadow: 0 6px 18px rgba(43,127,255,.28), inset 0 1px 0 rgba(255,255,255,.18); }
+.btn-primary:hover { box-shadow: 0 8px 22px rgba(43,127,255,.38), inset 0 1px 0 rgba(255,255,255,.22); }
+.btn:disabled { cursor: not-allowed; }
+
+/* keyboard focus: visible, on-brand */
+:focus { outline: none; }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; border-radius: 10px; }
+.toggle input:focus-visible + i { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* inputs */
+.field input[type=text], .field input[type=password], .field input[type=number], .field select, .search, .skin-import input {
+  transition: box-shadow .15s, background .15s;
+}
+.field input:hover, .field select:hover, .skin-import input:hover { box-shadow: inset 0 0 0 1px #484848; }
+.field select, .version-pill select {
+  -webkit-appearance: none; appearance: none; padding-right: 36px; cursor: pointer;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%238d8d8d' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 12px center; background-size: 16px;
+}
+.version-pill select { padding-right: 24px; background-position: right 0 center; }
+
+/* memory slider: filled track up to the thumb */
+input[type=range] { background: linear-gradient(90deg, var(--accent-2) 0 var(--fill, 50%), var(--panel-3) var(--fill, 50%) 100%); height: 6px; }
+input[type=range]::-webkit-slider-thumb { transition: box-shadow .15s, transform .15s; }
+input[type=range]:hover::-webkit-slider-thumb { transform: scale(1.08); box-shadow: 0 0 0 7px rgba(81,162,255,.3); }
+
+/* segmented controls: selected option stands out a little more */
+.seg button { transition: background .15s, color .15s; }
+.seg button.on { background: var(--panel-2); color: #fff; box-shadow: inset 0 1px 0 rgba(255,255,255,.06), 0 2px 8px rgba(0,0,0,.25); }
+.seg button:not(.on):hover { color: #fff; }
+
+/* toggles: smoother */
+.toggle i, .toggle i::after { transition: background .2s, transform .2s cubic-bezier(.3,1.4,.6,1); }
+
+/* empty states */
+.empty-state { grid-column: 1 / -1; display: flex; flex-direction: column; align-items: center; gap: 12px; padding: 44px 20px; border-radius: 18px; text-align: center; color: var(--muted); background: rgba(255,255,255,.015); border: 1px dashed var(--ring-2); }
+.empty-state svg { width: 34px; height: 34px; color: var(--accent); opacity: .8; }
+.empty-state p { max-width: 380px; font-size: 13px; }
+
+/* notices: info icon */
+.notice { display: flex; align-items: flex-start; gap: 10px; box-shadow: inset 0 0 0 1px rgba(81,162,255,.2); }
+.notice::before { content: "i"; flex: none; width: 18px; height: 18px; border-radius: 50%; display: grid; place-items: center; background: var(--accent); color: #0d1a2c; font: 800 11px var(--body); margin-top: 1px; }
+
+/* toast: icon + accent */
+.toast { display: flex; align-items: center; gap: 10px; padding: 12px 18px 12px 14px; background: #262734; box-shadow: inset 0 1px 0 rgba(255,255,255,.05), 0 0 0 1px var(--ring-2), 0 18px 44px rgba(0,0,0,.45); }
+.toast::before { content: "✓"; flex: none; width: 22px; height: 22px; border-radius: 50%; display: grid; place-items: center; background: rgba(74,222,128,.15); color: var(--ok); font-size: 12px; font-weight: 800; }
+.toast.err { background: #33212a; color: #ffc7c9; }
+.toast.err::before { content: "!"; background: rgba(255,100,103,.18); color: var(--danger); }
+
+/* scrollbars (WebView2 / WKWebView) */
+::-webkit-scrollbar { width: 10px; height: 10px; }
+::-webkit-scrollbar-track { background: transparent; }
+::-webkit-scrollbar-thumb { background: var(--panel-2); border-radius: 10px; border: 3px solid var(--bg); }
+::-webkit-scrollbar-thumb:hover { background: var(--panel-3); }
+
+/* page heads breathe a little more */
+.page-head { margin-bottom: 18px; }
+.page-head h2 { letter-spacing: -.005em; }
+
+/* hero: a soft glow behind the play button */
+.play-row { position: relative; }
+.play::after { content: ""; position: absolute; inset: 0; border-radius: inherit; box-shadow: 0 0 0 0 rgba(81,162,255,.5); transition: box-shadow .3s; pointer-events: none; }
+.play:hover::after { box-shadow: 0 0 0 6px rgba(81,162,255,.12); }
+
+/* respect reduced motion everywhere */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+}
+
+/* "Reduce animations" setting */
+body.no-motion *, body.no-motion *::before, body.no-motion *::after { animation: none !important; transition-duration: .01ms !important; }
+.toast[hidden], .empty-state[hidden] { display: none; }

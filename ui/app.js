@@ -84,21 +84,6 @@
     if (u) api.call("open_url", { url: u.dataset.url });
   });
 
-  // ───────── leaves (cheap: 12 elements, transform-only animation) ─────────
-  function makeLeaves() {
-    const box = $("#leaves");
-    const path = '<svg viewBox="0 0 16 16"><path d="M8 0c3 3 6 5 6 9a6 6 0 0 1-5 6v1H7v-1a6 6 0 0 1-5-6c0-4 3-6 6-9z"/></svg>';
-    for (let i = 0; i < 12; i++) {
-      const l = document.createElement("i");
-      l.className = "leaf";
-      l.innerHTML = path;
-      const dur = 11 + Math.random() * 10;
-      l.style.cssText = `left:${Math.random() * 100}%;animation-duration:${dur}s;animation-delay:${-Math.random() * dur}s;` +
-        `--dx:${(Math.random() * 160 - 60) | 0}px;--rot:${(Math.random() * 540 - 180) | 0}deg;` +
-        `transform:scale(${0.6 + Math.random() * 0.7});opacity:${0.35 + Math.random() * 0.45}`;
-      box.appendChild(l);
-    }
-  }
   // Nothing animates in the background: pause when hidden or while Minecraft runs.
   const syncPause = () => document.body.classList.toggle("paused", document.hidden || S.running);
   document.addEventListener("visibilitychange", syncPause);
@@ -366,7 +351,14 @@
         </div>
       </div>`
         )
-        .join("") + (userMods ? "" : `<div class="empty">${t("mods.none")}</div>`);
+        .join("") +
+      (userMods
+        ? ""
+        : `<div class="empty-state">
+            <svg viewBox="0 0 24 24"><path d="M12 2 3 7v10l9 5 9-5V7zM12 12 3 7m9 5 9-5m-9 5v10"/></svg>
+            <p>${t("mods.none")}</p>
+            <button class="btn btn-soft" data-goto-tab="modrinth">${t("mods.findMore")}</button>
+          </div>`);
     $("#more").hidden = true;
   }
 
@@ -388,7 +380,10 @@
       )
       .join("");
     if (append) grid.insertAdjacentHTML("beforeend", html);
-    else grid.innerHTML = html || `<div class="empty">${t("mods.empty")}</div>`;
+    else
+      grid.innerHTML =
+        html ||
+        `<div class="empty-state"><svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg><p>${t("mods.empty")}</p></div>`;
     $("#more").hidden = hits.length < 24;
   }
 
@@ -438,6 +433,8 @@
   $("#open-mods").addEventListener("click", () => api.call("open_dir", { kind: "mods", game: currentGame() }));
 
   $("#mod-grid").addEventListener("click", async (e) => {
+    const goto = e.target.closest("[data-goto-tab]");
+    if (goto) return $(`.tab[data-tab="${goto.dataset.gotoTab}"]`).click();
     const card = e.target.closest(".mod");
     if (!card) return;
     const id = card.dataset.id;
@@ -504,7 +501,10 @@
     const mem = $("#set-mem");
     mem.max = Math.max(4096, Math.floor((S.init.totalMemoryMb * 0.75) / 512) * 512);
     mem.value = s.memoryMb;
+    const fillRange = () => mem.style.setProperty("--fill", `${((mem.value - mem.min) / (mem.max - mem.min)) * 100}%`);
+    fillRange();
     mem.addEventListener("input", () => {
+      fillRange();
       s.memoryMb = +mem.value;
       updateMemHint();
       renderStatus();
@@ -562,7 +562,7 @@
     );
     $$("[data-open]").forEach((b) => b.addEventListener("click", () => api.call("open_dir", { kind: b.dataset.open, game: currentGame() })));
     $("#data-dir").textContent = S.init.dataDir;
-    $("#app-version").textContent = `Stray Launcher v${S.init.appVersion} · ${S.init.os}`;
+    $("#app-version").textContent = `Stray Client v${S.init.appVersion} · ${S.init.os}${S.init.arch ? " " + S.init.arch : ""}`;
   }
 
   // ───────── boot ─────────
@@ -1018,7 +1018,6 @@
     document.body.classList.toggle("no-motion", S.settings.reduceMotion);
     bindSettings();
     applyI18n();
-    makeLeaves();
     S.versions = await api.call("game_versions").catch(() => []);
     renderVersionSelects();
     S.installed = await api.call("mods_list", { game: currentGame() }).catch(() => []);

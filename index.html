@@ -21,7 +21,7 @@
       --bg: #1a1b24; --panel: #1e1f28; --panel-2: #2f3040; --panel-3: #383a4d;
       --ring: rgba(255,255,255,.06); --ring-2: rgba(255,255,255,.1);
       --text: #fff; --muted: #8d8d8d; --accent: #51a2ff; --accent-2: #2b7fff; --accent-soft: rgba(81,162,255,.12);
-      --leaf: #c0603e; --ok: #4ade80;
+      --ok: #4ade80;
       --display: "Unbounded", system-ui, sans-serif; --body: "Manrope", system-ui, -apple-system, "Segoe UI", sans-serif;
       color-scheme: dark;
     }
@@ -69,6 +69,19 @@
     .demo-tip b { flex: none; width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); font-size: 13px; }
     .demo-side .btn { margin-top: 6px; }
     .demo-hint { font-size: 13px; color: var(--muted); margin-top: 12px; }
+    /* polish */
+    h1, h2, h3 { text-wrap: balance; }
+    p { text-wrap: pretty; }
+    .card, table, .viewer, details { box-shadow: inset 0 1px 0 rgba(255,255,255,.035), inset 0 0 0 1px var(--ring); }
+    .card.feat { transition: transform .2s, box-shadow .2s, background .2s; }
+    .card.feat:hover { transform: translateY(-3px); background: #22232d; box-shadow: inset 0 1px 0 rgba(255,255,255,.05), inset 0 0 0 1px var(--ring-2), 0 18px 40px rgba(0,0,0,.3); }
+    nav a { transition: background .15s, color .15s; }
+    :focus { outline: none; }
+    :focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 10px; }
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-thumb { background: var(--panel-2); border-radius: 10px; border: 3px solid var(--bg); }
+    .stat b { font-variant-numeric: tabular-nums; }
+    @media (prefers-reduced-motion: reduce) { *, *::before, *::after { transition-duration: .01ms !important; animation-duration: .01ms !important; } }
     @media (max-width: 900px) { .demo-wrap { grid-template-columns: 1fr; } }
     /* hero */
     .hero { position: relative; margin-top: 28px; border-radius: 28px; overflow: hidden; isolation: isolate; min-height: 560px; display: flex; align-items: center; }
@@ -175,11 +188,7 @@
 
     .toast { position: fixed; left: 50%; bottom: 26px; transform: translateX(-50%); padding: 12px 20px; border-radius: 14px; background: var(--panel-2); box-shadow: 0 0 0 1px var(--ring-2), 0 16px 40px rgba(0,0,0,.4); font-weight: 700; z-index: 20; }
 
-    .leaves { position: fixed; inset: 0; pointer-events: none; z-index: 10; overflow: hidden; }
-    .leaf { position: absolute; top: -30px; width: 14px; height: 14px; will-change: transform; animation: fall linear infinite; }
-    .leaf svg { width: 100%; height: 100%; fill: var(--leaf); stroke: none; }
-    @keyframes fall { to { transform: translate3d(var(--dx, 40px), 110vh, 0) rotate(var(--rot, 300deg)); } }
-    @media (prefers-reduced-motion: reduce) { .leaves { display: none; } html { scroll-behavior: auto; } }
+    @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
 
     @media (max-width: 900px) {
       nav { display: none; }
@@ -199,7 +208,6 @@
   </style>
 </head>
 <body>
-<div aria-hidden="true" class="leaves" id="leaves"></div>
 <div class="wrap">
 <header>
 <a class="brand" href="#"><img alt="" src="ui/assets/logo.svg"/>STRAY CLIENT</a>
@@ -849,18 +857,6 @@
         sx = null;
       });
 
-      // Falling leaves, like on shop.straysmp.cc. Transform-only, so it's cheap.
-      const box = $("#leaves");
-      const leaf = '<svg viewBox="0 0 16 16"><path d="M8 0c3 3 6 5 6 9a6 6 0 0 1-5 6v1H7v-1a6 6 0 0 1-5-6c0-4 3-6 6-9z"/></svg>';
-      for (let i = 0; i < 12; i++) {
-        const l = document.createElement("i");
-        l.className = "leaf";
-        l.innerHTML = leaf;
-        const dur = 12 + Math.random() * 12;
-        l.style.cssText = `left:${Math.random() * 100}%;animation-duration:${dur}s;animation-delay:${-Math.random() * dur}s;` +
-          `--dx:${(Math.random() * 160 - 60) | 0}px;--rot:${(Math.random() * 540 - 180) | 0}deg;opacity:${0.3 + Math.random() * 0.4}`;
-        box.appendChild(l);
-      }
 
       if (lang !== "ru") applyLang(lang); else applyDownloads();
     })();
