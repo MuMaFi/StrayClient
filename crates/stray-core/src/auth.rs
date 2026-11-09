@@ -15,9 +15,20 @@ use crate::{http, Error, Result};
 const MS_BASE: &str = "https://login.microsoftonline.com/consumers/oauth2/v2.0";
 const SCOPE: &str = "XboxLive.signin offline_access";
 
-/// Azure application (client) id. Set `STRAY_MSA_CLIENT_ID` at build time (GitHub secret).
+/// Stray Client's Azure application (client) id. Not a secret: it identifies the app to
+/// Microsoft, like every launcher's. A build can override it with `STRAY_MSA_CLIENT_ID`.
+pub const DEFAULT_CLIENT_ID: &str = "900a4d43-b1d3-476d-afc3-b83391ff4e2a";
+
+/// Direct sign-in becomes the default once Mojang has approved the app for the Minecraft
+/// API. Until then "auto" plays through the official Minecraft Launcher.
+pub const DIRECT_LOGIN_BY_DEFAULT: bool = false;
+
 pub fn client_id() -> Option<&'static str> {
-    option_env!("STRAY_MSA_CLIENT_ID").filter(|s| !s.is_empty())
+    Some(
+        option_env!("STRAY_MSA_CLIENT_ID")
+            .filter(|s| !s.is_empty())
+            .unwrap_or(DEFAULT_CLIENT_ID),
+    )
 }
 
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -411,14 +422,16 @@ async fn minecraft_login(ms_access: &str, refresh_token: String) -> Result<Accou
         .as_str()
         .unwrap_or_default();
 
-    let mc: serde_json::Value = c
+    let mc_res = c
         .post("https://api.minecraftservices.com/authentication/login_with_xbox")
         .json(&json!({ "identityToken": format!("XBL3.0 x={uhs};{xsts_token}") }))
         .send()
-        .await?
-        .error_for_status()?
-        .json()
         .await?;
+    // 403 "Invalid app registration": Mojang hasn't approved this client ID yet.
+    if mc_res.status() == reqwest::StatusCode::FORBIDDEN {
+        return Err(Error::Auth("app_not_approved".into()));
+    }
+    let mc: serde_json::Value = mc_res.error_for_status()?.json().await?;
     let mc_token = mc["access_token"]
         .as_str()
         .ok_or_else(|| Error::Auth("mc".into()))?

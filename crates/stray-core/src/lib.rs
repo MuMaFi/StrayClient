@@ -18,6 +18,7 @@ pub mod java;
 pub mod launch;
 pub mod mods;
 pub mod mojang;
+pub mod official;
 pub mod paths;
 pub mod ping;
 pub mod settings;

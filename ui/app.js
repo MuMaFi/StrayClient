@@ -135,8 +135,18 @@
     S.init.account = S.accounts.accounts.find((a) => a.uuid === S.accounts.active) || null;
     renderAccount();
   }
+  const official = () => S.init?.playMode === "official";
   function renderAccount() {
     const btn = $("#account");
+    if (official()) {
+      btn.classList.add("guest", "official");
+      $("#acc-name").textContent = t("acc.viaLauncher");
+      btn.title = t("acc.viaLauncherTip");
+      $("#acc-menu").hidden = true;
+      return;
+    }
+    btn.classList.remove("official");
+    btn.title = "";
     const acc = S.init?.account;
     btn.classList.toggle("guest", !acc);
     $("#acc-name").textContent = acc ? acc.name : t("acc.login");
@@ -164,6 +174,7 @@
   }
   $("#account").addEventListener("click", (e) => {
     e.stopPropagation();
+    if (official()) return showOfficialInfo(false);
     if (!S.accounts?.accounts?.length) return login();
     const menu = $("#acc-menu");
     menu.hidden = !menu.hidden;
@@ -246,6 +257,19 @@
       toast(t("acc.ok", r.account.name));
       return;
     }
+    if (String(r.error).includes("app_not_approved")) {
+      modal.hidden = true;
+      toast(t("err.app_not_approved"), true);
+      S.settings.playMode = "official";
+      saveSettings()
+        .then(() => api.call("get_init"))
+        .then((init) => {
+          if (init) S.init.playMode = init.playMode;
+          $$("#set-playmode button").forEach((b) => b.classList.toggle("on", b.dataset.v === "official"));
+          applyPlayMode();
+        });
+      return;
+    }
     if (r.error === "cancelled" || modal.hidden) {
       // Window closed: only hide the dialog if the user isn't using the code fallback.
       if (!$("#login-window-card").hidden) modal.hidden = true;
@@ -270,6 +294,13 @@
     $("#stage").textContent = `${t("stage." + p.stage)} · ${p.done}/${p.total}`;
   });
   api.on("game", (g) => {
+    if (g.state === "official") {
+      S.busy = false;
+      setPlay("idle", t("play"));
+      $("#stage").textContent = t("off.opened");
+      toast(t("off.opened"));
+      return;
+    }
     if (g.state === "running") {
       S.busy = false;
       S.running = true;
@@ -285,7 +316,14 @@
   });
   playBtn.addEventListener("click", async () => {
     if (S.busy || S.running) return;
-    if (!S.init.account) return login();
+    if (official()) {
+      let seen = false;
+      try { seen = localStorage.getItem("stray-official-seen") === "1"; } catch {}
+      if (!seen) return showOfficialInfo(true);
+    } else if (!S.init.account) return login();
+    startPlay();
+  });
+  async function startPlay() {
     S.busy = true;
     setPlay("busy", t("play.preparing"));
     try {
@@ -294,9 +332,25 @@
       S.busy = false;
       setPlay("idle", t("play"));
       $("#stage").textContent = "";
+      if (String(e) === "launcher_not_found") return showOfficialInfo(false, true);
       toast(errText(e), true);
     }
-  });
+  }
+
+  // Explains the official-launcher flow (first play, account chip, or launcher missing).
+  function showOfficialInfo(thenPlay, missing = false) {
+    $("#off-missing").hidden = !missing;
+    $("#off-download").hidden = !missing;
+    $("#off-go").hidden = missing;
+    $("#off-modal").hidden = false;
+    $("#off-go").onclick = () => {
+      try { localStorage.setItem("stray-official-seen", "1"); } catch {}
+      $("#off-modal").hidden = true;
+      if (thenPlay || !S.busy) startPlay();
+    };
+  }
+  $("#off-close").addEventListener("click", () => ($("#off-modal").hidden = true));
+  $("#off-download").addEventListener("click", () => api.call("open_url", { url: "https://www.minecraft.net/download" }));
 
   // ───────── performance extras on home ─────────
   function renderPerf() {
@@ -551,11 +605,19 @@
       });
     };
     seg($("#set-gc"), "gc");
+    s.playMode ||= "auto";
+    seg($("#set-playmode"), "playMode", async () => {
+      await saveSettings();
+      const init = await api.call("get_init").catch(() => null);
+      if (init) S.init.playMode = init.playMode;
+      applyPlayMode();
+    });
     seg($("#set-lang"), "language", applyI18n);
     $$(".lang button").forEach((b) =>
       b.addEventListener("click", () => {
         s.language = b.dataset.lang;
         applyI18n();
+    applyPlayMode();
         $$("#set-lang button").forEach((x) => x.classList.toggle("on", x.dataset.v === s.language));
         saveSoon();
       })
@@ -871,6 +933,7 @@
       b.disabled = !sel || !!sel.current;
     });
     $("#skin-apply").disabled = !sel || !!sel.current;
+    $("#skin-apply").firstElementChild.textContent = official() ? t("skin.webApply") : t("skin.apply");
     $("#skin-reset").hidden = !S.init.account;
     const cards = [];
     if (S.currentSkin?.dataUrl) {
@@ -901,8 +964,8 @@
     S.currentSkin = cur;
     renderSkins();
     const n = $("#skin-notice");
-    n.hidden = !!S.init.account;
-    n.textContent = S.init.account ? "" : t("skin.needLogin");
+    n.hidden = !!S.init.account && !official();
+    n.textContent = official() ? t("skin.officialNote") : S.init.account ? "" : t("skin.needLogin");
   }
   async function addSkinFiles(files) {
     let last = null;
@@ -944,6 +1007,11 @@
   $("#skin-apply").addEventListener("click", async () => {
     const sel = selectedSkin();
     if (!sel || sel.current) return;
+    if (official()) {
+      api.call("open_dir", { kind: "skins" });
+      api.call("open_url", { url: "https://www.minecraft.net/msaprofile/mygames/editskin" });
+      return toast(t("skin.webOpened"));
+    }
     if (!S.init.account) return login();
     const btn = $("#skin-apply");
     btn.disabled = true;
@@ -1006,6 +1074,17 @@
     b.className = "demo-badge";
     b.textContent = "DEMO";
     $(".brand").appendChild(b);
+  }
+
+  function applyPlayMode() {
+    const off = official();
+    const hint = $("#playmode-hint");
+    hint.textContent = !S.init.hasClientId ? t("set.pm.noId") : off ? t("set.pm.hintOfficial") : t("set.pm.hintDirect");
+    $('#set-playmode [data-v="direct"]').disabled = !S.init.hasClientId;
+    $("#set-autojoin").disabled = off;
+    $("#set-autojoin").closest(".toggle").classList.toggle("is-off", off);
+    renderAccount();
+    if ($("#page-capes").classList.contains("active")) loadSkins();
   }
 
   async function boot() {

@@ -27,7 +27,7 @@ macOS (Apple Silicon + Intel) · Windows · Русский / English
 | 🚀 **Parallel, verified downloads** | 48 concurrent HTTP/2 connections, SHA-1 checked, atomic writes. Measured: full first install of 26.3 (Java 25, ~5,100 assets, Fabric, mods) in **19 s**; warm start check in **0.18 s**. |
 | 🎯 **Straight onto the server** | Quick Play joins `play.straysmp.cc` as soon as the game opens. Live player counter via Server List Ping (SRV records are followed). |
 | 🧠 **Tuned JVM** | Tuned G1 flags by default, or generational ZGC for machines with plenty of RAM. On JDK 25+ we add `-XX:+UseCompactObjectHeaders` (smaller heap). RAM recommendation is based on your system. |
-| 🔐 **Microsoft login** | Like Lunar Client: Microsoft's own sign-in page opens in a separate window (OAuth code flow + PKCE) and closes itself when you're done. Keep several accounts and switch with one click from the account menu. Signing in with a code is available as a fallback. Tokens never reach the UI. |
+| 🔐 **Sign-in** | Works out of the box through the **official Minecraft Launcher**: Stray Client sets everything up, writes a “Stray Client” profile and opens the launcher, which signs you in and checks the license. With a Microsoft client ID in the build, direct sign-in like Lunar Client is available too (own window, several accounts, one-click skin upload). |
 | 🌍 **RU / EN** | Switch any time in the header or Settings. |
 | 👕 **Skins** | Upload a PNG (64×64 / 64×32) or copy any player's skin, pick Classic/Slim, and apply it to your account through the official Minecraft API, so everyone sees it on every server. |
 | 🧣 **Capes** | Your own cape from a PNG with a live front/back preview. Powered by our small **Stray Capes** mod (`mods/stray-capes`, MIT) for Minecraft 26.x; the cape is shown on your own player. |
@@ -80,6 +80,8 @@ Everything is built by GitHub Actions (`.github/workflows/build.yml`):
 | `CURSEFORGE_API_KEY` | CurseForge tab (users can also enter their own key in Settings) | [console.curseforge.com](https://console.curseforge.com) |
 
 #### Microsoft login (Client ID)
+
+Without a client ID the client plays through the official Minecraft Launcher, so this is optional. Step-by-step guide in Russian for the server owner: [docs/MICROSOFT-LOGIN.ru.md](docs/MICROSOFT-LOGIN.ru.md).
 
 1. [Azure Portal → App registrations](https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade) → *New registration*. Supported accounts: **Personal Microsoft accounts only**.
 2. *Authentication* → *Add a platform* → **Mobile and desktop applications** → tick the redirect URI `https://login.microsoftonline.com/common/oauth2/nativeclient`. Also enable **Allow public client flows** (needed for the "use a code instead" fallback).

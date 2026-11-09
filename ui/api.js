@@ -52,7 +52,8 @@
 
   const handlers = {
     async get_init() {
-      return { settings, account: current() && { name: active, uuid: active }, accounts: list(), totalMemoryMb: 16384, hasClientId: true, hasCfKey: false, appVersion: "1.0.0", os: "macos", dataDir: "~/Library/Application Support/StrayLauncher" };
+      const playMode = settings.playMode === "official" ? "official" : "direct";
+      return { playMode, official: { launcherFound: true }, settings, account: current() && { name: active, uuid: active }, accounts: list(), totalMemoryMb: 16384, hasClientId: true, hasCfKey: false, appVersion: "1.0.1", os: "macos", dataDir: "~/Library/Application Support/StrayLauncher" };
     },
     async save_settings({ settings: s }) { settings = s; store.set("mock-lang", s.language); return !!s.curseforgeKey; },
     async game_versions() { return ["26.3", "26.2", "26.1.2", "26.1.1", "26.1", "1.21.11", "1.21.10", "1.21.8", "1.21.4", "1.21.1", "1.20.6", "1.20.4", "1.20.1"]; },
@@ -155,7 +156,13 @@
     async modules_apply() {},
     async open_dir() {},
     async open_url({ url }) { window.open(url, "_blank"); },
+    async official_status() { return { launcherFound: true, minecraftDir: "~/Library/Application Support/minecraft" }; },
     async play() {
+      if (settings.playMode === "official") {
+        for (const [stage, total] of [["meta", 1], ["mods", 2]]) for (let i = 0; i <= 6; i++) { await wait(70); emit("progress", { stage, done: Math.round((total * i) / 6), total }); }
+        emit("game", { state: "official", version: "fabric-loader-0.20.1-26.3" });
+        return;
+      }
       if (!current()) throw "not logged in";
       const stages = [["meta", 1], ["java", 147], ["libraries", 74], ["assets", 5147], ["mods", 2]];
       for (const [stage, total] of stages) for (let i = 0; i <= 10; i++) { await wait(60); emit("progress", { stage, done: Math.round((total * i) / 10), total }); }

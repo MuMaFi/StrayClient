@@ -39,6 +39,9 @@ pub struct Settings {
     /// File name in the cape library used when `cape_mode` is `local`.
     pub cape: String,
     pub keystrokes: Keystrokes,
+    /// `auto`: direct Microsoft login when the build has a client ID, otherwise play through
+    /// the official Minecraft Launcher. `direct` / `official` force one of the two.
+    pub play_mode: String,
 }
 
 /// HUD module: WASD, mouse buttons with CPS, space bar, FPS and ping (Modern Keystrokes).
@@ -84,6 +87,7 @@ impl Default for Settings {
             cape_mode: "account".into(),
             cape: String::new(),
             keystrokes: Keystrokes::default(),
+            play_mode: "auto".into(),
         }
     }
 }

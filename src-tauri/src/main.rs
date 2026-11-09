@@ -9,7 +9,9 @@ use stray_core::mods::{self, InstalledMod, SearchHit, Source};
 use stray_core::paths::Paths;
 use stray_core::ping::{self, ServerStatus};
 use stray_core::settings::Settings;
-use stray_core::{cosmetics, launch, skins, Progress, ProgressFn, SERVER_HOST, SERVER_PORT};
+use stray_core::{
+    cosmetics, launch, official, skins, Progress, ProgressFn, SERVER_HOST, SERVER_PORT,
+};
 use tauri::{AppHandle, Emitter, Manager, State};
 use tauri_plugin_opener::OpenerExt;
 use tokio::sync::RwLock;
@@ -47,6 +49,9 @@ struct Init {
     arch: &'static str,
     /// Apple Silicon performance cores (None elsewhere).
     perf_cores: Option<u32>,
+    /// "direct" or "official" (see effective_play_mode).
+    play_mode: &'static str,
+    official: official::Status,
     data_dir: String,
 }
 
@@ -55,6 +60,7 @@ async fn get_init(state: State<'_, AppState>) -> Res<Init> {
     let settings = state.settings.read().await.clone();
     let mut sys = sysinfo::System::new();
     sys.refresh_memory();
+    let play_mode = effective_play_mode(&settings);
     Ok(Init {
         has_cf_key: mods::curseforge_key(&settings.curseforge_key).is_some(),
         settings,
@@ -66,6 +72,8 @@ async fn get_init(state: State<'_, AppState>) -> Res<Init> {
         os: std::env::consts::OS,
         arch: std::env::consts::ARCH,
         perf_cores: launch::apple_performance_cores(),
+        play_mode,
+        official: official::status(),
         data_dir: state.paths.root.to_string_lossy().into_owned(),
     })
 }
@@ -423,6 +431,7 @@ async fn open_dir(
     let p = match kind.as_str() {
         "mods" => state.paths.instance(&game).join("mods"),
         "instance" => state.paths.instance(&game),
+        "skins" => state.paths.root.join("skins"),
         "logs" => state.paths.logs(),
         _ => state.paths.root.clone(),
     };
@@ -438,6 +447,25 @@ fn open_url(app: AppHandle, url: String) -> Res<()> {
         return Err("bad url".into());
     }
     app.opener().open_url(url, None::<&str>).map_err(err)
+}
+
+/// `auto` → direct login when this build has a Microsoft client ID, else the official launcher.
+fn effective_play_mode(settings: &Settings) -> &'static str {
+    let direct = match settings.play_mode.as_str() {
+        "direct" => true,
+        "official" => false,
+        _ => auth::DIRECT_LOGIN_BY_DEFAULT,
+    };
+    if direct && auth::client_id().is_some() {
+        "direct"
+    } else {
+        "official"
+    }
+}
+
+#[tauri::command]
+fn official_status() -> official::Status {
+    official::status()
 }
 
 #[tauri::command]
@@ -456,6 +484,18 @@ async fn play_inner(app: &AppHandle, state: &AppState) -> Res<()> {
     let settings = state.settings.read().await.clone();
     let game = current_game(state).await?;
     let paths = state.paths.clone();
+    if effective_play_mode(&settings) == "official" {
+        // Through the official Minecraft Launcher: it signs the player in and starts the game.
+        let version = official::play(&paths, &game, &settings, &progress_emitter(app))
+            .await
+            .map_err(err)?;
+        state.running.store(false, Ordering::SeqCst);
+        let _ = app.emit(
+            "game",
+            serde_json::json!({ "state": "official", "version": version }),
+        );
+        return Ok(());
+    }
     // Check the account first so the user isn't kept waiting for downloads only to fail.
     let account = auth::valid_account(&paths).await.map_err(err)?;
     let prepared = launch::prepare(&paths, &game, &settings, &progress_emitter(app))
@@ -516,6 +556,7 @@ fn main() {
             login_window,
             login_cancel,
             accounts_list,
+            official_status,
             capes_list,
             skins_list,
             skin_add,

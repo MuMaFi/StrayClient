@@ -18,7 +18,7 @@ pub struct Prepared {
 }
 
 /// Remember the Fabric loader per instance so launching works offline.
-async fn loader_for(paths: &Paths, game: &str) -> Result<String> {
+pub async fn loader_for(paths: &Paths, game: &str) -> Result<String> {
     let file = paths.instance(game).join("loader.txt");
     match fabric::latest_loader(game).await {
         Ok(l) => {
