@@ -31,9 +31,9 @@ macOS (Apple Silicon + Intel) · Windows · Русский / English
 <img src="docs/en/accounts.png" width="49%" alt="Account switcher" /> <img src="docs/en/mods.png" width="49%" alt="Mods" />
 <img src="docs/en/settings.png" width="49%" alt="Settings" /> <img src="docs/en/login.png" width="49%" alt="Microsoft sign-in" />
 
-### Stray Launcher vs. Dawn
+### Stray Client vs. Lunar, Badlion and Dawn
 
-The goal is to beat Dawn for StraySMP players: get people into the game faster and with less overhead.
+The goal: a faster, lighter client than Lunar, Badlion and Dawn, with an open mod ecosystem.
 
 - **Smaller and lighter:** a 10 MB native binary, no bundled browser engine.
 - **Performance by default:** Sodium + FerriteCore always on, tuned GC flags, compact object headers on new JDKs.

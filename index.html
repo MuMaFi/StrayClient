@@ -134,6 +134,10 @@
     .thumbs img { width: 100%; aspect-ratio: 1180 / 740; object-fit: cover; display: block; }
     .thumbs span { display: block; padding: 8px 6px 9px; }
     @media (max-width: 900px) { .thumbs { grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: 140px; overflow-x: auto; scroll-snap-type: x mandatory; padding-bottom: 6px; } .thumbs button { scroll-snap-align: start; } .g-nav { display: none; } }
+    .table-scroll { overflow-x: auto; border-radius: 22px; -webkit-overflow-scrolling: touch; }
+    .table-scroll table { min-width: 760px; }
+    td:first-child { font-weight: 700; }
+    .table-note { margin-top: 12px; font-size: 13px; color: var(--muted); }
     table { width: 100%; border-collapse: separate; border-spacing: 0; background: var(--panel); border-radius: 22px; overflow: hidden; box-shadow: inset 0 0 0 1px var(--ring); }
     th, td { padding: 16px 22px; text-align: left; border-bottom: 1px solid var(--ring); font-size: 15px; }
     th { font-family: var(--display); font-size: 13px; font-weight: 600; color: var(--muted); background: rgba(255,255,255,.015); }
@@ -324,20 +328,24 @@
 </section>
 <section id="compare">
 <div class="sec-head">
-<div><div class="eyebrow" data-i18n="t53">Сравнение</div><h2 data-i18n="t54">Stray Client и Dawn</h2></div>
-<p class="muted" data-i18n="t55">Оба клиента бесплатные. Stray Client делает ставку на скорость, лёгкость и открытый код.</p>
+<div><div class="eyebrow" data-i18n="t53">Сравнение</div><h2 data-i18n="c.title">Stray Client, Lunar, Badlion и Dawn</h2></div>
+<p class="muted" data-i18n="c.lead">Все четыре клиента бесплатные. Stray Client делает ставку на скорость, лёгкость, моды из Modrinth и CurseForge и открытый код.</p>
 </div>
+<div class="table-scroll">
 <table>
-<thead><tr><th></th><th class="us">Stray Client</th><th>Dawn</th></tr></thead>
+<thead><tr><th></th><th class="us">Stray Client</th><th>Lunar Client</th><th>Badlion Client</th><th>Dawn</th></tr></thead>
 <tbody>
-<tr><td data-i18n="t56">Размер приложения</td><td class="us yes" data-i18n="t57">~10 МБ, без встроенного браузера</td><td data-i18n="t58">Нет данных</td></tr>
-<tr><td data-i18n="t59">Sodium + FerriteCore из коробки</td><td class="us yes" data-i18n="t60">Да, всегда включены</td><td data-i18n="t61">Свои модули</td></tr>
-<tr><td data-i18n="t62">Моды из Modrinth и CurseForge</td><td class="us yes" data-i18n="t63">Оба, с зависимостями</td><td data-i18n="t64">Свой набор</td></tr>
-<tr><td data-i18n="t65">Открытый исходный код</td><td class="us yes" data-i18n="t66">Да, на GitHub</td><td data-i18n="t67">Нет данных</td></tr>
-<tr><td data-i18n="t68">Технология</td><td class="us" data-i18n="t69">Rust + системный WebView, ~10 МБ</td><td data-i18n="t70">Свой клиент</td></tr>
-<tr><td data-i18n="t71">Цена</td><td class="us yes" data-i18n="t72">Бесплатно</td><td data-i18n="t73">Бесплатно</td></tr>
+<tr><td data-i18n="c.size.0">Размер приложения</td><td class="us yes" data-i18n="c.size.1">~10 МБ, без встроенного браузера</td><td data-i18n="c.size.2">Нет данных</td><td data-i18n="c.size.3">Нет данных</td><td data-i18n="c.size.4">Нет данных</td></tr>
+<tr><td data-i18n="c.perf.0">Оптимизация</td><td class="us yes" data-i18n="c.perf.1">Sodium + FerriteCore, всегда включены</td><td data-i18n="c.perf.2">Свои оптимизации</td><td data-i18n="c.perf.3">Свои оптимизации</td><td data-i18n="c.perf.4">Свои модули</td></tr>
+<tr><td data-i18n="c.mods.0">Моды из Modrinth и CurseForge</td><td class="us yes" data-i18n="c.mods.1">Оба, с зависимостями</td><td data-i18n="c.mods.2">Встроенные моды</td><td data-i18n="c.mods.3">Встроенные моды</td><td data-i18n="c.mods.4">Свой набор</td></tr>
+<tr><td data-i18n="c.login.0">Вход Microsoft и несколько аккаунтов</td><td class="us yes" data-i18n="c.login.1">Да, отдельное окно + переключатель</td><td data-i18n="c.login.2">Да</td><td data-i18n="c.login.3">Нет данных</td><td data-i18n="c.login.4">Нет данных</td></tr>
+<tr><td data-i18n="c.oss.0">Открытый исходный код</td><td class="us yes" data-i18n="c.oss.1">Да, на GitHub</td><td data-i18n="c.oss.2">Нет</td><td data-i18n="c.oss.3">Нет</td><td data-i18n="c.oss.4">Нет данных</td></tr>
+<tr><td data-i18n="c.tech.0">Технология</td><td class="us" data-i18n="c.tech.1">Rust + системный WebView</td><td data-i18n="c.tech.2">Свой клиент</td><td data-i18n="c.tech.3">Свой клиент</td><td data-i18n="c.tech.4">Свой клиент</td></tr>
+<tr><td data-i18n="c.price.0">Цена</td><td class="us yes" data-i18n="c.price.1">Бесплатно</td><td data-i18n="c.price.2">Бесплатно, косметика платная</td><td data-i18n="c.price.3">Бесплатно, есть платная подписка</td><td data-i18n="c.price.4">Бесплатно</td></tr>
 </tbody>
 </table>
+</div>
+<p class="table-note" data-i18n="c.note">Сравнение по открытым данным; «Нет данных» — если мы не смогли надёжно проверить.</p>
 </section>
 <section id="download">
 <div class="sec-head">
@@ -448,26 +456,6 @@
   "t51": "<b>Аккаунты</b> — несколько аккаунтов Microsoft, переключение в один клик, как в Lunar.",
   "t52": "Аккаунты",
   "t53": "Сравнение",
-  "t54": "Stray Client и Dawn",
-  "t55": "Оба клиента бесплатные. Stray Client делает ставку на скорость, лёгкость и открытый код.",
-  "t56": "Размер приложения",
-  "t57": "~10 МБ, без встроенного браузера",
-  "t58": "Нет данных",
-  "t59": "Sodium + FerriteCore из коробки",
-  "t60": "Да, всегда включены",
-  "t61": "Свои модули",
-  "t62": "Моды из Modrinth и CurseForge",
-  "t63": "Оба, с зависимостями",
-  "t64": "Свой набор",
-  "t65": "Открытый исходный код",
-  "t66": "Да, на GitHub",
-  "t67": "Нет данных",
-  "t68": "Технология",
-  "t69": "Rust + системный WebView, ~10 МБ",
-  "t70": "Свой клиент",
-  "t71": "Цена",
-  "t72": "Бесплатно",
-  "t73": "Бесплатно",
   "t74": "Скачать",
   "t75": "Выбери свою систему",
   "t76": "Последняя версия с GitHub Releases.",
@@ -510,7 +498,45 @@
   "d.try3": "«Играть» показывает, как клиент готовит игру",
   "n.features": "Возможности",
   "n.compare": "Сравнение",
-  "n.download": "Скачать"
+  "n.download": "Скачать",
+  "c.title": "Stray Client, Lunar, Badlion и Dawn",
+  "c.lead": "Все четыре клиента бесплатные. Stray Client делает ставку на скорость, лёгкость, моды из Modrinth и CurseForge и открытый код.",
+  "c.note": "Сравнение по открытым данным; «Нет данных» — если мы не смогли надёжно проверить.",
+  "c.size.0": "Размер приложения",
+  "c.size.1": "~10 МБ, без встроенного браузера",
+  "c.size.2": "Нет данных",
+  "c.size.3": "Нет данных",
+  "c.size.4": "Нет данных",
+  "c.perf.0": "Оптимизация",
+  "c.perf.1": "Sodium + FerriteCore, всегда включены",
+  "c.perf.2": "Свои оптимизации",
+  "c.perf.3": "Свои оптимизации",
+  "c.perf.4": "Свои модули",
+  "c.mods.0": "Моды из Modrinth и CurseForge",
+  "c.mods.1": "Оба, с зависимостями",
+  "c.mods.2": "Встроенные моды",
+  "c.mods.3": "Встроенные моды",
+  "c.mods.4": "Свой набор",
+  "c.login.0": "Вход Microsoft и несколько аккаунтов",
+  "c.login.1": "Да, отдельное окно + переключатель",
+  "c.login.2": "Да",
+  "c.login.3": "Нет данных",
+  "c.login.4": "Нет данных",
+  "c.oss.0": "Открытый исходный код",
+  "c.oss.1": "Да, на GitHub",
+  "c.oss.2": "Нет",
+  "c.oss.3": "Нет",
+  "c.oss.4": "Нет данных",
+  "c.tech.0": "Технология",
+  "c.tech.1": "Rust + системный WebView",
+  "c.tech.2": "Свой клиент",
+  "c.tech.3": "Свой клиент",
+  "c.tech.4": "Свой клиент",
+  "c.price.0": "Цена",
+  "c.price.1": "Бесплатно",
+  "c.price.2": "Бесплатно, косметика платная",
+  "c.price.3": "Бесплатно, есть платная подписка",
+  "c.price.4": "Бесплатно"
  },
  "en": {
   "t1": "Stray Client — fast Minecraft client",
@@ -564,26 +590,6 @@
   "t51": "<b>Accounts</b> — several Microsoft accounts, one-click switching, like Lunar.",
   "t52": "Accounts",
   "t53": "Compare",
-  "t54": "Stray Client vs. Dawn",
-  "t55": "Both clients are free. Stray Client bets on speed, a small footprint and open source.",
-  "t56": "App size",
-  "t57": "~10 MB, no bundled browser",
-  "t58": "No data",
-  "t59": "Sodium + FerriteCore out of the box",
-  "t60": "Yes, always on",
-  "t61": "Own modules",
-  "t62": "Mods from Modrinth and CurseForge",
-  "t63": "Both, with dependencies",
-  "t64": "Own selection",
-  "t65": "Open source",
-  "t66": "Yes, on GitHub",
-  "t67": "No data",
-  "t68": "Technology",
-  "t69": "Rust + system WebView, ~10 MB",
-  "t70": "Own client",
-  "t71": "Price",
-  "t72": "Free",
-  "t73": "Free",
   "t74": "Download",
   "t75": "Pick your system",
   "t76": "Latest version from GitHub Releases.",
@@ -626,7 +632,45 @@
   "d.try3": "Play shows how the client prepares the game",
   "n.features": "Features",
   "n.compare": "Compare",
-  "n.download": "Download"
+  "n.download": "Download",
+  "c.title": "Stray Client, Lunar, Badlion and Dawn",
+  "c.lead": "All four clients are free. Stray Client bets on speed, a small footprint, mods from Modrinth and CurseForge, and open source.",
+  "c.note": "Based on public information; “No data” where we couldn't verify it reliably.",
+  "c.size.0": "App size",
+  "c.size.1": "~10 MB, no bundled browser",
+  "c.size.2": "No data",
+  "c.size.3": "No data",
+  "c.size.4": "No data",
+  "c.perf.0": "Performance",
+  "c.perf.1": "Sodium + FerriteCore, always on",
+  "c.perf.2": "Own optimizations",
+  "c.perf.3": "Own optimizations",
+  "c.perf.4": "Own modules",
+  "c.mods.0": "Mods from Modrinth and CurseForge",
+  "c.mods.1": "Both, with dependencies",
+  "c.mods.2": "Built-in mods",
+  "c.mods.3": "Built-in mods",
+  "c.mods.4": "Own selection",
+  "c.login.0": "Microsoft sign-in and multiple accounts",
+  "c.login.1": "Yes, own window + switcher",
+  "c.login.2": "Yes",
+  "c.login.3": "No data",
+  "c.login.4": "No data",
+  "c.oss.0": "Open source",
+  "c.oss.1": "Yes, on GitHub",
+  "c.oss.2": "No",
+  "c.oss.3": "No",
+  "c.oss.4": "No data",
+  "c.tech.0": "Technology",
+  "c.tech.1": "Rust + system WebView",
+  "c.tech.2": "Own client",
+  "c.tech.3": "Own client",
+  "c.tech.4": "Own client",
+  "c.price.0": "Price",
+  "c.price.1": "Free",
+  "c.price.2": "Free, paid cosmetics",
+  "c.price.3": "Free, paid subscription available",
+  "c.price.4": "Free"
  }
 };
     // Strings used by the script itself.
