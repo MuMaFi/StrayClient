@@ -1,6 +1,6 @@
 //! Capes from PNG files and HUD modules (keystrokes), applied to a game instance.
 //!
-//! * Capes: our own `Stray Capes` Fabric mod (mods/stray-capes, MIT) is embedded in the
+//! * Capes + StraySMP loading screen: our own `Stray Client` Fabric mod (mods/stray-client, MIT) is embedded in the
 //!   launcher. The cape library lives in `<data>/capes`; the selected PNG is copied into
 //!   the instance and the mod picks it up (even while the game is running).
 //! * Keystrokes: the Modern Keystrokes mod from Modrinth (MIT), configured through its
@@ -17,9 +17,11 @@ use crate::paths::Paths;
 use crate::settings::Settings;
 use crate::{Error, ProgressFn, Result};
 
-/// The Stray Capes mod, built from `mods/stray-capes` (see its build.sh).
-const CAPES_JAR: &[u8] = include_bytes!("../../../mods/stray-capes/dist/stray-capes.jar");
-const CAPES_JAR_NAME: &str = "stray-capes.jar";
+/// The Stray Client mod (loading screen + capes), built from `mods/stray-client` (see its build.sh).
+const CAPES_JAR: &[u8] = include_bytes!("../../../mods/stray-client/dist/stray-client.jar");
+const CAPES_JAR_NAME: &str = "stray-client.jar";
+/// File name used by older Stray Client versions (removed on update).
+const LEGACY_JAR_NAME: &str = "stray-capes.jar";
 pub const KEYSTROKES_SLUG: &str = "modern-keystrokes";
 
 /// Largest cape we accept (HD capes are 2:1, e.g. 2048×1024).
@@ -191,8 +193,9 @@ pub async fn apply(
 ) -> Result<()> {
     let instance = paths.instance(game);
 
-    // ── Capes ──
+    // ── Stray Client mod: StraySMP loading screen + capes ──
     let jar = instance.join("mods").join(CAPES_JAR_NAME);
+    let _ = tokio::fs::remove_file(instance.join("mods").join(LEGACY_JAR_NAME)).await;
     if capes_supported(game) {
         let mode = match settings.cape_mode.as_str() {
             "local" | "none" => settings.cape_mode.as_str(),
@@ -214,11 +217,8 @@ pub async fn apply(
         };
         let cfg = format!("# Managed by Stray Client\nmode={mode}\ncape={cape}\n");
         write_if_changed(&cfg_dir.join("config.properties"), cfg.as_bytes()).await?;
-        if mode == "account" {
-            let _ = tokio::fs::remove_file(&jar).await; // nothing to change → keep the game vanilla
-        } else {
-            write_if_changed(&jar, CAPES_JAR).await?;
-        }
+        // Always installed on 26.x: it also brings the StraySMP loading screen.
+        write_if_changed(&jar, CAPES_JAR).await?;
     } else {
         let _ = tokio::fs::remove_file(&jar).await;
     }
@@ -352,7 +352,7 @@ mod tests {
         let noop: ProgressFn = std::sync::Arc::new(|_| {});
         apply(&paths, "26.3", &s, &noop).await.unwrap();
         let inst = paths.instance("26.3");
-        assert!(inst.join("mods/stray-capes.jar").exists());
+        assert!(inst.join("mods/stray-client.jar").exists());
         assert!(inst.join("config/stray-capes/capes").join(&f).exists());
         let cfg =
             std::fs::read_to_string(inst.join("config/stray-capes/config.properties")).unwrap();
@@ -360,7 +360,11 @@ mod tests {
 
         s.cape_mode = "account".into();
         apply(&paths, "26.3", &s, &noop).await.unwrap();
-        assert!(!inst.join("mods/stray-capes.jar").exists());
+        // the mod stays (loading screen); the cape config switches back to the account cape
+        assert!(inst.join("mods/stray-client.jar").exists());
+        let cfg =
+            std::fs::read_to_string(inst.join("config/stray-capes/config.properties")).unwrap();
+        assert!(cfg.contains("mode=account"));
 
         // keystrokes config keeps the in-game position
         let ks = inst.join("config/modern-keystrokes.properties");

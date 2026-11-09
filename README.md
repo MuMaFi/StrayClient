@@ -30,7 +30,8 @@ macOS (Apple Silicon + Intel) · Windows · Русский / English
 | 🔐 **Sign-in** | Works out of the box through the **official Minecraft Launcher**: Stray Client sets everything up, writes a “Stray Client” profile and opens the launcher, which signs you in and checks the license. With a Microsoft client ID in the build, direct sign-in like Lunar Client is available too (own window, several accounts, one-click skin upload). |
 | 🌍 **RU / EN** | Switch any time in the header or Settings. |
 | 👕 **Skins** | Upload a PNG (64×64 / 64×32) or copy any player's skin, pick Classic/Slim, and apply it to your account through the official Minecraft API, so everyone sees it on every server. |
-| 🧣 **Capes** | Your own cape from a PNG with a live front/back preview. Powered by our small **Stray Capes** mod (`mods/stray-capes`, MIT) for Minecraft 26.x; the cape is shown on your own player. |
+| 🧣 **Capes** | Your own cape from a PNG with a live front/back preview. Powered by our small **Stray Client** mod (`mods/stray-client`, MIT) for Minecraft 26.x; the cape is shown on your own player. |
+| 🖼️ **StraySMP loading screen** | The Minecraft loading screen shows the StraySMP logo on navy instead of “Mojang Studios” on red (part of the Stray Client mod). |
 | ⌨️ **Modules** | Keystrokes HUD: WASD, mouse clicks with CPS, space bar, FPS and ping. The launcher installs and configures *Modern Keystrokes* for you. |
 | 🍎 **Apple Silicon** | A separate native build for M1–M4 (`target-cpu=apple-m1`), native ARM Java without Rosetta, and GC threads sized to the performance cores. |
 
@@ -115,7 +116,7 @@ crates/stray-core/   Launcher logic, no GUI (testable on its own)
   download.rs        parallel verified downloader
 src-tauri/           Tauri shell + commands
 ui/                  Interface (Unbounded + Manrope fonts, StraySMP palette)
-mods/stray-capes/    our cape mod for Minecraft 26.x (build.sh + fetch_deps.py)
+mods/stray-client/   our Fabric mod for 26.x: StraySMP loading screen + capes (build.sh + fetch_deps.py)
 tools/gen_hero.py    generates the pixel-art hero image
 ```
 

@@ -15,7 +15,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(AbstractClientPlayer.class)
 public abstract class AbstractClientPlayerMixin {
     @Inject(method = "getSkin", at = @At("RETURN"), cancellable = true)
-    private void straycapes$cape(CallbackInfoReturnable<PlayerSkin> cir) {
+    private void strayclient$cape(CallbackInfoReturnable<PlayerSkin> cir) {
         if ((Object) this != Minecraft.getInstance().player) return;
         String mode = StrayCapes.mode();
         PlayerSkin skin = cir.getReturnValue();

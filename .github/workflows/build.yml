@@ -32,7 +32,7 @@ jobs:
       - run: cargo test -p stray-core
 
   # Rebuild the Stray Capes mod against the real Minecraft 26.3 client, so a broken
-  # change to mods/stray-capes is caught before it ships inside the launcher.
+  # change to mods/stray-client is caught before it ships inside the launcher.
   capes-mod:
     runs-on: ubuntu-latest
     steps:
@@ -42,9 +42,9 @@ jobs:
           distribution: temurin
           java-version: "25"
       - name: Download Minecraft 26.3 + Fabric libraries
-        run: python3 mods/stray-capes/fetch_deps.py 26.3 /tmp/mc
+        run: python3 mods/stray-client/fetch_deps.py 26.3 /tmp/mc
       - name: Compile
-        run: mods/stray-capes/build.sh /tmp/mc/client.jar /tmp/mc/libraries "$(command -v javac)"
+        run: mods/stray-client/build.sh /tmp/mc/client.jar /tmp/mc/libraries "$(command -v javac)"
 
   bundle:
     needs: [check, capes-mod]

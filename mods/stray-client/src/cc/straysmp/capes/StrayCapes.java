@@ -26,8 +26,8 @@ import org.slf4j.LoggerFactory;
  * Based on the idea of Cape Switcher by IcyCroww (MIT).
  */
 public final class StrayCapes implements ClientModInitializer {
-    public static final String MOD_ID = "straycapes";
-    public static final Logger LOG = LoggerFactory.getLogger("StrayCapes");
+    public static final String MOD_ID = "strayclient";
+    public static final Logger LOG = LoggerFactory.getLogger("StrayClient");
 
     private static final long CHECK_INTERVAL_MS = 1000;
 
