@@ -26,6 +26,8 @@
     gameVersion: "", memoryMb: 4096, gc: "balanced", extraJvmArgs: "", javaPath: "",
     autoJoin: true, closeOnLaunch: false, curseforgeKey: "", width: 1280, height: 720, reduceMotion: false,
     capeMode: "local", cape: "straysmp.png",
+    // Like the real client until Mojang approves direct sign-in: play through the official launcher.
+    playMode: "official",
     keystrokes: { enabled: true, keys: true, mouse: true, space: true, fps: true, ping: false },
   };
   // Demo cape library (the real client keeps PNGs in its data folder).
