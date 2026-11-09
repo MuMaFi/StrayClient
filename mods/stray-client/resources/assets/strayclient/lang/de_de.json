@@ -1,0 +1,21 @@
+{
+  "strayclient.menu.title": "Stray Client",
+  "strayclient.menu.hint": "Right Shift",
+  "strayclient.menu.modules": "Module",
+  "strayclient.menu.mods": "Mods",
+  "strayclient.menu.on": "AN",
+  "strayclient.menu.off": "AUS",
+  "strayclient.menu.keystrokes": "Keystrokes",
+  "strayclient.menu.cape": "Eigener Umhang",
+  "strayclient.menu.cape.tip": "Zeigt deinen PNG-Umhang. Wähle zuerst einen im Launcher (Tab „Umhänge“).",
+  "strayclient.menu.pvp.hud": "PvP-HUD",
+  "strayclient.menu.pvp.sprint": "Auto-Sprint",
+  "strayclient.menu.pvp.fullbright": "Fullbright",
+  "strayclient.menu.pvp.more": "Alle PvP-Plus-Einstellungen…",
+  "strayclient.menu.mods.empty": "Noch keine zusätzlichen Mods. Füge welche im Launcher hinzu (Tab „Mods“).",
+  "strayclient.menu.mods.restart": "Mod-Änderungen gelten nach einem Neustart des Spiels.",
+  "strayclient.menu.mods.locked": "Gehört zum Client und bleibt immer an.",
+  "strayclient.menu.done": "Fertig",
+  "strayclient.menu.modules.more": "Keystrokes und PvP Plus im Launcher einschalten (Tab „Module“).",
+  "key.strayclient.menu": "Stray-Client-Menü"
+}

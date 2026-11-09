@@ -282,6 +282,55 @@ pub async fn apply(
     Ok(())
 }
 
+/// Changes made in the in-game menu (Right Shift), written by the Stray Client mod to
+/// `config/strayclient/ingame.properties` in each instance. They are taken over into the
+/// launcher settings (so the next launch keeps them), mods are switched, and the file is removed.
+/// Returns true when the settings changed.
+pub async fn take_ingame_changes(paths: &Paths, settings: &mut Settings) -> bool {
+    let mut changed = false;
+    let Ok(mut dirs) = tokio::fs::read_dir(paths.root.join("instances")).await else {
+        return false;
+    };
+    while let Ok(Some(entry)) = dirs.next_entry().await {
+        let instance = entry.path();
+        let file = instance
+            .join("config")
+            .join("strayclient")
+            .join("ingame.properties");
+        let Ok(text) = tokio::fs::read_to_string(&file).await else {
+            continue;
+        };
+        for line in text.lines() {
+            let line = line.trim();
+            if line.starts_with('#') {
+                continue;
+            }
+            let Some((k, v)) = line.split_once('=') else {
+                continue;
+            };
+            let (k, v) = (k.trim().replace("\\", ""), v.trim());
+            match k.as_str() {
+                "keystrokes" => {
+                    let on = v == "true";
+                    changed |= settings.keystrokes.enabled != on;
+                    settings.keystrokes.enabled = on;
+                }
+                "cape" if v == "local" || v == "account" || v == "none" => {
+                    changed |= settings.cape_mode != v;
+                    settings.cape_mode = v.to_string();
+                }
+                _ => {
+                    if let Some(jar) = k.strip_prefix("mod.") {
+                        let _ = mods::set_enabled_file(&instance, jar, v == "on").await;
+                    }
+                }
+            }
+        }
+        let _ = tokio::fs::remove_file(&file).await;
+    }
+    changed
+}
+
 /// Default Keystrokes position (GUI pixels, top-left anchored).
 const KS_Y_DEFAULT: &str = "10";
 /// Below the PvP Plus info HUD, which is fixed at the top left (≈ 70 px tall).
@@ -454,6 +503,38 @@ mod tests {
         write_keystrokes_config(&ks, &s, false).await.unwrap();
         let text = std::fs::read_to_string(&ks).unwrap();
         assert!(text.contains("y=10") && text.contains("showFPS=true"));
+        let _ = std::fs::remove_dir_all(root);
+    }
+
+    #[tokio::test]
+    async fn ingame_menu_changes_are_taken_over() {
+        let root = std::env::temp_dir().join(format!("stray-ingame-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&root);
+        let paths = Paths::new(root.clone());
+        let inst = paths.instance("26.3");
+        std::fs::create_dir_all(inst.join("mods")).unwrap();
+        std::fs::create_dir_all(inst.join("config/strayclient")).unwrap();
+        std::fs::write(inst.join("mods/lithium.jar"), b"PK").unwrap();
+        std::fs::write(
+            inst.join("stray-mods.json"),
+            r#"{"mods":[{"source":"modrinth","projectId":"x","slug":"lithium","title":"Lithium","version":"1","fileName":"lithium.jar","iconUrl":null,"enabled":true,"locked":false}]}"#,
+        )
+        .unwrap();
+        std::fs::write(
+            inst.join("config/strayclient/ingame.properties"),
+            "#Changes\nkeystrokes=true\ncape=local\nmod.lithium.jar=off\n",
+        )
+        .unwrap();
+        let mut s = Settings::default();
+        assert!(take_ingame_changes(&paths, &mut s).await);
+        assert!(s.keystrokes.enabled);
+        assert_eq!(s.cape_mode, "local");
+        assert!(inst.join("mods/lithium.jar.disabled").exists());
+        assert!(!inst.join("config/strayclient/ingame.properties").exists());
+        let list = mods::installed(&paths, "26.3").await;
+        assert!(!list[0].enabled);
+        // nothing pending → nothing changes
+        assert!(!take_ingame_changes(&paths, &mut s).await);
         let _ = std::fs::remove_dir_all(root);
     }
 }

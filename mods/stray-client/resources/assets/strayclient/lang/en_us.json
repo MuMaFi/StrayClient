@@ -1,0 +1,21 @@
+{
+  "strayclient.menu.title": "Stray Client",
+  "strayclient.menu.hint": "Right Shift",
+  "strayclient.menu.modules": "Modules",
+  "strayclient.menu.mods": "Mods",
+  "strayclient.menu.on": "ON",
+  "strayclient.menu.off": "OFF",
+  "strayclient.menu.keystrokes": "Keystrokes",
+  "strayclient.menu.cape": "Own cape",
+  "strayclient.menu.cape.tip": "Shows your PNG cape. Pick one in the launcher first (Capes tab).",
+  "strayclient.menu.pvp.hud": "PvP HUD",
+  "strayclient.menu.pvp.sprint": "Auto sprint",
+  "strayclient.menu.pvp.fullbright": "Fullbright",
+  "strayclient.menu.pvp.more": "All PvP Plus settings…",
+  "strayclient.menu.mods.empty": "No extra mods yet. Add some in the launcher (Mods tab).",
+  "strayclient.menu.mods.restart": "Mod changes apply after restarting the game.",
+  "strayclient.menu.mods.locked": "Part of the client, always on.",
+  "strayclient.menu.done": "Done",
+  "strayclient.menu.modules.more": "Turn on Keystrokes and PvP Plus in the launcher (Modules tab).",
+  "key.strayclient.menu": "Stray Client menu"
+}

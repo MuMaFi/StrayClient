@@ -2,7 +2,7 @@
 //! enable/disable and removal. Sodium and FerriteCore are locked in.
 
 use std::collections::{HashMap, HashSet};
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use serde::{Deserialize, Serialize};
 
@@ -93,7 +93,45 @@ pub async fn installed(paths: &Paths, game: &str) -> Vec<InstalledMod> {
     list.mods.retain(|m| {
         dir.join(&m.file_name).exists() || dir.join(format!("{}.disabled", m.file_name)).exists()
     });
+    // the jar on disk is the truth (the in-game menu can switch mods too)
+    for m in &mut list.mods {
+        m.enabled = dir.join(&m.file_name).exists();
+    }
     list.mods
+}
+
+/// Enable/disable a mod by its jar name in an instance folder (used for changes made in the
+/// in-game menu). Locked mods stay on; unknown names outside `mods/` are ignored.
+pub async fn set_enabled_file(instance: &Path, file_name: &str, enabled: bool) -> Result<()> {
+    if file_name.contains(['/', '\\']) || file_name.contains("..") || !file_name.ends_with(".jar") {
+        return Ok(());
+    }
+    let list_path = instance.join("stray-mods.json");
+    let mut list: ModList = match tokio::fs::read(&list_path).await {
+        Ok(b) => serde_json::from_slice(&b).unwrap_or_default(),
+        Err(_) => ModList::default(),
+    };
+    if list
+        .mods
+        .iter()
+        .any(|m| m.file_name == file_name && m.locked)
+        && !enabled
+    {
+        return Ok(());
+    }
+    let dir = instance.join("mods");
+    let on = dir.join(file_name);
+    let off = dir.join(format!("{file_name}.disabled"));
+    if enabled && off.exists() {
+        tokio::fs::rename(&off, &on).await?;
+    } else if !enabled && on.exists() {
+        tokio::fs::rename(&on, &off).await?;
+    }
+    if let Some(m) = list.mods.iter_mut().find(|m| m.file_name == file_name) {
+        m.enabled = enabled;
+        tokio::fs::write(&list_path, serde_json::to_vec_pretty(&list)?).await?;
+    }
+    Ok(())
 }
 
 // ───────────────────────── Modrinth ─────────────────────────

@@ -1,0 +1,21 @@
+{
+  "strayclient.menu.title": "Stray Client",
+  "strayclient.menu.hint": "Right Shift",
+  "strayclient.menu.modules": "Модулі",
+  "strayclient.menu.mods": "Моди",
+  "strayclient.menu.on": "УВІМК",
+  "strayclient.menu.off": "ВИМК",
+  "strayclient.menu.keystrokes": "Keystrokes",
+  "strayclient.menu.cape": "Власний плащ",
+  "strayclient.menu.cape.tip": "Показує твій плащ із PNG. Спершу вибери його в лаунчері (вкладка «Плащі»).",
+  "strayclient.menu.pvp.hud": "PvP-HUD",
+  "strayclient.menu.pvp.sprint": "Авто-спринт",
+  "strayclient.menu.pvp.fullbright": "Повна яскравість",
+  "strayclient.menu.pvp.more": "Усі налаштування PvP Plus…",
+  "strayclient.menu.mods.empty": "Додаткових модів поки немає. Додай їх у лаунчері (вкладка «Моди»).",
+  "strayclient.menu.mods.restart": "Зміни модів набудуть чинності після перезапуску гри.",
+  "strayclient.menu.mods.locked": "Частина клієнта, завжди увімкнений.",
+  "strayclient.menu.done": "Готово",
+  "strayclient.menu.modules.more": "Увімкни Keystrokes і PvP Plus у лаунчері (вкладка «Модулі»).",
+  "key.strayclient.menu": "Меню Stray Client"
+}

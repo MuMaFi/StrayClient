@@ -3,6 +3,13 @@
   "minVersion": "0.8",
   "package": "cc.straysmp.capes.mixin",
   "compatibilityLevel": "JAVA_21",
-  "client": ["AbstractClientPlayerMixin", "LogoTextureMixin", "LoadingOverlayMixin"],
-  "injectors": { "defaultRequire": 1 }
+  "client": [
+    "AbstractClientPlayerMixin",
+    "LogoTextureMixin",
+    "LoadingOverlayMixin",
+    "KeyboardHandlerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
 }

@@ -57,7 +57,7 @@ struct Init {
 
 #[tauri::command]
 async fn get_init(state: State<'_, AppState>) -> Res<Init> {
-    let settings = state.settings.read().await.clone();
+    let settings = sync_ingame(&state).await;
     let mut sys = sysinfo::System::new();
     sys.refresh_memory();
     let play_mode = effective_play_mode(&settings);
@@ -76,6 +76,16 @@ async fn get_init(state: State<'_, AppState>) -> Res<Init> {
         official: official::status(),
         data_dir: state.paths.root.to_string_lossy().into_owned(),
     })
+}
+
+/// Take over changes made in the in-game menu (Right Shift) before showing or using settings.
+async fn sync_ingame(state: &AppState) -> Settings {
+    let mut settings = state.settings.read().await.clone();
+    if cosmetics::take_ingame_changes(&state.paths, &mut settings).await {
+        let _ = settings.save(&state.paths).await;
+        *state.settings.write().await = settings.clone();
+    }
+    settings
 }
 
 #[tauri::command]
@@ -287,7 +297,7 @@ async fn modules_availability(
 /// Apply cape + module settings to the instance right away (also done on every launch).
 #[tauri::command]
 async fn modules_apply(app: AppHandle, state: State<'_, AppState>) -> Res<()> {
-    let settings = state.settings.read().await.clone();
+    let settings = sync_ingame(&state).await;
     let game = current_game(&state).await?;
     cosmetics::apply(&state.paths, &game, &settings, &progress_emitter(&app))
         .await
@@ -481,7 +491,7 @@ async fn play(app: AppHandle, state: State<'_, AppState>) -> Res<()> {
 }
 
 async fn play_inner(app: &AppHandle, state: &AppState) -> Res<()> {
-    let settings = state.settings.read().await.clone();
+    let settings = sync_ingame(state).await;
     let game = current_game(state).await?;
     let paths = state.paths.clone();
     if effective_play_mode(&settings) == "official" {

@@ -1,16 +1,26 @@
 {
   "schemaVersion": 1,
   "id": "strayclient",
-  "version": "1.1.0",
+  "version": "1.2.0",
   "name": "Stray Client",
-  "description": "StraySMP loading screen and your own PNG cape. Managed by the Stray Client launcher. Cape part inspired by Cape Switcher by IcyCroww (MIT).",
-  "authors": ["Stray Client"],
-  "contact": { "sources": "https://github.com/MuMaFi/StrayClient" },
+  "description": "StraySMP loading screen, your own PNG cape and the in-game Stray Client menu (Right Shift). Managed by the Stray Client launcher. Cape part inspired by Cape Switcher by IcyCroww (MIT).",
+  "authors": [
+    "Stray Client"
+  ],
+  "contact": {
+    "sources": "https://github.com/MuMaFi/StrayClient"
+  },
   "license": "MIT",
   "icon": "assets/strayclient/splash.png",
   "environment": "client",
-  "entrypoints": { "client": ["cc.straysmp.capes.StrayCapes"] },
-  "mixins": ["strayclient.mixins.json"],
+  "entrypoints": {
+    "client": [
+      "cc.straysmp.capes.StrayCapes"
+    ]
+  },
+  "mixins": [
+    "strayclient.mixins.json"
+  ],
   "depends": {
     "fabricloader": ">=0.17.0",
     "minecraft": ">=26.1",
