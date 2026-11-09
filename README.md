@@ -8,7 +8,7 @@
 
 macOS (Apple Silicon + Intel) · Windows · Русский / English
 
-<img src="docs/home.png" width="860" alt="Stray Launcher home screen" />
+<img src="docs/en/home.png" width="860" alt="Stray Client home screen" />
 
 </div>
 
@@ -25,10 +25,11 @@ macOS (Apple Silicon + Intel) · Windows · Русский / English
 | 🚀 **Parallel, verified downloads** | 48 concurrent HTTP/2 connections, SHA-1 checked, atomic writes. Measured: full first install of 26.3 (Java 25, ~5,100 assets, Fabric, mods) in **19 s**; warm start check in **0.18 s**. |
 | 🎯 **Straight onto the server** | Quick Play joins `play.straysmp.cc` as soon as the game opens. Live player counter via Server List Ping (SRV records are followed). |
 | 🧠 **Tuned JVM** | Tuned G1 flags by default, or generational ZGC for machines with plenty of RAM. On JDK 25+ we add `-XX:+UseCompactObjectHeaders` (smaller heap). RAM recommendation is based on your system. |
-| 🔐 **Microsoft login** | Like Lunar Client: Microsoft's own sign-in page opens in a separate window (OAuth code flow + PKCE), and the window closes itself when you're done. Signing in with a code is available as a fallback. Tokens never reach the UI. |
+| 🔐 **Microsoft login** | Like Lunar Client: Microsoft's own sign-in page opens in a separate window (OAuth code flow + PKCE) and closes itself when you're done. Keep several accounts and switch with one click from the account menu. Signing in with a code is available as a fallback. Tokens never reach the UI. |
 | 🌍 **RU / EN** | Switch any time in the header or Settings. |
 
-<img src="docs/mods.png" width="49%" alt="Mods" /> <img src="docs/settings.png" width="49%" alt="Settings" />
+<img src="docs/en/accounts.png" width="49%" alt="Account switcher" /> <img src="docs/en/mods.png" width="49%" alt="Mods" />
+<img src="docs/en/settings.png" width="49%" alt="Settings" /> <img src="docs/en/login.png" width="49%" alt="Microsoft sign-in" />
 
 ### Stray Launcher vs. Dawn
 
@@ -83,7 +84,7 @@ npx @tauri-apps/cli@2 build    # installers in target/release/bundle
 cargo test -p stray-core
 ```
 
-The UI is plain HTML/CSS/JS in `ui/` (no bundler). If you open `ui/index.html` in a browser it uses a mock backend that talks to the public Modrinth API, which is handy for design work.
+The UI is plain HTML/CSS/JS in `ui/` (no bundler). Opened in a browser, `ui/index.html` runs as an interactive demo with a browser backend (live Modrinth search, demo accounts). The website embeds it, and you can try it at https://mumafi.github.io/StrayClient/ui/index.html.
 
 ---
 

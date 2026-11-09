@@ -133,7 +133,15 @@
     });
   }
 
-  // ───────── account ─────────
+  const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
+
+  // ───────── accounts (Lunar-style switcher) ─────────
+  const headUrl = (a, size) => `https://mc-heads.net/avatar/${a.uuid || a.name}/${size}`;
+  function setAccounts(list) {
+    S.accounts = list || { active: null, accounts: [] };
+    S.init.account = S.accounts.accounts.find((a) => a.uuid === S.accounts.active) || null;
+    renderAccount();
+  }
   function renderAccount() {
     const btn = $("#account");
     const acc = S.init?.account;
@@ -141,26 +149,53 @@
     $("#acc-name").textContent = acc ? acc.name : t("acc.login");
     const head = $("#acc-head");
     head.onerror = () => (head.src = "assets/logo.svg");
-    if (acc) head.src = `https://mc-heads.net/avatar/${acc.uuid || acc.name}/28`;
+    if (acc) head.src = headUrl(acc, 28);
+    const menu = $("#acc-menu");
+    if (!menu.hidden) renderAccountMenu();
+  }
+  function renderAccountMenu() {
+    const menu = $("#acc-menu");
+    const list = S.accounts?.accounts || [];
+    menu.innerHTML =
+      `<div class="acc-menu-title">${t("acc.accounts")}</div>` +
+      list
+        .map(
+          (a) => `<div class="acc-row ${a.uuid === S.accounts.active ? "active" : ""}" data-uuid="${esc(a.uuid)}">
+        <img src="${esc(headUrl(a, 64))}" alt="" width="32" height="32" onerror="this.src='assets/logo.svg'" />
+        <span class="acc-row-name">${esc(a.name)}<small>${a.uuid === S.accounts.active ? t("acc.active") : t("acc.switch")}</small></span>
+        <button class="acc-remove" data-remove="${esc(a.uuid)}" title="${t("acc.remove")}">✕</button>
+      </div>`
+        )
+        .join("") +
+      `<button class="acc-add" id="acc-add"><b>+</b> ${t("acc.add")}</button>`;
   }
   $("#account").addEventListener("click", (e) => {
     e.stopPropagation();
-    if (!S.init.account) return login();
-    let pop = $(".acc-pop");
-    if (pop) return pop.remove();
-    pop = document.createElement("div");
-    pop.className = "acc-pop";
-    pop.innerHTML = `<button>${t("acc.logout")}</button>`;
-    pop.firstChild.onclick = async () => {
-      await api.call("logout");
-      S.init.account = null;
-      pop.remove();
-      renderAccount();
-    };
-    $(".top-right").style.position = "relative";
-    $(".top-right").appendChild(pop);
+    if (!S.accounts?.accounts?.length) return login();
+    const menu = $("#acc-menu");
+    menu.hidden = !menu.hidden;
+    if (!menu.hidden) renderAccountMenu();
   });
-  document.addEventListener("click", () => $(".acc-pop")?.remove());
+  $("#acc-menu").addEventListener("click", async (e) => {
+    e.stopPropagation();
+    const rm = e.target.closest("[data-remove]");
+    if (rm) {
+      setAccounts(await api.call("account_remove", { uuid: rm.dataset.remove }));
+      if (!S.accounts.accounts.length) $("#acc-menu").hidden = true;
+      return;
+    }
+    if (e.target.closest("#acc-add")) {
+      $("#acc-menu").hidden = true;
+      return login();
+    }
+    const row = e.target.closest(".acc-row");
+    if (row && row.dataset.uuid !== S.accounts.active) {
+      setAccounts(await api.call("account_switch", { uuid: row.dataset.uuid }));
+      $("#acc-menu").hidden = true;
+      toast(t("acc.ok", S.init.account.name));
+    }
+  });
+  document.addEventListener("click", () => ($("#acc-menu").hidden = true));
 
   // Sign-in: Microsoft's page opens in its own window (like Lunar Client).
   // The device-code flow stays available as a fallback.
@@ -214,8 +249,7 @@
   api.on("auth", (r) => {
     if (r.ok) {
       modal.hidden = true;
-      S.init.account = r.account;
-      renderAccount();
+      api.call("accounts_list").then(setAccounts);
       toast(t("acc.ok", r.account.name));
       return;
     }
@@ -247,6 +281,7 @@
       S.busy = false;
       S.running = true;
       setPlay("running", t("play.running"));
+      if (api.demo) toast(t("demo.play"));
       $("#stage").textContent = "";
     } else {
       S.running = false;
@@ -300,7 +335,6 @@
   });
 
   // ───────── mods page ─────────
-  const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
   const fmt = (n) => (n >= 1e6 ? (n / 1e6).toFixed(1) + "M" : n >= 1e3 ? Math.round(n / 1e3) + "K" : n);
   const ICON_FALLBACK = "data:image/svg+xml," + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1 1"><rect width="1" height="1" fill="#2f3040"/></svg>');
   const trash = '<svg viewBox="0 0 24 24"><path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13"/></svg>';
@@ -524,9 +558,17 @@
   }
 
   // ───────── boot ─────────
+  if (api.demo && !new URLSearchParams(location.search).has("shot")) {
+    const b = document.createElement("em");
+    b.className = "demo-badge";
+    b.textContent = "DEMO";
+    $(".brand").appendChild(b);
+  }
+
   async function boot() {
     S.init = await api.call("get_init");
     S.settings = S.init.settings;
+    S.accounts = S.init.accounts || { active: null, accounts: S.init.account ? [S.init.account] : [] };
     document.body.classList.toggle("no-motion", S.settings.reduceMotion);
     bindSettings();
     applyI18n();

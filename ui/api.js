@@ -1,5 +1,6 @@
-// Thin bridge to the Rust backend. When opened in a normal browser (UI development,
-// screenshots) it falls back to a mock that talks to the public Modrinth API directly.
+// Thin bridge to the Rust backend. Opened in a normal browser it becomes the interactive
+// HTML demo (website, screenshots): everything works except actually starting Minecraft.
+// Mod search uses the public Modrinth API for real.
 (() => {
   const T = window.__TAURI__;
   if (T && T.core) {
@@ -14,12 +15,23 @@
   const listeners = {};
   const emit = (ev, p) => (listeners[ev] || []).forEach((cb) => cb(p));
   const wait = (ms) => new Promise((r) => setTimeout(r, ms));
+  const params = new URLSearchParams(location.search);
+  const store = {
+    get: (k) => { try { return localStorage.getItem(k); } catch { return null; } },
+    set: (k, v) => { try { localStorage.setItem(k, v); } catch {} },
+  };
+  const urlLang = params.get("lang");
   let settings = {
-    language: localStorage.getItem("mock-lang") || "ru",
+    language: ["ru", "en"].includes(urlLang) ? urlLang : store.get("mock-lang") || "ru",
     gameVersion: "", memoryMb: 4096, gc: "balanced", extraJvmArgs: "", javaPath: "",
     autoJoin: true, closeOnLaunch: false, curseforgeKey: "", width: 1280, height: 720, reduceMotion: false,
   };
-  let account = new URLSearchParams(location.search).has("guest") ? null : { name: "StrayZii", uuid: "" };
+  // Demo accounts for the Lunar-style switcher.
+  let accounts = params.has("guest") ? [] : [{ name: "StrayZii", uuid: "" }, { name: "Alex", uuid: "" }];
+  let active = accounts[0]?.name ?? null;
+  const list = () => ({ active, accounts: accounts.map((a) => ({ name: a.name, uuid: a.name })) });
+  const current = () => accounts.find((a) => a.name === active) || null;
+  let demoN = 0;
   const installed = [
     { source: "modrinth", projectId: "AANobbMI", slug: "sodium", title: "Sodium", version: "0.9.3", fileName: "sodium.jar", iconUrl: null, enabled: true, locked: true },
     { source: "modrinth", projectId: "uXXizFIs", slug: "ferrite-core", title: "FerriteCore", version: "9.0.0", fileName: "ferritecore.jar", iconUrl: null, enabled: true, locked: true },
@@ -28,21 +40,38 @@
 
   const handlers = {
     async get_init() {
-      return { settings, account, totalMemoryMb: 16384, hasClientId: true, hasCfKey: false, appVersion: "0.1.0", os: "macos", dataDir: "~/Library/Application Support/StrayLauncher" };
+      return { settings, account: current() && { name: active, uuid: active }, accounts: list(), totalMemoryMb: 16384, hasClientId: true, hasCfKey: false, appVersion: "0.2.0", os: "macos", dataDir: "~/Library/Application Support/StrayLauncher" };
     },
-    async save_settings({ settings: s }) { settings = s; localStorage.setItem("mock-lang", s.language); return !!s.curseforgeKey; },
+    async save_settings({ settings: s }) { settings = s; store.set("mock-lang", s.language); return !!s.curseforgeKey; },
     async game_versions() { return ["26.3", "26.2", "26.1.2", "26.1.1", "26.1", "1.21.11", "1.21.10", "1.21.8", "1.21.4", "1.21.1", "1.20.6", "1.20.4", "1.20.1"]; },
     async server_status() { await wait(400); return { online: true, players: 137, max: 2026, version: "Velocity 1.20-26.3", ping_ms: 38 }; },
+    // Demo sign-in: the real client opens Microsoft's page in its own window here.
     async login_window() {
-      setTimeout(() => emit("auth-busy", {}), 3500);
-      setTimeout(() => emit("auth", { ok: true, account: { name: "StrayZii", uuid: "" } }), 5000);
+      const name = accounts.length ? `Player${(++demoN) * 137 % 900 + 100}` : "StrayZii";
+      setTimeout(() => emit("auth-busy", {}), 2500);
+      setTimeout(() => {
+        if (!accounts.some((a) => a.name === name)) accounts.push({ name, uuid: "" });
+        active = name;
+        emit("auth", { ok: true, account: { name, uuid: name } });
+      }, 4000);
     },
     async login_cancel() {},
     async login_start() {
-      setTimeout(() => emit("auth", { ok: true, account: { name: "StrayZii", uuid: "" } }), 6000);
+      setTimeout(() => {
+        if (!accounts.length) accounts.push({ name: "StrayZii", uuid: "" });
+        active = accounts[0].name;
+        emit("auth", { ok: true, account: { name: active, uuid: active } });
+      }, 6000);
       return { userCode: "SM7Y-2QKD", verificationUri: "https://www.microsoft.com/link" };
     },
-    async logout() { account = null; },
+    async logout() { accounts = accounts.filter((a) => a.name !== active); active = accounts[0]?.name ?? null; },
+    async accounts_list() { return list(); },
+    async account_switch({ uuid }) { active = uuid; return list(); },
+    async account_remove({ uuid }) {
+      accounts = accounts.filter((a) => a.name !== uuid);
+      if (active === uuid) active = accounts[0]?.name ?? null;
+      return list();
+    },
     async mods_list() {
       const missing = installed.filter((m) => !m.iconUrl);
       if (missing.length) {
@@ -71,7 +100,7 @@
     async open_dir() {},
     async open_url({ url }) { window.open(url, "_blank"); },
     async play() {
-      if (!account) throw "not logged in";
+      if (!current()) throw "not logged in";
       const stages = [["meta", 1], ["java", 147], ["libraries", 74], ["assets", 5147], ["mods", 2]];
       for (const [stage, total] of stages) for (let i = 0; i <= 10; i++) { await wait(60); emit("progress", { stage, done: Math.round((total * i) / 10), total }); }
       emit("game", { state: "running" });
@@ -83,5 +112,6 @@
     call: async (cmd, args = {}) => handlers[cmd](args),
     on: (ev, cb) => { (listeners[ev] ||= []).push(cb); },
     native: false,
+    demo: true,
   };
 })();

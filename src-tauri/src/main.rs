@@ -4,7 +4,7 @@ use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::Arc;
 
 use serde::Serialize;
-use stray_core::auth::{self, Account, PublicAccount};
+use stray_core::auth::{self, Account, AccountList, AccountStore, PublicAccount};
 use stray_core::mods::{self, InstalledMod, SearchHit, Source};
 use stray_core::paths::Paths;
 use stray_core::ping::{self, ServerStatus};
@@ -38,6 +38,7 @@ fn progress_emitter(app: &AppHandle) -> ProgressFn {
 struct Init {
     settings: Settings,
     account: Option<PublicAccount>,
+    accounts: AccountList,
     total_memory_mb: u64,
     has_client_id: bool,
     has_cf_key: bool,
@@ -55,6 +56,7 @@ async fn get_init(state: State<'_, AppState>) -> Res<Init> {
         has_cf_key: mods::curseforge_key(&settings.curseforge_key).is_some(),
         settings,
         account: Account::load(&state.paths).await.map(|a| a.public()),
+        accounts: AccountStore::load(&state.paths).await.list(),
         total_memory_mb: sys.total_memory() / 1024 / 1024,
         has_client_id: auth::client_id().is_some(),
         app_version: env!("CARGO_PKG_VERSION"),
@@ -210,6 +212,29 @@ fn login_cancel(app: AppHandle) {
     if let Some(w) = app.get_webview_window("msa-login") {
         let _ = w.close();
     }
+}
+
+#[tauri::command]
+async fn accounts_list(state: State<'_, AppState>) -> Res<AccountList> {
+    Ok(AccountStore::load(&state.paths).await.list())
+}
+
+#[tauri::command]
+async fn account_switch(state: State<'_, AppState>, uuid: String) -> Res<AccountList> {
+    let mut store = AccountStore::load(&state.paths).await;
+    if !store.switch(&uuid) {
+        return Err("unknown account".into());
+    }
+    store.save(&state.paths).await.map_err(err)?;
+    Ok(store.list())
+}
+
+#[tauri::command]
+async fn account_remove(state: State<'_, AppState>, uuid: String) -> Res<AccountList> {
+    let mut store = AccountStore::load(&state.paths).await;
+    store.remove(&uuid);
+    store.save(&state.paths).await.map_err(err)?;
+    Ok(store.list())
 }
 
 #[tauri::command]
@@ -384,6 +409,9 @@ fn main() {
             login_start,
             login_window,
             login_cancel,
+            accounts_list,
+            account_switch,
+            account_remove,
             logout,
             mods_list,
             mods_search,

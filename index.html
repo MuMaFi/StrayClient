@@ -54,6 +54,22 @@
     .lang button { padding: 7px 11px; border: 0; border-radius: 9px; background: none; font: 800 12px var(--body); color: var(--muted); cursor: pointer; }
     .lang button.on { background: var(--panel-2); color: var(--text); }
     .lang button:not(.on):hover { color: var(--text); }
+    /* Live client demo */
+    .demo-wrap { display: grid; grid-template-columns: 1fr 300px; gap: 16px; align-items: start; }
+    .demo-frame { position: relative; border-radius: 22px; overflow: hidden; background: var(--panel); box-shadow: 0 0 0 1px var(--ring-2), 0 30px 60px rgba(0,0,0,.35); aspect-ratio: 1180 / 740; }
+    .demo-bar { position: absolute; inset: 0 0 auto 0; height: 0; }
+    .demo-frame iframe { position: absolute; left: 0; top: 0; width: 1180px; height: 740px; border: 0; transform-origin: 0 0; background: var(--bg); }
+    .demo-poster { position: absolute; inset: 0; display: grid; place-items: center; border: 0; padding: 0; cursor: pointer; background: center / cover no-repeat; }
+    .demo-poster::before { content: ""; position: absolute; inset: 0; background: rgba(26,27,36,.55); backdrop-filter: blur(2px); transition: background .2s; }
+    .demo-poster:hover::before { background: rgba(26,27,36,.4); }
+    .demo-poster span { position: relative; display: inline-flex; align-items: center; gap: 12px; height: 60px; padding: 0 28px 0 22px; border-radius: 20px; background: linear-gradient(180deg, #5eaaff, var(--accent-2)); box-shadow: 0 12px 34px rgba(43,127,255,.45); color: #fff; font: 700 17px var(--display); }
+    .demo-poster svg { width: 22px; height: 22px; fill: currentColor; stroke: none; }
+    .demo-side { display: flex; flex-direction: column; gap: 10px; }
+    .demo-tip { display: flex; gap: 12px; align-items: flex-start; padding: 16px; border-radius: 16px; background: var(--panel); box-shadow: inset 0 0 0 1px var(--ring); font-size: 14px; color: var(--muted); }
+    .demo-tip b { flex: none; width: 26px; height: 26px; border-radius: 8px; display: grid; place-items: center; background: var(--accent-soft); color: var(--accent); font-size: 13px; }
+    .demo-side .btn { margin-top: 6px; }
+    .demo-hint { font-size: 13px; color: var(--muted); margin-top: 12px; }
+    @media (max-width: 900px) { .demo-wrap { grid-template-columns: 1fr; } }
     /* hero */
     .hero { position: relative; margin-top: 28px; border-radius: 28px; overflow: hidden; isolation: isolate; min-height: 560px; display: flex; align-items: center; }
     .hero-art { position: absolute; inset: 0; background: url(ui/assets/hero.png) center 70% / cover; image-rendering: pixelated; z-index: -2; }
@@ -183,10 +199,11 @@
 <div class="wrap">
 <header>
 <a class="brand" href="#"><img alt="" src="ui/assets/logo.svg"/>STRAY CLIENT</a>
-<nav data-i18n="t5">
-<a href="#features">Возможности</a>
-<a href="#compare">Сравнение</a>
-<a href="#download">Скачать</a>
+<nav>
+<a href="#features" data-i18n="n.features">Возможности</a>
+<a href="#demo" data-i18n="d.nav">Демо</a>
+<a href="#compare" data-i18n="n.compare">Сравнение</a>
+<a href="#download" data-i18n="n.download">Скачать</a>
 <a href="#faq">FAQ</a>
 </nav>
 <div class="head-right">
@@ -279,7 +296,29 @@
 <button data-cap="&lt;b&gt;Установленные моды&lt;/b&gt; — включай, выключай и удаляй. Sodium и FerriteCore всегда на месте." data-i18n-attr="data-cap:t45" data-src="docs/installed.png" data-src-en="docs/en/installed.png"><img alt="" loading="lazy" src="docs/installed.png" data-img-en="docs/en/installed.png"/><span data-i18n="t46">Установленные</span></button>
 <button data-cap="&lt;b&gt;Настройки&lt;/b&gt; — память, сборщик мусора, размер окна, своя Java и аргументы JVM." data-i18n-attr="data-cap:t47" data-src="docs/settings.png" data-src-en="docs/en/settings.png"><img alt="" loading="lazy" src="docs/settings.png" data-img-en="docs/en/settings.png"/><span data-i18n="t48">Настройки</span></button>
 <button data-cap="&lt;b&gt;Вход через Microsoft&lt;/b&gt; — как в Lunar: страница Microsoft открывается в отдельном окне, пароль вводится только там." data-i18n-attr="data-cap:t49" data-src="docs/login.png" data-src-en="docs/en/login.png"><img alt="" loading="lazy" src="docs/login.png" data-img-en="docs/en/login.png"/><span data-i18n="t50">Вход</span></button>
-<button data-cap="&lt;b&gt;English&lt;/b&gt; — язык переключается одной кнопкой, без перезапуска." data-i18n-attr="data-cap:t51" data-src="docs/home-en.png" data-src-en="docs/home.png"><img alt="" loading="lazy" src="docs/home-en.png" data-img-en="docs/home.png"/><span data-i18n="t52">English</span></button>
+<button data-cap="&lt;b&gt;Аккаунты&lt;/b&gt; — несколько аккаунтов Microsoft, переключение в один клик, как в Lunar." data-i18n-attr="data-cap:t51" data-src="docs/accounts.png" data-src-en="docs/en/accounts.png"><img alt="" loading="lazy" src="docs/accounts.png" data-img-en="docs/en/accounts.png"/><span data-i18n="t52">Аккаунты</span></button>
+</div>
+</div>
+</section>
+<section id="demo">
+<div class="sec-head">
+<div><div class="eyebrow" data-i18n="d.eyebrow">Живое демо</div><h2 data-i18n="d.title">Попробуй клиент<br />прямо в браузере</h2></div>
+<p class="muted" data-i18n="d.lead">Это настоящий интерфейс Stray Client: переключай аккаунты, ищи моды в Modrinth, меняй настройки и язык. Только Minecraft в браузере не запустится.</p>
+</div>
+<div class="demo-wrap">
+<div>
+<div class="demo-frame" id="demo-frame">
+<button class="demo-poster" id="demo-start" style="background-image:url(docs/home.png)" data-img-en-bg="docs/en/home.png">
+<span><svg viewBox="0 0 24 24"><path d="M7 4.5v15a1 1 0 0 0 1.5.9l12-7.5a1 1 0 0 0 0-1.8l-12-7.5A1 1 0 0 0 7 4.5z"/></svg><span data-i18n="d.start">Запустить демо</span></span>
+</button>
+</div>
+<p class="demo-hint" data-i18n="d.hint">Работает без установки · данные модов — живые из Modrinth</p>
+</div>
+<div class="demo-side">
+<div class="demo-tip"><b>1</b><span data-i18n="d.try1">Нажми на аккаунт справа вверху — переключение как в Lunar</span></div>
+<div class="demo-tip"><b>2</b><span data-i18n="d.try2">Вкладка «Моды» → Modrinth: поиск по настоящему каталогу</span></div>
+<div class="demo-tip"><b>3</b><span data-i18n="d.try3">«Играть» показывает, как клиент готовит игру</span></div>
+<a class="btn btn-panel" id="demo-full" href="ui/index.html?lang=ru" target="_blank" rel="noopener" data-i18n="d.full">Открыть в большом окне</a>
 </div>
 </div>
 </section>
@@ -362,7 +401,6 @@
   "t2": "Stray Client — быстрый и лёгкий клиент Minecraft на Rust от StrayZii. Sodium и FerriteCore уже внутри, моды из Modrinth и CurseForge. Для Windows и macOS.",
   "t3": "Stray Client — быстрый клиент Minecraft",
   "t4": "Больше FPS, меньше RAM: Sodium + FerriteCore внутри, моды из Modrinth и CurseForge.",
-  "t5": "\n<a href=\"#features\">Возможности</a>\n<a href=\"#compare\">Сравнение</a>\n<a href=\"#download\">Скачать</a>\n<a href=\"#faq\">FAQ</a>\n",
   "t7": "<i></i>Stray Client · от StrayZii",
   "t8": "Клиент, который <span>просто летает</span>",
   "t9": "Лёгкий клиент Minecraft на Rust. Sodium и FerriteCore уже внутри, моды из Modrinth и CurseForge в один клик, Java ставится сама. Нажал «Играть» — и ты в игре.",
@@ -407,8 +445,8 @@
   "t48": "Настройки",
   "t49": "<b>Вход через Microsoft</b> — как в Lunar: страница Microsoft открывается в отдельном окне, пароль вводится только там.",
   "t50": "Вход",
-  "t51": "<b>English</b> — язык переключается одной кнопкой, без перезапуска.",
-  "t52": "English",
+  "t51": "<b>Аккаунты</b> — несколько аккаунтов Microsoft, переключение в один клик, как в Lunar.",
+  "t52": "Аккаунты",
   "t53": "Сравнение",
   "t54": "Stray Client и Dawn",
   "t55": "Оба клиента бесплатные. Stray Client делает ставку на скорость, лёгкость и открытый код.",
@@ -459,14 +497,26 @@
   "t100": "Готов к игре?",
   "t101": "Скачай Stray Client, войди через Microsoft и нажми «Играть». Остальное он сделает сам.",
   "t102": "Скачать Stray Client",
-  "t103": "\n<span>© 2026 Stray Client · <a href=\"https://github.com/MuMaFi/StrayClient\">GitHub</a></span>\n<span>Не является официальным продуктом Minecraft. Не связано с Mojang или Microsoft.</span>\n"
+  "t103": "\n<span>© 2026 Stray Client · <a href=\"https://github.com/MuMaFi/StrayClient\">GitHub</a></span>\n<span>Не является официальным продуктом Minecraft. Не связано с Mojang или Microsoft.</span>\n",
+  "d.nav": "Демо",
+  "d.eyebrow": "Живое демо",
+  "d.title": "Попробуй клиент<br />прямо в браузере",
+  "d.lead": "Это настоящий интерфейс Stray Client: переключай аккаунты, ищи моды в Modrinth, меняй настройки и язык. Только Minecraft в браузере не запустится.",
+  "d.start": "Запустить демо",
+  "d.hint": "Работает без установки · данные модов — живые из Modrinth",
+  "d.full": "Открыть в большом окне",
+  "d.try1": "Нажми на аккаунт справа вверху — переключение как в Lunar",
+  "d.try2": "Вкладка «Моды» → Modrinth: поиск по настоящему каталогу",
+  "d.try3": "«Играть» показывает, как клиент готовит игру",
+  "n.features": "Возможности",
+  "n.compare": "Сравнение",
+  "n.download": "Скачать"
  },
  "en": {
   "t1": "Stray Client — fast Minecraft client",
   "t2": "Stray Client — a fast, lightweight Minecraft client built in Rust by StrayZii. Sodium and FerriteCore built in, mods from Modrinth and CurseForge. For Windows and macOS.",
   "t3": "Stray Client — fast Minecraft client",
   "t4": "More FPS, less RAM: Sodium + FerriteCore built in, mods from Modrinth and CurseForge.",
-  "t5": "\n<a href=\"#features\">Features</a>\n<a href=\"#compare\">Compare</a>\n<a href=\"#download\">Download</a>\n<a href=\"#faq\">FAQ</a>\n",
   "t7": "<i></i>Stray Client · by StrayZii",
   "t8": "The client that <span>just flies</span>",
   "t9": "A lightweight Minecraft client built in Rust. Sodium and FerriteCore built in, one-click mods from Modrinth and CurseForge, Java installs itself. Hit Play and you're in.",
@@ -511,8 +561,8 @@
   "t48": "Settings",
   "t49": "<b>Microsoft sign-in</b> — like Lunar: Microsoft's page opens in its own window, and your password is only entered there.",
   "t50": "Sign-in",
-  "t51": "<b>Русский</b> — switch the language with one click, no restart.",
-  "t52": "Русский",
+  "t51": "<b>Accounts</b> — several Microsoft accounts, one-click switching, like Lunar.",
+  "t52": "Accounts",
   "t53": "Compare",
   "t54": "Stray Client vs. Dawn",
   "t55": "Both clients are free. Stray Client bets on speed, a small footprint and open source.",
@@ -563,7 +613,20 @@
   "t100": "Ready to play?",
   "t101": "Download Stray Client, sign in with Microsoft and hit Play. It handles the rest.",
   "t102": "Download Stray Client",
-  "t103": "\n<span>© 2026 Stray Client · <a href=\"https://github.com/MuMaFi/StrayClient\">GitHub</a></span>\n<span>Not an official Minecraft product. Not associated with Mojang or Microsoft.</span>\n"
+  "t103": "\n<span>© 2026 Stray Client · <a href=\"https://github.com/MuMaFi/StrayClient\">GitHub</a></span>\n<span>Not an official Minecraft product. Not associated with Mojang or Microsoft.</span>\n",
+  "d.nav": "Demo",
+  "d.eyebrow": "Live demo",
+  "d.title": "Try the client<br />right in your browser",
+  "d.lead": "This is the real Stray Client interface: switch accounts, search Modrinth, change settings and language. Only Minecraft itself won't launch in a browser.",
+  "d.start": "Start the demo",
+  "d.hint": "Nothing to install · mod data is live from Modrinth",
+  "d.full": "Open in a large window",
+  "d.try1": "Click the account at the top right — switching works like Lunar",
+  "d.try2": "Mods tab → Modrinth: search the real catalog",
+  "d.try3": "Play shows how the client prepares the game",
+  "n.features": "Features",
+  "n.compare": "Compare",
+  "n.download": "Download"
  }
 };
     // Strings used by the script itself.
@@ -613,6 +676,10 @@
         history.replaceState(null, "", url);
         applyDownloads();
         showSlide(gi, false);
+        $("#demo-full").href = `ui/index.html?lang=${l}`;
+        const poster = $("#demo-start");
+        if (poster) poster.style.backgroundImage = `url(${l === "en" ? "docs/en/home.png" : "docs/home.png"})`;
+        if (demoFrame) demoFrame.src = `ui/index.html?lang=${l}`;
       }
       $$(".lang button").forEach((b) => b.addEventListener("click", () => applyLang(b.dataset.lang)));
 
@@ -644,6 +711,19 @@
         .then((r) => (r.ok ? r.json() : Promise.reject()))
         .then((r) => { rel = r; applyDownloads(); })
         .catch(() => {});
+
+      // Live demo: the real client UI (ui/index.html runs with a browser backend).
+      const frameBox = $("#demo-frame");
+      let demoFrame = null;
+      const fitDemo = () => { if (demoFrame) demoFrame.style.transform = `scale(${frameBox.clientWidth / 1180})`; };
+      new ResizeObserver(fitDemo).observe(frameBox);
+      $("#demo-start").addEventListener("click", () => {
+        demoFrame = document.createElement("iframe");
+        demoFrame.title = "Stray Client demo";
+        demoFrame.src = `ui/index.html?lang=${lang}`;
+        frameBox.replaceChildren(demoFrame);
+        fitDemo();
+      });
 
       // Screenshot gallery
       const thumbs = $$("#g-thumbs button");

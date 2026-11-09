@@ -59,23 +59,99 @@ impl Account {
     pub fn expired(&self) -> bool {
         now() + 300 >= self.expires_at
     }
+    /// The active account.
     pub async fn load(paths: &Paths) -> Option<Account> {
-        let b = tokio::fs::read(paths.account_file()).await.ok()?;
-        serde_json::from_slice(&b).ok()
+        let store = AccountStore::load(paths).await;
+        store.active().cloned()
     }
+    /// Add or update this account and make it the active one.
+    pub async fn save(&self, paths: &Paths) -> Result<()> {
+        let mut store = AccountStore::load(paths).await;
+        store.accounts.retain(|a| a.uuid != self.uuid);
+        store.accounts.push(self.clone());
+        store.active = Some(self.uuid.clone());
+        store.save(paths).await
+    }
+    /// Remove the active account (the next one becomes active).
+    pub async fn delete(paths: &Paths) {
+        let mut store = AccountStore::load(paths).await;
+        if let Some(uuid) = store.active.clone() {
+            store.remove(&uuid);
+            let _ = store.save(paths).await;
+        }
+    }
+}
+
+/// Several Microsoft accounts with one active, like Lunar Client's account switcher.
+#[derive(Debug, Default, Serialize, Deserialize)]
+pub struct AccountStore {
+    pub active: Option<String>,
+    pub accounts: Vec<Account>,
+}
+
+#[derive(Debug, Clone, Serialize)]
+pub struct AccountList {
+    pub active: Option<String>,
+    pub accounts: Vec<PublicAccount>,
+}
+
+impl AccountStore {
+    pub async fn load(paths: &Paths) -> Self {
+        if let Ok(b) = tokio::fs::read(paths.accounts_file()).await {
+            if let Ok(store) = serde_json::from_slice(&b) {
+                return store;
+            }
+        }
+        // Migrate the single-account file from earlier versions.
+        if let Ok(b) = tokio::fs::read(paths.account_file()).await {
+            if let Ok(acc) = serde_json::from_slice::<Account>(&b) {
+                return AccountStore {
+                    active: Some(acc.uuid.clone()),
+                    accounts: vec![acc],
+                };
+            }
+        }
+        AccountStore::default()
+    }
+
     pub async fn save(&self, paths: &Paths) -> Result<()> {
         tokio::fs::create_dir_all(&paths.root).await?;
-        let file = paths.account_file();
+        let file = paths.accounts_file();
         tokio::fs::write(&file, serde_json::to_vec(self)?).await?;
         #[cfg(unix)]
         {
             use std::os::unix::fs::PermissionsExt;
             tokio::fs::set_permissions(&file, std::fs::Permissions::from_mode(0o600)).await?;
         }
+        let _ = tokio::fs::remove_file(paths.account_file()).await;
         Ok(())
     }
-    pub async fn delete(paths: &Paths) {
-        let _ = tokio::fs::remove_file(paths.account_file()).await;
+
+    pub fn active(&self) -> Option<&Account> {
+        let uuid = self.active.as_deref()?;
+        self.accounts.iter().find(|a| a.uuid == uuid)
+    }
+
+    pub fn list(&self) -> AccountList {
+        AccountList {
+            active: self.active().map(|a| a.uuid.clone()),
+            accounts: self.accounts.iter().map(Account::public).collect(),
+        }
+    }
+
+    pub fn switch(&mut self, uuid: &str) -> bool {
+        let ok = self.accounts.iter().any(|a| a.uuid == uuid);
+        if ok {
+            self.active = Some(uuid.to_string());
+        }
+        ok
+    }
+
+    pub fn remove(&mut self, uuid: &str) {
+        self.accounts.retain(|a| a.uuid != uuid);
+        if self.active.as_deref() == Some(uuid) || self.active().is_none() {
+            self.active = self.accounts.first().map(|a| a.uuid.clone());
+        }
     }
 }
 
@@ -375,6 +451,38 @@ async fn minecraft_login(ms_access: &str, refresh_token: String) -> Result<Accou
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    fn acc(name: &str) -> Account {
+        Account {
+            name: name.into(),
+            uuid: format!("uuid-{name}"),
+            xuid: String::new(),
+            access_token: "t".into(),
+            refresh_token: "r".into(),
+            expires_at: 0,
+        }
+    }
+
+    #[tokio::test]
+    async fn multiple_accounts() {
+        let dir = std::env::temp_dir().join(format!("stray-acc-{}", uuid::Uuid::new_v4().simple()));
+        let paths = Paths::new(dir.clone());
+        acc("Alice").save(&paths).await.unwrap();
+        acc("Bob").save(&paths).await.unwrap();
+        let mut store = AccountStore::load(&paths).await;
+        assert_eq!(store.accounts.len(), 2);
+        assert_eq!(store.active().unwrap().name, "Bob"); // newest sign-in is active
+        assert!(store.switch("uuid-Alice"));
+        store.save(&paths).await.unwrap();
+        assert_eq!(Account::load(&paths).await.unwrap().name, "Alice");
+        acc("Alice").save(&paths).await.unwrap(); // re-login updates, no duplicate
+        assert_eq!(AccountStore::load(&paths).await.accounts.len(), 2);
+        Account::delete(&paths).await; // removes the active one
+        let store = AccountStore::load(&paths).await;
+        assert_eq!(store.list().accounts.len(), 1);
+        assert_eq!(store.active().unwrap().name, "Bob");
+        let _ = std::fs::remove_dir_all(dir);
+    }
 
     #[test]
     fn pkce_shape() {

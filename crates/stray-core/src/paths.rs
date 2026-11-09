@@ -43,6 +43,10 @@ impl Paths {
     pub fn settings_file(&self) -> PathBuf {
         self.root.join("settings.json")
     }
+    pub fn accounts_file(&self) -> PathBuf {
+        self.root.join("accounts.json")
+    }
+    /// Single-account file from 0.1.0 (migrated on first load).
     pub fn account_file(&self) -> PathBuf {
         self.root.join("account.json")
     }
