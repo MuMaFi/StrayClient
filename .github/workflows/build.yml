@@ -7,9 +7,11 @@ on:
   pull_request:
   workflow_dispatch:
 
+# PR builds may be superseded; release builds on main must always finish
+# (a cancelled macOS job is how a release ends up without its .dmg).
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: true
+  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 permissions:
   contents: write
