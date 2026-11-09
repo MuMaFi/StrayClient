@@ -162,32 +162,70 @@
   });
   document.addEventListener("click", () => $(".acc-pop")?.remove());
 
+  // Sign-in: Microsoft's page opens in its own window (like Lunar Client).
+  // The device-code flow stays available as a fallback.
   let loginUri = "";
+  const modal = $("#login-modal");
+  function showLoginCard(which) {
+    $("#login-window-card").hidden = which !== "window";
+    $("#login-code-card").hidden = which !== "code";
+    modal.hidden = false;
+  }
   async function login() {
+    $("#login-window-state").textContent = t("acc.waitingWindow");
+    showLoginCard("window");
+    try {
+      await api.call("login_window");
+    } catch (e) {
+      modal.hidden = true;
+      toast(errText(e), true);
+    }
+  }
+  async function loginWithCode() {
     try {
       const code = await api.call("login_start");
       loginUri = code.verificationUri;
       $("#login-code").textContent = code.userCode;
-      $("#login-modal").hidden = false;
+      showLoginCard("code");
       try { await navigator.clipboard.writeText(code.userCode); } catch {}
     } catch (e) {
+      modal.hidden = true;
       toast(errText(e), true);
     }
   }
+  $("#login-use-code").addEventListener("click", () => {
+    api.call("login_cancel");
+    loginWithCode();
+  });
   $("#login-open").addEventListener("click", () => api.call("open_url", { url: loginUri }));
   $("#login-code").addEventListener("click", async () => {
     try { await navigator.clipboard.writeText($("#login-code").textContent); } catch {}
     toast(t("copy"));
   });
-  $("#login-cancel").addEventListener("click", () => ($("#login-modal").hidden = true));
+  $("#login-cancel").addEventListener("click", () => (modal.hidden = true));
+  $("#login-cancel-w").addEventListener("click", () => {
+    modal.hidden = true;
+    api.call("login_cancel");
+  });
+  api.on("auth-busy", () => {
+    $("#login-window-state").textContent = t("acc.checking");
+    showLoginCard("window");
+  });
   api.on("auth", (r) => {
-    if ($("#login-modal").hidden && !r.ok) return; // cancelled
-    $("#login-modal").hidden = true;
     if (r.ok) {
+      modal.hidden = true;
       S.init.account = r.account;
       renderAccount();
       toast(t("acc.ok", r.account.name));
-    } else toast(errText(r.error), true);
+      return;
+    }
+    if (r.error === "cancelled" || modal.hidden) {
+      // Window closed: only hide the dialog if the user isn't using the code fallback.
+      if (!$("#login-window-card").hidden) modal.hidden = true;
+      return;
+    }
+    modal.hidden = true;
+    toast(errText(r.error), true);
   });
 
   // ───────── play ─────────

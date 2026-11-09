@@ -213,7 +213,19 @@
 
   <!-- Login dialog -->
   <div class="modal" id="login-modal" hidden>
-    <div class="modal-card">
+    <div class="modal-card" id="login-window-card">
+      <div class="ms-head">
+        <svg class="ms-logo" viewBox="0 0 24 24"><rect x="2" y="2" width="9.5" height="9.5" fill="#f25022" stroke="none"/><rect x="12.5" y="2" width="9.5" height="9.5" fill="#7fba00" stroke="none"/><rect x="2" y="12.5" width="9.5" height="9.5" fill="#00a4ef" stroke="none"/><rect x="12.5" y="12.5" width="9.5" height="9.5" fill="#ffb900" stroke="none"/></svg>
+        <h3 data-i18n="acc.title"></h3>
+      </div>
+      <p class="muted" id="login-window-text" data-i18n="acc.windowOpen"></p>
+      <div class="waiting"><i class="spinner"></i><span id="login-window-state" data-i18n="acc.waitingWindow"></span></div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="login-cancel-w" data-i18n="acc.cancel"></button>
+        <button class="btn btn-soft" id="login-use-code" data-i18n="acc.useCode"></button>
+      </div>
+    </div>
+    <div class="modal-card" id="login-code-card" hidden>
       <h3 data-i18n="acc.title"></h3>
       <ol class="steps">
         <li><span data-i18n="acc.step1"></span><button class="btn btn-soft" id="login-open" data-i18n="acc.open"></button></li>

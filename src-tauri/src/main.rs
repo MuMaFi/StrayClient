@@ -124,6 +124,94 @@ async fn login_start(app: AppHandle, state: State<'_, AppState>) -> Res<LoginCod
     Ok(out)
 }
 
+/// Lunar-style sign-in: Microsoft's own login page in a separate window. We watch its
+/// navigation for the redirect carrying the authorization code, then close it.
+#[tauri::command]
+async fn login_window(app: AppHandle, state: State<'_, AppState>) -> Res<()> {
+    use tauri::{WebviewUrl, WebviewWindowBuilder, WindowEvent};
+    const LABEL: &str = "msa-login";
+
+    if let Some(w) = app.get_webview_window(LABEL) {
+        let _ = w.set_focus();
+        return Ok(());
+    }
+    let pkce = auth::Pkce::new();
+    let url: tauri::Url = auth::authorize_url(&pkce)
+        .map_err(err)?
+        .parse()
+        .map_err(err)?;
+    let done = Arc::new(AtomicBool::new(false));
+    let paths = state.paths.clone();
+    let title = if state.settings.read().await.language == "en" {
+        "Sign in with Microsoft"
+    } else {
+        "Вход через Microsoft"
+    };
+
+    let nav_app = app.clone();
+    let nav_done = done.clone();
+    let window = WebviewWindowBuilder::new(&app, LABEL, WebviewUrl::External(url))
+        .title(title)
+        .inner_size(500.0, 680.0)
+        .resizable(false)
+        .center()
+        .focused(true)
+        .on_navigation(move |url| {
+            let pkce = pkce.clone();
+            match auth::parse_redirect(url.as_str(), &pkce) {
+                auth::Redirect::NotOurs => true,
+                result => {
+                    nav_done.store(true, Ordering::SeqCst);
+                    let app = nav_app.clone();
+                    let paths = paths.clone();
+                    tauri::async_runtime::spawn(async move {
+                        if let Some(w) = app.get_webview_window(LABEL) {
+                            let _ = w.close();
+                        }
+                        let _ = app.emit("auth-busy", ());
+                        let payload = match result {
+                            auth::Redirect::Code(code) => match auth::exchange_code(&code, &pkce).await {
+                                Ok(acc) => match acc.save(&paths).await {
+                                    Ok(()) => serde_json::json!({ "ok": true, "account": acc.public() }),
+                                    Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
+                                },
+                                Err(e) => serde_json::json!({ "ok": false, "error": e.to_string() }),
+                            },
+                            auth::Redirect::Error(e) if e == "access_denied" => {
+                                serde_json::json!({ "ok": false, "error": "cancelled" })
+                            }
+                            auth::Redirect::Error(e) => serde_json::json!({ "ok": false, "error": e }),
+                            auth::Redirect::NotOurs => unreachable!(),
+                        };
+                        let _ = app.emit("auth", payload);
+                    });
+                    false
+                }
+            }
+        })
+        .build()
+        .map_err(err)?;
+
+    // Closed by the user before finishing → tell the UI so it can reset.
+    let close_app = app.clone();
+    window.on_window_event(move |e| {
+        if matches!(e, WindowEvent::Destroyed) && !done.load(Ordering::SeqCst) {
+            let _ = close_app.emit(
+                "auth",
+                serde_json::json!({ "ok": false, "error": "cancelled" }),
+            );
+        }
+    });
+    Ok(())
+}
+
+#[tauri::command]
+fn login_cancel(app: AppHandle) {
+    if let Some(w) = app.get_webview_window("msa-login") {
+        let _ = w.close();
+    }
+}
+
 #[tauri::command]
 async fn logout(state: State<'_, AppState>) -> Res<()> {
     Account::delete(&state.paths).await;
@@ -294,6 +382,8 @@ fn main() {
             game_versions,
             server_status,
             login_start,
+            login_window,
+            login_cancel,
             logout,
             mods_list,
             mods_search,

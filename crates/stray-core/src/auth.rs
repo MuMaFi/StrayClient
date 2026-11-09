@@ -1,7 +1,8 @@
 //! Microsoft account login (device-code flow) → Xbox Live → XSTS → Minecraft.
 //!
-//! Device code is used instead of an embedded browser: no webview cookies to manage, works
-//! the same on Windows and macOS, and the user signs in on Microsoft's own page.
+//! Primary flow (like Lunar Client): the app opens Microsoft's own sign-in page in a separate
+//! window, the user signs in there, and we catch the redirect carrying the authorization code
+//! (OAuth 2.0 authorization code + PKCE). The device-code flow is kept as a fallback.
 
 use std::time::{Duration, SystemTime, UNIX_EPOCH};
 
@@ -87,6 +88,122 @@ fn now() -> u64 {
 
 fn require_client_id() -> Result<&'static str> {
     client_id().ok_or_else(|| Error::Auth("no_client_id".into()))
+}
+
+/// Microsoft's standard redirect for native/desktop apps. Register it in Azure under
+/// "Mobile and desktop applications".
+pub const REDIRECT_URI: &str = "https://login.microsoftonline.com/common/oauth2/nativeclient";
+
+/// PKCE pair for one sign-in attempt.
+#[derive(Debug, Clone)]
+pub struct Pkce {
+    pub verifier: String,
+    pub challenge: String,
+    pub state: String,
+}
+
+impl Pkce {
+    pub fn new() -> Self {
+        use base64::Engine;
+        use sha2::Digest;
+        // 64 random hex chars (two v4 UUIDs = 244 random bits) – within RFC 7636's 43–128 range.
+        let verifier = format!(
+            "{}{}",
+            uuid::Uuid::new_v4().simple(),
+            uuid::Uuid::new_v4().simple()
+        );
+        let challenge = base64::engine::general_purpose::URL_SAFE_NO_PAD
+            .encode(sha2::Sha256::digest(verifier.as_bytes()));
+        Pkce {
+            verifier,
+            challenge,
+            state: uuid::Uuid::new_v4().simple().to_string(),
+        }
+    }
+}
+
+impl Default for Pkce {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+/// URL of Microsoft's sign-in page for the popup window.
+pub fn authorize_url(pkce: &Pkce) -> Result<String> {
+    let cid = require_client_id()?;
+    Ok(format!(
+        "{MS_BASE}/authorize?client_id={cid}&response_type=code&redirect_uri={}&scope={}\
+         &code_challenge={}&code_challenge_method=S256&state={}&prompt=select_account",
+        urlencoding::encode(REDIRECT_URI),
+        urlencoding::encode(SCOPE),
+        pkce.challenge,
+        pkce.state
+    ))
+}
+
+/// Result of inspecting a URL the sign-in window navigated to.
+pub enum Redirect {
+    /// Not our redirect – let the window keep navigating.
+    NotOurs,
+    Code(String),
+    Error(String),
+}
+
+pub fn parse_redirect(url: &str, pkce: &Pkce) -> Redirect {
+    let Some(query) = url
+        .strip_prefix(REDIRECT_URI)
+        .and_then(|r| r.strip_prefix('?'))
+    else {
+        return Redirect::NotOurs;
+    };
+    let mut code = None;
+    let mut state = None;
+    let mut error = None;
+    for pair in query.split('&') {
+        let (k, v) = pair.split_once('=').unwrap_or((pair, ""));
+        let v = urlencoding::decode(v)
+            .map(|c| c.into_owned())
+            .unwrap_or_default();
+        match k {
+            "code" => code = Some(v),
+            "state" => state = Some(v),
+            "error" => error = Some(v),
+            _ => {}
+        }
+    }
+    if let Some(e) = error {
+        return Redirect::Error(e);
+    }
+    if state.as_deref() != Some(pkce.state.as_str()) {
+        return Redirect::Error("state_mismatch".into());
+    }
+    code.map(Redirect::Code)
+        .unwrap_or_else(|| Redirect::Error("no_code".into()))
+}
+
+/// Exchange the authorization code from the popup for a Minecraft account.
+pub async fn exchange_code(code: &str, pkce: &Pkce) -> Result<Account> {
+    let cid = require_client_id()?;
+    let t: MsToken = http::client()
+        .post(format!("{MS_BASE}/token"))
+        .form(&[
+            ("client_id", cid),
+            ("grant_type", "authorization_code"),
+            ("code", code),
+            ("redirect_uri", REDIRECT_URI),
+            ("code_verifier", pkce.verifier.as_str()),
+            ("scope", SCOPE),
+        ])
+        .send()
+        .await?
+        .json()
+        .await?;
+    match t.access_token {
+        Some(at) => minecraft_login(&at, t.refresh_token.unwrap_or_default()).await,
+        None => Err(Error::Auth(
+            t.error.unwrap_or_else(|| "token_failed".into()),
+        )),
+    }
 }
 
 pub async fn start_device_code() -> Result<DeviceCode> {
@@ -253,4 +370,32 @@ async fn minecraft_login(ms_access: &str, refresh_token: String) -> Result<Accou
         refresh_token,
         expires_at: now() + expires,
     })
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn pkce_shape() {
+        let p = Pkce::new();
+        assert_eq!(p.verifier.len(), 64);
+        assert_eq!(p.challenge.len(), 43); // base64url(sha256) without padding
+        assert!(!p.challenge.contains('='));
+    }
+
+    #[test]
+    fn redirect_parsing() {
+        let p = Pkce::new();
+        let ok = format!("{REDIRECT_URI}?code=M.C1%2Babc&state={}", p.state);
+        assert!(matches!(parse_redirect(&ok, &p), Redirect::Code(c) if c == "M.C1+abc"));
+        let bad = format!("{REDIRECT_URI}?code=x&state=evil");
+        assert!(matches!(parse_redirect(&bad, &p), Redirect::Error(e) if e == "state_mismatch"));
+        let denied = format!("{REDIRECT_URI}?error=access_denied&state={}", p.state);
+        assert!(matches!(parse_redirect(&denied, &p), Redirect::Error(e) if e == "access_denied"));
+        assert!(matches!(
+            parse_redirect("https://login.live.com/ppsecure", &p),
+            Redirect::NotOurs
+        ));
+    }
 }

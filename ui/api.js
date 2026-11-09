@@ -33,6 +33,11 @@
     async save_settings({ settings: s }) { settings = s; localStorage.setItem("mock-lang", s.language); return !!s.curseforgeKey; },
     async game_versions() { return ["26.3", "26.2", "26.1.2", "26.1.1", "26.1", "1.21.11", "1.21.10", "1.21.8", "1.21.4", "1.21.1", "1.20.6", "1.20.4", "1.20.1"]; },
     async server_status() { await wait(400); return { online: true, players: 137, max: 2026, version: "Velocity 1.20-26.3", ping_ms: 38 }; },
+    async login_window() {
+      setTimeout(() => emit("auth-busy", {}), 3500);
+      setTimeout(() => emit("auth", { ok: true, account: { name: "StrayZii", uuid: "" } }), 5000);
+    },
+    async login_cancel() {},
     async login_start() {
       setTimeout(() => emit("auth", { ok: true, account: { name: "StrayZii", uuid: "" } }), 6000);
       return { userCode: "SM7Y-2QKD", verificationUri: "https://www.microsoft.com/link" };

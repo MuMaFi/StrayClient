@@ -25,7 +25,7 @@ macOS (Apple Silicon + Intel) · Windows · Русский / English
 | 🚀 **Parallel, verified downloads** | 48 concurrent HTTP/2 connections, SHA-1 checked, atomic writes. Measured: full first install of 26.3 (Java 25, ~5,100 assets, Fabric, mods) in **19 s**; warm start check in **0.18 s**. |
 | 🎯 **Straight onto the server** | Quick Play joins `play.straysmp.cc` as soon as the game opens. Live player counter via Server List Ping (SRV records are followed). |
 | 🧠 **Tuned JVM** | Tuned G1 flags by default, or generational ZGC for machines with plenty of RAM. On JDK 25+ we add `-XX:+UseCompactObjectHeaders` (smaller heap). RAM recommendation is based on your system. |
-| 🔐 **Microsoft login** | Device-code sign-in on microsoft.com. Tokens never reach the UI. |
+| 🔐 **Microsoft login** | Like Lunar Client: Microsoft's own sign-in page opens in a separate window (OAuth code flow + PKCE), and the window closes itself when you're done. Signing in with a code is available as a fallback. Tokens never reach the UI. |
 | 🌍 **RU / EN** | Switch any time in the header or Settings. |
 
 <img src="docs/mods.png" width="49%" alt="Mods" /> <img src="docs/settings.png" width="49%" alt="Settings" />
@@ -70,7 +70,7 @@ Everything is built by GitHub Actions (`.github/workflows/build.yml`):
 #### Microsoft login (Client ID)
 
 1. [Azure Portal → App registrations](https://portal.azure.com/#view/Microsoft_AAD_RegisteredApps/ApplicationsListBlade) → *New registration*. Supported accounts: **Personal Microsoft accounts only**.
-2. *Authentication* → enable **Allow public client flows**.
+2. *Authentication* → *Add a platform* → **Mobile and desktop applications** → tick the redirect URI `https://login.microsoftonline.com/common/oauth2/nativeclient`. Also enable **Allow public client flows** (needed for the "use a code instead" fallback).
 3. Copy the *Application (client) ID* into the `STRAY_MSA_CLIENT_ID` secret.
 4. New apps must be approved by Mojang before they can use the Minecraft API: submit the ID at <https://aka.ms/mce-reviewappid>. Until it's approved, sign-in fails at the last step.
 
