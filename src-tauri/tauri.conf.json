@@ -1,0 +1,40 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "Stray Launcher",
+  "identifier": "cc.straysmp.launcher",
+  "build": {
+    "frontendDist": "../ui"
+  },
+  "app": {
+    "withGlobalTauri": true,
+    "windows": [
+      {
+        "label": "main",
+        "title": "Stray Launcher",
+        "width": 1180,
+        "height": 740,
+        "minWidth": 980,
+        "minHeight": 640,
+        "center": true,
+        "backgroundColor": "#1A1B24",
+        "titleBarStyle": "Overlay",
+        "hiddenTitle": true
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; img-src 'self' data: https://cdn.modrinth.com https://media.forgecdn.net https://mc-heads.net; style-src 'self' 'unsafe-inline'; font-src 'self'; connect-src ipc: http://ipc.localhost"
+    }
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["dmg", "app", "nsis", "msi"],
+    "category": "Game",
+    "shortDescription": "Minecraft launcher for StraySMP",
+    "longDescription": "Fast, lightweight Minecraft launcher for StraySMP with Sodium and FerriteCore preinstalled and Modrinth + CurseForge mod support.",
+    "icon": ["icons/32x32.png", "icons/128x128.png", "icons/128x128@2x.png", "icons/icon.icns", "icons/icon.ico"],
+    "macOS": { "minimumSystemVersion": "11.0" },
+    "windows": {
+      "nsis": { "installMode": "currentUser", "languages": ["English", "Russian"], "displayLanguageSelector": true }
+    }
+  }
+}

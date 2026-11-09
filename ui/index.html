@@ -1,0 +1,233 @@
+<!doctype html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Stray Launcher</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="drag" data-tauri-drag-region></div>
+  <div class="leaves" id="leaves" aria-hidden="true"></div>
+
+  <header class="top" data-tauri-drag-region>
+    <a class="brand" data-page="home">
+      <img src="assets/logo.svg" alt="" width="40" height="40" />
+      <span>STRAYSMP</span>
+    </a>
+    <nav class="nav">
+      <button class="nav-btn active" data-page="home">
+        <svg viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"/></svg>
+        <span data-i18n="nav.home"></span>
+      </button>
+      <button class="nav-btn" data-page="mods">
+        <svg viewBox="0 0 24 24"><path d="M12 2 3 7v10l9 5 9-5V7zM12 12 3 7m9 5 9-5m-9 5v10"/></svg>
+        <span data-i18n="nav.mods"></span>
+      </button>
+      <button class="nav-btn" data-page="settings">
+        <svg viewBox="0 0 24 24"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12M20 18h0"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg>
+        <span data-i18n="nav.settings"></span>
+      </button>
+    </nav>
+    <div class="top-right">
+      <button class="social" data-url="https://www.tiktok.com/@strayzii" title="TikTok · StrayZii">
+        <svg viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M16.6 5.8A4.3 4.3 0 0 1 15.5 3h-3.1v12.4a2.6 2.6 0 1 1-2.6-2.6c.3 0 .5 0 .8.1V9.7a5.7 5.7 0 1 0 4.9 5.7V9.1a7.3 7.3 0 0 0 4.3 1.4V7.4a4.3 4.3 0 0 1-3.2-1.6z"/></svg>
+      </button>
+      <button class="social" data-url="https://tg.straysmp.cc" title="Telegram">
+        <svg viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M21.4 4.2 2.9 11.3c-1.3.5-1.2 1.2-.2 1.5l4.7 1.5 1.8 5.6c.2.6.4.8.9.8.4 0 .6-.2.9-.4l2.3-2.2 4.7 3.5c.9.5 1.5.2 1.7-.8l3.1-14.6c.3-1.3-.5-1.9-1.4-1.5zM8.2 13.9l9.5-6c.5-.3.9-.1.5.2l-8 7.3-.3 3.4z"/></svg>
+      </button>
+      <button class="social" data-url="https://ds.straysmp.cc" title="Discord">
+        <svg viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M19.3 5.3A16.5 16.5 0 0 0 15.2 4l-.5 1a15.3 15.3 0 0 0-5.4 0l-.5-1a16.4 16.4 0 0 0-4.1 1.3C2 9.2 1.3 13 1.6 16.8a16.6 16.6 0 0 0 5 2.5l1.1-1.7a10.7 10.7 0 0 1-1.7-.8l.4-.3a11.8 11.8 0 0 0 11.2 0l.4.3a10.7 10.7 0 0 1-1.7.8l1.1 1.7a16.5 16.5 0 0 0 5-2.5c.4-4.4-.7-8.2-3.1-11.5zM8.7 14.5c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2zm6.6 0c-1 0-1.8-.9-1.8-2s.8-2 1.8-2 1.8.9 1.8 2-.8 2-1.8 2z"/></svg>
+      </button>
+      <div class="lang" role="group" aria-label="Language">
+        <button data-lang="ru">RU</button><button data-lang="en">EN</button>
+      </div>
+      <button class="account" id="account">
+        <img id="acc-head" alt="" width="28" height="28" />
+        <span id="acc-name"></span>
+      </button>
+    </div>
+  </header>
+
+  <main>
+    <!-- HOME -->
+    <section class="page active" id="page-home">
+      <div class="hero">
+        <div class="hero-art"></div>
+        <div class="hero-shade"></div>
+        <div class="hero-content">
+          <h1 data-i18n="hero.title"></h1>
+          <p data-i18n="hero.sub"></p>
+          <div class="play-row">
+            <button class="play" id="play">
+              <svg viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M7 4.5v15a1 1 0 0 0 1.5.9l12-7.5a1 1 0 0 0 0-1.8l-12-7.5A1 1 0 0 0 7 4.5z"/></svg>
+              <span id="play-label" data-i18n="play"></span>
+              <i class="play-fill" id="play-fill"></i>
+            </button>
+            <label class="version-pill">
+              <span data-i18n="version"></span>
+              <select id="version-select"></select>
+            </label>
+          </div>
+          <div class="stage" id="stage"></div>
+        </div>
+        <div class="notch notch-ip">
+          <button class="ip" id="copy-ip">
+            <span>play.straysmp.cc</span>
+            <svg viewBox="0 0 24 24"><rect x="8" y="8" width="12" height="12" rx="3"/><path d="M16 8V6a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2h2"/></svg>
+          </button>
+        </div>
+        <div class="notch notch-online">
+          <div class="online-card">
+            <div class="online-row">
+              <span><span data-i18n="online"></span> — <b id="online-count">…</b><span class="muted" id="online-max"></span></span>
+              <span class="ping" id="ping"></span>
+            </div>
+            <div class="bar"><i id="online-bar"></i></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cards">
+        <div class="card perf">
+          <div class="card-head">
+            <div>
+              <h3 data-i18n="perf.title"></h3>
+              <p class="muted" data-i18n="perf.sub"></p>
+            </div>
+            <span class="chip chip-blue">Fabric</span>
+          </div>
+          <div class="core-mods">
+            <div class="core-mod"><b>Sodium</b><span data-i18n="perf.fps"></span></div>
+            <div class="core-mod"><b>FerriteCore</b><span data-i18n="perf.ram"></span></div>
+          </div>
+          <div class="extras">
+            <span class="muted small" data-i18n="perf.extra"></span>
+            <div class="extra-list" id="perf-extras"></div>
+          </div>
+        </div>
+        <div class="card zii">
+          <div class="zii-badge">
+            <svg viewBox="0 0 24 24"><path fill="currentColor" stroke="none" d="M16.6 5.8A4.3 4.3 0 0 1 15.5 3h-3.1v12.4a2.6 2.6 0 1 1-2.6-2.6c.3 0 .5 0 .8.1V9.7a5.7 5.7 0 1 0 4.9 5.7V9.1a7.3 7.3 0 0 0 4.3 1.4V7.4a4.3 4.3 0 0 1-3.2-1.6z"/></svg>
+          </div>
+          <h3 data-i18n="zii.title"></h3>
+          <p class="muted" data-i18n="zii.sub"></p>
+          <div class="zii-actions">
+            <button class="btn btn-soft" data-url="https://www.tiktok.com/@strayzii"><span>@StrayZii</span></button>
+            <button class="btn btn-ghost" data-url="https://shop.straysmp.cc">shop.straysmp.cc</button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- MODS -->
+    <section class="page" id="page-mods">
+      <div class="mods-bar">
+        <div class="tabs" id="mod-tabs">
+          <button class="tab active" data-tab="installed"><span data-i18n="mods.installed"></span> <em id="installed-count"></em></button>
+          <button class="tab" data-tab="modrinth">
+            <svg viewBox="0 0 24 24" class="tab-ico"><path d="M12 3a9 9 0 1 0 9 9M12 7a5 5 0 1 0 5 5"/><path d="M14 10l7-7"/></svg>Modrinth</button>
+          <button class="tab" data-tab="curseforge">
+            <svg viewBox="0 0 24 24" class="tab-ico"><path d="M3 8h13l2-3h3l-1 5c-1 3-4 4-6 4l1 3h2v2H7v-2h2l1-3c-3 0-5-2-6-4z"/></svg>CurseForge</button>
+        </div>
+        <div class="search" id="search-wrap">
+          <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input id="search" type="search" autocomplete="off" spellcheck="false" />
+        </div>
+        <button class="btn btn-ghost" id="open-mods" data-i18n="mods.openFolder"></button>
+      </div>
+      <div class="notice" id="mods-notice" hidden></div>
+      <div class="mod-grid" id="mod-grid"></div>
+      <button class="btn btn-ghost more" id="more" hidden data-i18n="mods.more"></button>
+    </section>
+
+    <!-- SETTINGS -->
+    <section class="page" id="page-settings">
+      <div class="settings">
+        <div class="card set-card">
+          <h3 data-i18n="set.general"></h3>
+          <div class="field">
+            <label data-i18n="set.language"></label>
+            <div class="seg" id="set-lang"><button data-v="ru">Русский</button><button data-v="en">English</button></div>
+          </div>
+          <div class="field">
+            <label data-i18n="set.version"></label>
+            <select id="set-version"></select>
+          </div>
+          <label class="toggle"><input type="checkbox" id="set-autojoin" /><i></i><span data-i18n="set.autojoin"></span></label>
+          <label class="toggle"><input type="checkbox" id="set-close" /><i></i><span data-i18n="set.close"></span></label>
+          <label class="toggle"><input type="checkbox" id="set-motion" /><i></i><span data-i18n="set.motion"></span></label>
+        </div>
+
+        <div class="card set-card">
+          <h3 data-i18n="set.perf"></h3>
+          <div class="field">
+            <label><span data-i18n="set.memory"></span> <b class="accent" id="mem-label"></b></label>
+            <input type="range" id="set-mem" min="1024" step="512" />
+            <small class="muted" id="mem-hint"></small>
+          </div>
+          <div class="field">
+            <label data-i18n="set.gc"></label>
+            <div class="seg seg-col" id="set-gc">
+              <button data-v="balanced" data-i18n="set.gc.balanced"></button>
+              <button data-v="lowlatency" data-i18n="set.gc.lowlatency"></button>
+            </div>
+          </div>
+          <div class="field two">
+            <label data-i18n="set.resolution"></label>
+            <div class="res"><input type="number" id="set-w" min="640" /><span>×</span><input type="number" id="set-h" min="480" /></div>
+          </div>
+        </div>
+
+        <div class="card set-card">
+          <h3 data-i18n="set.mods"></h3>
+          <div class="field">
+            <label data-i18n="set.cfKey"></label>
+            <input type="password" id="set-cf" autocomplete="off" placeholder="$2a$10$…" />
+            <small class="muted" data-i18n="set.cfHint"></small>
+          </div>
+          <div class="field">
+            <label data-i18n="set.java"></label>
+            <input type="text" id="set-java" spellcheck="false" />
+            <small class="muted" data-i18n="set.javaHint"></small>
+          </div>
+          <div class="field">
+            <label data-i18n="set.jvm"></label>
+            <input type="text" id="set-jvm" spellcheck="false" placeholder="-XX:+…" />
+          </div>
+        </div>
+
+        <div class="card set-card">
+          <h3 data-i18n="set.folders"></h3>
+          <div class="folder-btns">
+            <button class="btn btn-ghost" data-open="root" data-i18n="set.openRoot"></button>
+            <button class="btn btn-ghost" data-open="instance" data-i18n="set.openGame"></button>
+            <button class="btn btn-ghost" data-open="logs" data-i18n="set.openLogs"></button>
+          </div>
+          <p class="muted small mono" id="data-dir"></p>
+          <p class="muted small" id="app-version"></p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Login dialog -->
+  <div class="modal" id="login-modal" hidden>
+    <div class="modal-card">
+      <h3 data-i18n="acc.title"></h3>
+      <ol class="steps">
+        <li><span data-i18n="acc.step1"></span><button class="btn btn-soft" id="login-open" data-i18n="acc.open"></button></li>
+        <li><span data-i18n="acc.step2"></span><button class="code" id="login-code" title="Copy"></button></li>
+      </ol>
+      <div class="waiting"><i class="spinner"></i><span data-i18n="acc.waiting"></span></div>
+      <button class="btn btn-ghost" id="login-cancel" data-i18n="acc.cancel"></button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="i18n.js"></script>
+  <script src="api.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
