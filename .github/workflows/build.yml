@@ -65,9 +65,10 @@ jobs:
           projectPath: src-tauri
           tauriScript: npx -y @tauri-apps/cli@2
           args: ${{ matrix.args }}
-          # Tag pushes (v*) publish a GitHub Release with installers attached.
-          tagName: ${{ startsWith(github.ref, 'refs/tags/v') && github.ref_name || '' }}
-          releaseName: "Stray Launcher ${{ github.ref_name }}"
+          # Pushes to main publish/update the GitHub Release for the current app version
+          # (tag v<version> is created automatically). Bump the version to cut a new release.
+          tagName: ${{ (github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/v'))) && 'v__VERSION__' || '' }}
+          releaseName: "Stray Launcher v__VERSION__"
           releaseBody: "Download the .dmg for macOS or the -setup.exe for Windows. / Скачайте .dmg для macOS или -setup.exe для Windows."
           releaseDraft: false
       - name: Upload build artifacts

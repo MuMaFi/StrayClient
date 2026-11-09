@@ -57,8 +57,8 @@ Every push to `main` also produces installers as workflow artifacts under **Acti
 
 Everything is built by GitHub Actions (`.github/workflows/build.yml`):
 
-- **Push to `main` / PR:** `fmt` + `clippy` + tests, then macOS universal `.dmg` and Windows `.exe`/`.msi` as artifacts.
-- **Tag `v*`** (e.g. `git tag v0.1.0 && git push --tags`): additionally publishes a GitHub Release with the installers attached.
+- **PR:** `fmt` + `clippy` + tests, then macOS universal `.dmg` and Windows `.exe`/`.msi` as artifacts.
+- **Push to `main`:** the same, plus it publishes (or updates) the GitHub Release `v<version>` with the installers attached. To cut a new release, bump `version` in `src-tauri/tauri.conf.json` (and the root `Cargo.toml`).
 
 ### Repository secrets (Settings → Secrets → Actions)
 
