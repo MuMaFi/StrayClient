@@ -36,6 +36,10 @@
         <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><path d="M17.5 14v7M14 17.5h7"/></svg>
         <span data-i18n="nav.modules"></span>
       </button>
+      <button class="nav-btn" data-page="host">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/></svg>
+        <span data-i18n="nav.host"></span>
+      </button>
       <button class="nav-btn" data-page="capes">
         <svg viewBox="0 0 24 24"><path d="M7 3h10l2 18-7-3-7 3z"/><path d="M9 3c0 2 1.3 3 3 3s3-1 3-3"/></svg>
         <span data-i18n="nav.wardrobe"></span>
@@ -261,6 +265,34 @@
           </div>
         </div>
         <div class="ex-list" id="ex-list"></div>
+      </div>
+    </section>
+
+    <!-- HOST -->
+    <section class="page" id="page-host">
+      <div class="page-head">
+        <div><h2 data-i18n="host.title"></h2><p class="muted" data-i18n="host.sub"></p></div>
+      </div>
+      <div class="notice" id="host-notice" hidden></div>
+      <div class="host-layout">
+        <div class="host-worlds" id="host-worlds"></div>
+        <div class="card host-side">
+          <div class="host-sel"><img id="host-sel-icon" alt="" width="56" height="56" /><div><b id="host-sel-name"></b><small class="muted" id="host-sel-sub"></small></div></div>
+          <div class="field">
+            <label data-i18n="host.name"></label>
+            <input type="text" id="host-name" maxlength="48" spellcheck="false" autocomplete="off" />
+          </div>
+          <button class="btn btn-primary wide" id="host-go">
+            <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3.2 3 14.8 0 18M12 3c-3 3.2-3 14.8 0 18"/></svg>
+            <span data-i18n="host.go"></span>
+          </button>
+          <ol class="steps host-steps">
+            <li><span data-i18n="host.s1"></span></li>
+            <li><span data-i18n="host.s2"></span></li>
+            <li><span data-i18n="host.s3"></span></li>
+          </ol>
+          <p class="muted small" data-i18n="host.note"></p>
+        </div>
       </div>
     </section>
 

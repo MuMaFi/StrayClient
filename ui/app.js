@@ -34,6 +34,7 @@
     document.documentElement.lang = S.settings.language;
     $$("[data-i18n]").forEach((el) => (el.textContent = t(el.dataset.i18n)));
     $("#search").placeholder = t("mods.search");
+    $$(".nav-btn").forEach((b) => (b.title = b.textContent.trim()));
     $("#skin-import-name").placeholder = t("skin.importPh");
     $$(".lang button").forEach((b) => b.classList.toggle("on", b.dataset.lang === S.settings.language));
     $$("#set-lang button").forEach((b) => b.classList.toggle("on", b.dataset.v === S.settings.language));
@@ -58,6 +59,7 @@
     if (s.startsWith("skin_no_player:")) return t("err.skin_no_player", s.slice(15));
     if (s.startsWith("skin_upload_failed:")) return t("err.skin_upload_failed", s.slice(19));
     if (s.startsWith("cape_bad_size:")) return t("err.cape_bad_size", s.slice(14).replace("x", "×"));
+    if (s.startsWith("host_unavailable:")) return t("host.unavailable", s.slice(17));
     if (s.startsWith("keystrokes_unavailable:")) return t("ks.unavailable", s.slice(23));
     if (s.startsWith("cf_no_download:")) return `${s.slice(15)}: ${{ ru: "автор запретил сторонние загрузки", uk: "автор заборонив сторонні завантаження" }[S.settings.language] || "author disabled third-party downloads"}`;
     return t("err.generic", s);
@@ -80,6 +82,7 @@
     if (page === "mods") loadMods();
     if (page === "modules") loadModules();
     if (page === "capes") loadWardrobe();
+    if (page === "host") loadHost();
   }
   $$("[data-page]").forEach((b) => b.addEventListener("click", () => go(b.dataset.page)));
   document.addEventListener("click", (e) => {
@@ -490,6 +493,60 @@
       toast(errText(e), true);
     }
   }
+
+  // ───────── host: share one of your worlds with friends anywhere ─────────
+  const WORLD_ICON = "assets/logo.svg";
+  S.worlds = [];
+  S.hostSel = null;
+  function renderHost() {
+    const sel = S.worlds.find((w) => w.id === S.hostSel) || null;
+    const when = (w) => (w.lastPlayed ? t("host.last", new Date(w.lastPlayed * 1000).toLocaleDateString(S.settings.language === "uk" ? "uk-UA" : S.settings.language === "ru" ? "ru-RU" : "en-GB")) : "");
+    $("#host-worlds").innerHTML = S.worlds.length
+      ? S.worlds
+          .map((w) => `<button class="world ${sel && sel.id === w.id ? "on" : ""}" data-world="${esc(w.id)}"><img alt="" src="${esc(w.icon || WORLD_ICON)}" /><span><b>${esc(w.id)}</b><small>${esc(when(w))}</small></span></button>`)
+          .join("")
+      : `<div class="host-empty">${esc(t("host.empty"))}</div>`;
+    $(".host-side").classList.toggle("off", !sel);
+    $("#host-sel-icon").src = sel?.icon || WORLD_ICON;
+    $("#host-sel-name").textContent = sel ? sel.id : t("host.pick");
+    $("#host-sel-sub").textContent = sel ? when(sel) : "";
+    $("#host-name").placeholder = t("host.namePh");
+  }
+  async function loadHost() {
+    renderHost();
+    const info = await api.call("host_worlds").catch(() => ({ worlds: [], available: true }));
+    S.worlds = info.worlds;
+    if (!S.worlds.some((w) => w.id === S.hostSel)) S.hostSel = S.worlds[0]?.id ?? null;
+    const n = $("#host-notice");
+    n.hidden = info.available;
+    n.textContent = info.available ? "" : t("host.unavailable", currentGame());
+    $("#host-go").disabled = !info.available;
+    renderHost();
+  }
+  $("#host-worlds").addEventListener("click", (e) => {
+    const b = e.target.closest("[data-world]");
+    if (!b) return;
+    S.hostSel = b.dataset.world;
+    renderHost();
+  });
+  $("#host-go").addEventListener("click", async () => {
+    if (S.busy || S.running || !S.hostSel) return;
+    const world = S.hostSel;
+    go("home");
+    S.busy = true;
+    setPlay("busy", t("play.preparing"));
+    toast(t("host.starting", world));
+    try {
+      await saveSettings();
+      await api.call("host_world", { world, name: $("#host-name").value.trim() });
+    } catch (e) {
+      S.busy = false;
+      setPlay("idle", t("play"));
+      $("#stage").textContent = "";
+      if (String(e) === "launcher_not_found") return showOfficialInfo(false, true);
+      toast(errText(e), true);
+    }
+  });
 
   // Explains the official-launcher flow (first play, account chip, or launcher missing).
   function showOfficialInfo(thenPlay, missing = false) {

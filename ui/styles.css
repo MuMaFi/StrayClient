@@ -653,3 +653,30 @@ body.home-new .hero { height: auto; min-height: 300px; }
 body.home-new .hero-content { position: relative; left: 0; top: 0; padding: 30px 48px 40px; }
 body.home-new .notch-ip { display: none; }
 .brand span b { font-weight: inherit; color: var(--accent); }
+
+/* ───────── host ───────── */
+.host-layout { display: grid; grid-template-columns: 1fr 360px; gap: 16px; align-items: start; }
+.host-worlds { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 12px; }
+.world { display: flex; align-items: center; gap: 12px; padding: 12px; border-radius: 16px; background: var(--panel); box-shadow: inset 0 0 0 1px var(--ring); text-align: left; transition: transform .15s, box-shadow .15s; }
+.world:hover { transform: translateY(-2px); box-shadow: inset 0 0 0 1px var(--ring-2); }
+.world.on { box-shadow: inset 0 0 0 2px var(--accent); background: linear-gradient(160deg, rgba(81,162,255,.16), var(--panel) 60%); }
+.world img, .host-sel img { width: 48px; height: 48px; border-radius: 10px; image-rendering: pixelated; background: var(--panel-2); flex: none; object-fit: cover; }
+.world span { min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.world b { font-family: var(--display); font-size: 13px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.world small { color: var(--muted); font-size: 12px; }
+.host-side { display: flex; flex-direction: column; gap: 14px; }
+.host-side.off { opacity: .5; pointer-events: none; }
+.host-sel { display: flex; align-items: center; gap: 12px; }
+.host-sel img { width: 56px; height: 56px; }
+.host-sel div { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
+.host-sel b { font-family: var(--display); font-size: 15px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.host-steps li { padding: 10px 12px; font-size: 13px; }
+#host-go svg { width: 18px; height: 18px; }
+.host-empty { grid-column: 1 / -1; padding: 34px; border-radius: 16px; text-align: center; color: var(--muted); box-shadow: inset 0 0 0 1px var(--ring); }
+@media (max-width: 1000px) { .host-layout { grid-template-columns: 1fr; } }
+/* six nav items: the longer Russian/Ukrainian labels don't fit below 1300px, so only the
+   active item keeps its label there and the others show their icon */
+@media (max-width: 1300px) and (min-width: 1101px) {
+  :is(html:lang(ru), html:lang(uk)) .nav-btn:not(.active) span { display: none; }
+  :is(html:lang(ru), html:lang(uk)) .nav-btn:not(.active) { padding: 9px 11px; }
+}

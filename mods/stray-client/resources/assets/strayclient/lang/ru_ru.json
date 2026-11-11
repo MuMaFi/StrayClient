@@ -24,5 +24,10 @@
   "strayclient.hud.info": "PvP-инфо",
   "strayclient.hud.armor": "Броня и предметы",
   "strayclient.hud.reset": "Сбросить",
-  "strayclient.hud.empty": "Нет включённых модулей для перемещения. Сначала включи Keystrokes или PvP Plus."
+  "strayclient.hud.empty": "Нет включённых модулей для перемещения. Сначала включи Keystrokes или PvP Plus.",
+  "strayclient.menu.host": "Хостить мир",
+  "strayclient.menu.host.tip": "Поделись этим миром с друзьями где угодно: они заходят по адресу из чата.",
+  "strayclient.host.on": "Твой мир теперь доступен друзьям. Отправь им адрес из строки чата ниже (нажми, чтобы скопировать). Они заходят через «Сетевая игра» → «По адресу».",
+  "strayclient.host.lan": "Мир открыт для локальной сети (LAN). Чтобы хостить на весь мир, запусти его через «Хост» в Stray Client.",
+  "strayclient.host.failed": "Не удалось захостить этот мир."
 }

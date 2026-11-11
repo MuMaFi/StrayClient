@@ -24,5 +24,10 @@
   "strayclient.hud.info": "PvP info",
   "strayclient.hud.armor": "Armor & items",
   "strayclient.hud.reset": "Reset",
-  "strayclient.hud.empty": "No movable module is on. Turn on Keystrokes or PvP Plus first."
+  "strayclient.hud.empty": "No movable module is on. Turn on Keystrokes or PvP Plus first.",
+  "strayclient.menu.host": "Host world",
+  "strayclient.menu.host.tip": "Share this world with friends anywhere: they join with the address shown in chat.",
+  "strayclient.host.on": "Your world is now hosted. Send your friends the address from the chat line below (click it to copy). They join via Multiplayer → Direct Connection.",
+  "strayclient.host.lan": "Your world is open to your local network (LAN). For hosting worldwide, start it with “Host” in Stray Client.",
+  "strayclient.host.failed": "Could not host this world."
 }

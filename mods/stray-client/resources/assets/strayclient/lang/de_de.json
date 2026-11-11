@@ -24,5 +24,10 @@
   "strayclient.hud.info": "PvP-Info",
   "strayclient.hud.armor": "Rüstung & Items",
   "strayclient.hud.reset": "Zurücksetzen",
-  "strayclient.hud.empty": "Kein verschiebbares Modul ist an. Schalte zuerst Keystrokes oder PvP Plus ein."
+  "strayclient.hud.empty": "Kein verschiebbares Modul ist an. Schalte zuerst Keystrokes oder PvP Plus ein.",
+  "strayclient.menu.host": "Welt hosten",
+  "strayclient.menu.host.tip": "Teile diese Welt mit Freunden überall: Sie joinen mit der Adresse, die im Chat steht.",
+  "strayclient.host.on": "Deine Welt wird jetzt gehostet. Schick deinen Freunden die Adresse aus der Chat-Zeile darunter (anklicken zum Kopieren). Sie joinen über Mehrspieler → Direkt verbinden.",
+  "strayclient.host.lan": "Deine Welt ist im lokalen Netzwerk (LAN) offen. Für weltweites Hosten starte sie über „Hosten“ in Stray Client.",
+  "strayclient.host.failed": "Die Welt konnte nicht gehostet werden."
 }

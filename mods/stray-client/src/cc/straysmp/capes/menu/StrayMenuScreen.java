@@ -97,6 +97,14 @@ public final class StrayMenuScreen extends Screen {
                     .bounds(rx + colW - 20, by, 20, 20).build());
         }
 
+        if (Hosting.canHost(minecraft)) {
+            int hw = Math.min(120, font.width(Component.translatable("strayclient.menu.host")) + 16);
+            addRenderableWidget(Button.builder(Component.translatable("strayclient.menu.host"), b -> {
+                Hosting.publish(minecraft, "");
+                onClose();
+            }).bounds(px + pw - 10 - hw, py + 5, hw, 18)
+                    .tooltip(Tooltip.create(Component.translatable("strayclient.menu.host.tip"))).build());
+        }
         int half = (colW - 4) / 2;
         addRenderableWidget(Button.builder(Component.translatable("strayclient.menu.hud"), b -> minecraft.gui.setScreen(new HudEditScreen(this)))
                 .bounds(px + 10, py + ph - 28, half, 20)
@@ -146,8 +154,10 @@ public final class StrayMenuScreen extends Screen {
     public void extractRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float delta) {
         super.extractRenderState(g, mouseX, mouseY, delta);
         g.text(font, Component.literal("STRAY ").append(Component.literal("CLIENT").withColor(ACCENT)), px + 10, py + 8, 0xFFFFFFFF);
-        Component hint = Component.translatable("strayclient.menu.hint");
-        g.text(font, hint, px + pw - 10 - font.width(hint), py + 8, MUTED);
+        if (!Hosting.canHost(minecraft)) {
+            Component hint = Component.translatable("strayclient.menu.hint");
+            g.text(font, hint, px + pw - 10 - font.width(hint), py + 8, MUTED);
+        }
         g.text(font, Component.translatable("strayclient.menu.modules"), px + 10, py + 20, MUTED);
         g.text(font, Component.translatable("strayclient.menu.mods"), px + 20 + colW, py + 20, MUTED);
         int rx = px + 20 + colW;

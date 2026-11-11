@@ -13,6 +13,7 @@ pub mod cosmetics;
 pub mod download;
 pub mod error;
 pub mod fabric;
+pub mod host;
 pub mod http;
 pub mod java;
 pub mod launch;

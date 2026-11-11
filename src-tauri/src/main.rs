@@ -5,6 +5,7 @@ use std::sync::Arc;
 
 use serde::Serialize;
 use stray_core::auth::{self, Account, AccountList, AccountStore, PublicAccount};
+use stray_core::host;
 use stray_core::mods::{self, InstalledMod, SearchHit, Source};
 use stray_core::paths::Paths;
 use stray_core::ping::{self, ServerStatus};
@@ -515,6 +516,50 @@ async fn play(app: AppHandle, state: State<'_, AppState>) -> Res<()> {
     result
 }
 
+/// Worlds of the active profile that can be hosted, and whether hosting works for the version.
+#[derive(Serialize)]
+#[serde(rename_all = "camelCase")]
+struct HostInfo {
+    worlds: Vec<host::World>,
+    available: bool,
+}
+
+#[tauri::command]
+async fn host_worlds(state: State<'_, AppState>) -> Res<HostInfo> {
+    let game = current_game(&state).await?;
+    Ok(HostInfo {
+        worlds: host::worlds(&state.paths, &game).await,
+        available: host::available(&game).await,
+    })
+}
+
+/// Start the game hosting `world` for friends anywhere (see `stray_core::host`).
+#[tauri::command]
+async fn host_world(
+    app: AppHandle,
+    state: State<'_, AppState>,
+    world: String,
+    name: String,
+) -> Res<()> {
+    if state.running.swap(true, Ordering::SeqCst) {
+        return Err("already_running".into());
+    }
+    let game = current_game(&state).await.inspect_err(|_| {
+        state.running.store(false, Ordering::SeqCst);
+    })?;
+    let mut result = host::request(&state.paths, &game, &world, &name, &progress_emitter(&app))
+        .await
+        .map_err(err);
+    if result.is_ok() {
+        result = play_inner(&app, &state).await;
+    }
+    if result.is_err() {
+        host::cancel(&state.paths, &game).await;
+        state.running.store(false, Ordering::SeqCst);
+    }
+    result
+}
+
 async fn play_inner(app: &AppHandle, state: &AppState) -> Res<()> {
     let settings = sync_ingame(state).await;
     let game = current_game(state).await?;
@@ -617,6 +662,8 @@ fn main() {
             mod_remove,
             open_dir,
             open_url,
+            host_worlds,
+            host_world,
             play
         ])
         .run(tauri::generate_context!())

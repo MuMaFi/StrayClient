@@ -8,7 +8,8 @@
     "LogoTextureMixin",
     "LoadingOverlayMixin",
     "KeyboardHandlerMixin",
-    "PvpHudMixin"
+    "PvpHudMixin",
+    "MinecraftMixin"
   ],
   "injectors": {
     "defaultRequire": 1

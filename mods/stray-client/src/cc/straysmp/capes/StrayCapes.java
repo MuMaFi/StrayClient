@@ -48,6 +48,7 @@ public final class StrayCapes implements ClientModInitializer {
             LOG.warn("Could not create {}", dir, e);
         }
         LOG.info("Stray Capes ready ({})", dir);
+        cc.straysmp.capes.menu.Hosting.load();
     }
 
     /** "local", "account" (keep the Mojang cape) or "none". */

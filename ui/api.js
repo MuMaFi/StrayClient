@@ -162,6 +162,11 @@
     async open_dir() {},
     async open_url({ url }) { window.open(url, "_blank"); },
     async official_status() { return { launcherFound: true, minecraftDir: "~/Library/Application Support/minecraft" }; },
+    async host_worlds() {
+      const day = 86400, now = Math.floor(Date.now() / 1000);
+      return { available: true, worlds: [{ id: "Survival", lastPlayed: now - day, icon: null }, { id: "StraySMP Test", lastPlayed: now - 6 * day, icon: null }, { id: "Creative Build", lastPlayed: now - 30 * day, icon: null }] };
+    },
+    async host_world() { return handlers.play(); },
     async play() {
       if (settings.playMode === "official") {
         for (const [stage, total] of [["meta", 1], ["mods", 2]]) for (let i = 0; i <= 6; i++) { await wait(70); emit("progress", { stage, done: Math.round((total * i) / 6), total }); }
