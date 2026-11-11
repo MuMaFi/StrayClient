@@ -16,7 +16,7 @@ import net.minecraft.client.gui.screens.Screen;
  * Live module toggles. Keystrokes and PvP Plus are separate mods, so they are reached through
  * reflection and only offered when they are loaded.
  */
-final class Modules {
+public final class Modules {
     private static final String KS_CONFIG = "net.marblock.keystrokes.config.KeystrokesConfig";
     private static final String PVP_CONFIG = "de.pvpplus.Config";
     private static final String PVP_SCREEN = "de.pvpplus.PvpScreen";
@@ -79,6 +79,35 @@ final class Modules {
         } catch (ReflectiveOperationException | RuntimeException e) {
             StrayCapes.LOG.warn("Keystrokes move failed", e);
         }
+    }
+
+    /**
+     * Default place for Keystrokes. PvP Plus fills the left side (info at the top, armor in the
+     * middle), so with it Keystrokes goes to the middle of the right edge.
+     */
+    static void placeKeystrokesDefault(int guiWidth, int guiHeight) {
+        if (!pvpLoaded()) {
+            setKeystrokesPos(25, 10);
+            return;
+        }
+        float scale = Math.max(0.5f, keystrokesScale());
+        int w = Math.round(66 * scale), h = Math.round(100 * scale);
+        setKeystrokesPos(Math.max(0, guiWidth - w - 6), Math.max(0, (guiHeight - h) / 2));
+    }
+
+    private static boolean autoPlaced;
+
+    /**
+     * Once per start, in a world: if Keystrokes still sits where the launcher puts it
+     * (x=25, y=10 or 80) and PvP Plus is on, move it off the PvP Plus HUD.
+     */
+    public static void autoPlaceKeystrokes(net.minecraft.client.Minecraft mc) {
+        if (autoPlaced || mc.player == null) return;
+        autoPlaced = true;
+        if (!keystrokesLoaded() || !pvpLoaded()) return;
+        if (keystrokesX() != 25 || (keystrokesY() != 10 && keystrokesY() != 80)) return;
+        placeKeystrokesDefault(mc.getWindow().getGuiScaledWidth(), mc.getWindow().getGuiScaledHeight());
+        saveKeystrokes();
     }
 
     static void saveKeystrokes() {

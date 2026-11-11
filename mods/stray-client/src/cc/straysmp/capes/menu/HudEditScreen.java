@@ -3,6 +3,7 @@ package cc.straysmp.capes.menu;
 import java.util.ArrayList;
 import java.util.List;
 
+import com.mojang.blaze3d.platform.InputConstants;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.screens.Screen;
@@ -55,7 +56,7 @@ public final class HudEditScreen extends Screen {
                 @Override int x() { return Modules.keystrokesX(); }
                 @Override int y() { return Modules.keystrokesY(); }
                 @Override void moveTo(int x, int y) { Modules.setKeystrokesPos(x, y); }
-                @Override void reset() { Modules.setKeystrokesPos(25, Modules.pvpLoaded() ? 80 : 10); }
+                @Override void reset() { Modules.placeKeystrokesDefault(width, height); }
             });
         }
         if (Modules.pvpLoaded()) {
@@ -95,7 +96,7 @@ public final class HudEditScreen extends Screen {
     @Override
     public boolean mouseClicked(MouseButtonEvent event, boolean doubleClick) {
         if (super.mouseClicked(event, doubleClick)) return true;
-        Box b = event.button() == 0 ? boxAt(event.x(), event.y()) : null;
+        Box b = event.button() == InputConstants.MOUSE_BUTTON_LEFT ? boxAt(event.x(), event.y()) : null;
         if (b == null) return false;
         dragging = b;
         grabX = event.x() - b.x();
