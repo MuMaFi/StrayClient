@@ -652,3 +652,4 @@ body.home-new .home-bar { margin-top: 14px; }
 body.home-new .hero { height: auto; min-height: 300px; }
 body.home-new .hero-content { position: relative; left: 0; top: 0; padding: 30px 48px 40px; }
 body.home-new .notch-ip { display: none; }
+.brand span b { font-weight: inherit; color: var(--accent); }

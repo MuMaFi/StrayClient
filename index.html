@@ -40,6 +40,7 @@
     .brand { display: flex; align-items: center; gap: 14px; font-family: var(--display); font-weight: 800; font-size: 18px; letter-spacing: .06em; }
     .brand img { width: 40px; height: 40px; image-rendering: pixelated; }
     .brand { white-space: nowrap; }
+    .brand b { font-weight: inherit; color: #51a2ff; }
     @media (max-width: 1240px) { header { gap: 20px; } nav a { padding: 9px 10px; } }
     nav { display: flex; gap: 6px; }
     nav a { padding: 9px 14px; border-radius: 12px; font-family: var(--display); font-size: 13px; transition: background .15s, color .15s; }
@@ -289,7 +290,7 @@
 <body>
 <div class="wrap">
 <header>
-<a class="brand" href="#"><img alt="" src="ui/assets/logo.svg"/>STRAY CLIENT</a>
+<a class="brand" href="#"><img alt="" src="ui/assets/logo.svg"/><span>STRAY <b>CLIENT</b></span></a>
 <nav>
 <a href="#features" data-i18n="n.features">Возможности</a>
 <a href="#demo" data-i18n="d.nav">Демо</a>
