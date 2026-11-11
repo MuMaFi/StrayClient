@@ -1,5 +1,5 @@
 // Start-up sounds, synthesised with the Web Audio API (no audio files):
-//  • a bit-crushed e-piano running up a major scale while the letters appear,
+//  • a bit-crushed e-piano running up a minor scale while the letters appear,
 //  • a coin "ding" with an echo when the logo is complete,
 //  • a whoosh when the app opens.
 // `StraySfx.build(ctx)` works on any (also an offline) audio context so it can be tested.
@@ -41,10 +41,10 @@ window.StraySfx = (() => {
         o.stop(t + len + 0.05);
       }
     }
-    /** Eight notes up the C major scale, the last one ringing out. */
+    /** Eight notes up the C natural minor scale (C4 to C5), the last one ringing out. */
     function scale(t, step = 0.088) {
-      const root = 523.25; // C5
-      [1, 9 / 8, 5 / 4, 4 / 3, 3 / 2, 5 / 3, 15 / 8, 2].forEach((r, i) => piano(root * r, t + i * step, i === 7 ? 0.9 : 0.42, i === 7 ? 0.55 : 0.42));
+      const root = 261.63; // C4
+      [1, 9 / 8, 6 / 5, 4 / 3, 3 / 2, 8 / 5, 9 / 5, 2].forEach((r, i) => piano(root * r, t + i * step, i === 7 ? 0.9 : 0.42, i === 7 ? 0.55 : 0.42));
     }
 
     /** Classic two-tone coin with a feedback echo. */
