@@ -7,15 +7,28 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <!-- Start-up animation (skipped with a click, "fewer animations" or the setting) -->
-  <div class="intro" id="intro" hidden>
+  <!-- Start-up animation: on screen from the first paint, always played in full
+       (a click skips it; "Skip the start-up animation" in the settings turns it off). -->
+  <div class="intro" id="intro">
+    <div class="intro-grid"></div>
     <div class="intro-glow"></div>
-    <div class="intro-inner">
-      <div class="intro-orb"><img src="assets/logo.svg" alt="" width="96" height="96" /><i></i><i></i></div>
-      <div class="intro-word" id="intro-word" aria-label="Stray Client"></div>
-      <div class="intro-bar"><i></i></div>
+    <div class="intro-px" id="intro-px"></div>
+    <div class="intro-inner" id="intro-inner">
+      <div class="intro-orb"><img src="assets/logo.svg" alt="" width="112" height="112" id="intro-orb" /><i></i><i></i><i></i></div>
+      <div class="intro-word" id="intro-word" aria-label="Stray Client"><div class="intro-shine" id="intro-shine"></div></div>
+      <div class="intro-tag" id="intro-tag">MINECRAFT CLIENT</div>
+      <div class="intro-bar" id="intro-bar"><i></i></div>
     </div>
   </div>
+  <script>
+    // Decide before anything is painted: no intro for screenshots or when it is turned off.
+    (function () {
+      var q = new URLSearchParams(location.search), off = false;
+      try { off = localStorage.getItem("stray-skip-intro") === "1"; } catch (e) {}
+      if (off || q.has("nointro") || (q.has("shot") && !q.has("intro"))) document.getElementById("intro").hidden = true;
+      else document.documentElement.classList.add("intro-on");
+    })();
+  </script>
   <div class="drag" data-tauri-drag-region></div>
 
   <header class="top" data-tauri-drag-region>

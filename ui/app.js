@@ -782,6 +782,7 @@
       el.addEventListener("change", () => {
         s[key] = el.checked;
         document.body.classList.toggle("no-motion", s.reduceMotion);
+        try { localStorage.setItem("stray-skip-intro", s.skipIntro ? "1" : "0"); } catch {}
         saveSoon();
       });
     }
@@ -1488,28 +1489,105 @@
     if ($("#page-capes").classList.contains("active")) loadSkins();
   }
 
-  // Start-up animation: orb, letters, loading bar, then the app eases in.
-  function playIntro() {
+  // ───────── start-up animation ─────────
+  // Runs on its own clock (Web Animations API) from the moment the script starts: it always
+  // plays in full, however fast the app loads, and opens the app once both are done.
+  const intro = (() => {
     const el = $("#intro");
-    const q = new URLSearchParams(location.search);
-    if (S.settings.skipIntro || S.settings.reduceMotion || (q.has("shot") && !q.has("intro")) || q.has("nointro")) return;
-    const word = $("#intro-word");
-    let i = 0;
-    word.innerHTML = ["STRAY", "CLIENT"]
-      .map((w, n) => `<div class="w${n + 1}">${[...w].map((ch) => `<span style="animation-delay:${(0.45 + i++ * 0.055).toFixed(3)}s">${ch}</span>`).join("")}</div>`)
-      .join("");
-    document.body.classList.add("intro-on");
-    el.hidden = false;
-    const finish = () => {
-      el.hidden = true;
-      document.body.classList.remove("intro-on");
-    };
-    const timer = setTimeout(finish, 2900);
-    el.addEventListener("click", () => {
-      clearTimeout(timer);
+    let finish = () => {};
+    const done = new Promise((res) => (finish = res));
+    if (!el || el.hidden) {
       finish();
+      return { done, ready() {} };
+    }
+    const back = "cubic-bezier(.2,1.5,.4,1)", out = "cubic-bezier(.2,.8,.2,1)", inOut = "cubic-bezier(.7,0,.3,1)";
+    const anims = [];
+    const play = (node, frames, opts) => {
+      const a = node.animate(frames, { fill: "both", easing: out, ...opts });
+      anims.push(a);
+      return a;
+    };
+    // pixels fly in from all around and build the orb
+    const px = $("#intro-px");
+    const colors = ["#51a2ff", "#2b7fff", "#8cc8ff", "#d6ecff", "#1c6fb5"];
+    for (let n = 0; n < 34; n++) {
+      const b = document.createElement("b");
+      b.style.background = colors[n % colors.length];
+      px.appendChild(b);
+      const ang = (n / 34) * Math.PI * 2 + (n % 3) * 0.4, r = 300 + ((n * 97) % 320);
+      const x = Math.cos(ang) * r, y = Math.sin(ang) * r, sz = 0.6 + ((n * 37) % 10) / 8;
+      play(b, [
+        { opacity: 0, transform: `translate(${x}px, ${y}px) scale(${sz}) rotate(0deg)` },
+        { opacity: 1, offset: 0.25 },
+        { opacity: 1, offset: 0.8 },
+        { opacity: 0, transform: `translate(0, -46px) scale(.3) rotate(180deg)` },
+      ], { duration: 820, delay: 60 + ((n * 53) % 420), easing: "cubic-bezier(.5,0,.8,.4)" });
+    }
+    play($(".intro-grid"), [{ opacity: 0, transform: "scale(1.15)" }, { opacity: 1, transform: "none" }], { duration: 1400 });
+    play($(".intro-glow"), [{ opacity: 0, transform: "scale(.35)" }, { opacity: 1, transform: "scale(1)" }], { duration: 1300, delay: 200 });
+    play($("#intro-orb"), [
+      { opacity: 0, transform: "scale(.1) rotate(-200deg)" },
+      { opacity: 1, offset: 0.35 },
+      { opacity: 1, transform: "none" },
+    ], { duration: 900, delay: 620, easing: back });
+    $$(".intro-orb i").forEach((ring, n) =>
+      play(ring, [{ opacity: 0.9, transform: "scale(.7)" }, { opacity: 0, transform: "scale(2.6)" }], { duration: 1150, delay: 1250 + n * 330, easing: "ease-out", fill: "forwards" })
+    );
+    // gentle breathing of the orb while the rest plays
+    play($(".intro-orb"), [{ transform: "translateY(0)" }, { transform: "translateY(-6px)" }, { transform: "translateY(0)" }], { duration: 1800, delay: 1500, iterations: 2, easing: "ease-in-out" });
+    const word = $("#intro-word");
+    let k = 0;
+    ["STRAY", "CLIENT"].forEach((w, n) => {
+      const d = document.createElement("div");
+      d.className = "w" + (n + 1);
+      for (const ch of w) {
+        const sp = document.createElement("span");
+        sp.textContent = ch;
+        d.appendChild(sp);
+        play(sp, [
+          { opacity: 0, transform: "translateY(28px) scale(.7) rotate(8deg)", filter: "blur(8px)" },
+          { opacity: 1, transform: "none", filter: "blur(0)" },
+        ], { duration: 520, delay: 1350 + k++ * 60, easing: back });
+      }
+      word.insertBefore(d, $("#intro-shine"));
     });
-  }
+    play($("#intro-shine"), [
+      { opacity: 0, transform: "translateX(-120%)" },
+      { opacity: 1, offset: 0.2 },
+      { opacity: 1, offset: 0.8 },
+      { opacity: 0, transform: "translateX(320%)" },
+    ], { duration: 800, delay: 2150, easing: "ease-in-out" });
+    play($("#intro-tag"), [{ opacity: 0, transform: "translateY(8px)" }, { opacity: 1, transform: "none" }], { duration: 500, delay: 2100 });
+    play($("#intro-bar"), [{ opacity: 0 }, { opacity: 1 }], { duration: 350, delay: 2000 });
+    const load = play($("#intro-bar i"), [{ transform: "translateX(-101%)" }, { transform: "translateX(0)" }], { duration: 1250, delay: 2050, easing: "cubic-bezier(.6,0,.2,1)" });
+
+    let appReady = false, played = false, closing = false;
+    function close() {
+      if (closing) return;
+      closing = true;
+      document.documentElement.classList.remove("intro-on");
+      for (const n of [$(".top"), $("main")]) {
+        n.animate([{ opacity: 0, transform: "translateY(16px) scale(.98)" }, { opacity: 1, transform: "none" }], { duration: 650, delay: 120, easing: out, fill: "backwards" });
+      }
+      $("#intro-inner").animate([{ opacity: 1, transform: "none" }, { opacity: 0, transform: "scale(1.18)" }], { duration: 380, easing: inOut, fill: "forwards" });
+      const a = el.animate([{ clipPath: "circle(150% at 50% 46%)" }, { clipPath: "circle(0% at 50% 46%)" }], { duration: 620, delay: 120, easing: inOut, fill: "forwards" });
+      const end = () => {
+        el.hidden = true;
+        finish();
+      };
+      a.finished.then(end, end);
+      setTimeout(end, 1200); // safety net
+    }
+    const maybeClose = () => played && appReady && close();
+    load.finished.then(() => setTimeout(() => ((played = true), maybeClose()), 260), () => ((played = true), maybeClose()));
+    setTimeout(() => ((played = true), (appReady = true), maybeClose()), 9000); // never get stuck behind the intro
+    el.addEventListener("click", () => {
+      anims.forEach((a) => a.finish());
+      played = appReady = true;
+      close();
+    });
+    return { done, ready: () => ((appReady = true), maybeClose()) };
+  })();
 
   async function boot() {
     S.init = await api.call("get_init");
@@ -1522,7 +1600,7 @@
     S.settings.homeLayout ||= "new";
     S.accounts = S.init.accounts || { active: null, accounts: S.init.account ? [S.init.account] : [] };
     document.body.classList.toggle("no-motion", S.settings.reduceMotion);
-    playIntro();
+    try { localStorage.setItem("stray-skip-intro", S.settings.skipIntro ? "1" : "0"); } catch {}
     bindSettings();
     applyI18n();
     S.versions = await api.call("game_versions").catch(() => []);
@@ -1533,5 +1611,5 @@
     const page = new URLSearchParams(location.search).get("page");
     if (page) go(page);
   }
-  boot();
+  boot().finally(() => intro.ready());
 })();
