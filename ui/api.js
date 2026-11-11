@@ -22,7 +22,7 @@
   };
   const urlLang = params.get("lang");
   let settings = {
-    language: ["ru", "uk", "en"].includes(urlLang) ? urlLang : store.get("mock-lang") || (/^uk/i.test(navigator.language) ? "uk" : /^(ru|be|kk)/i.test(navigator.language) ? "ru" : "en"),
+    language: ["ru", "en"].includes(urlLang) ? urlLang : (["ru", "en"].includes(store.get("mock-lang")) && store.get("mock-lang")) || (/^(ru|uk|be|kk)/i.test(navigator.language) ? "ru" : "en"),
     gameVersion: "", memoryMb: 4096, gc: "balanced", extraJvmArgs: "", javaPath: "",
     autoJoin: true, closeOnLaunch: false, curseforgeKey: "", width: 1280, height: 720, reduceMotion: false,
     capeMode: "local", cape: "straysmp.png",

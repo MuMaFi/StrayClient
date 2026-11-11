@@ -675,3 +675,76 @@ body.home-new .notch-ip { display: none; }
   :is(html:lang(ru), html:lang(uk)) .nav-btn:not(.active) span { display: none; }
   :is(html:lang(ru), html:lang(uk)) .nav-btn:not(.active) { padding: 9px 11px; }
 }
+
+/* ═════════ polish pass ═════════ */
+
+/* live pixel scene (hero.js): layers that drift, sway and shift with the mouse */
+.hero-art.live { background: none; }
+.hl { position: absolute; left: -3%; width: 106%; bottom: -12px; will-change: transform; pointer-events: none; }
+.hl canvas { display: block; width: 100%; height: auto; image-rendering: pixelated; }
+.hl-clouds canvas { width: 200%; animation: cloud-drift 150s linear infinite; }
+@keyframes cloud-drift { to { transform: translateX(-50%); } }
+body.paused .hl-clouds canvas { animation-play-state: paused; }
+/* the new home screen is shorter: bring the clouds down into view */
+body.home-new .hl-clouds { bottom: calc(-12px - 20vw); }
+body.home-new .hl-sky { bottom: calc(-12px - 4.2vw); }
+body.home-new .hl-far { bottom: calc(-12px - 9vw); }
+body.home-new .hl-near { bottom: calc(-12px - 4vw); }
+
+/* soft ambient light behind everything */
+body::before { content: ""; position: fixed; inset: 0; z-index: 0; pointer-events: none; background:
+  radial-gradient(900px 520px at 12% -8%, rgba(81,162,255,.10), transparent 60%),
+  radial-gradient(760px 480px at 100% 108%, rgba(134,96,255,.07), transparent 62%); }
+
+/* pages ease in when you switch tabs */
+.page.active { animation: page-in .32s cubic-bezier(.2,.8,.2,1) both; }
+@keyframes page-in { from { opacity: 0; transform: translateY(10px); } }
+
+/* glow on hover: buttons */
+.btn, .play, .nav-btn, .tab, .seg button, .extra, .account, .social, .version-pill, .lang button { transition: background .18s, color .18s, box-shadow .22s, transform .18s, opacity .18s; }
+.btn-primary:hover:not(:disabled) { box-shadow: 0 0 0 1px rgba(81,162,255,.5), 0 8px 26px -4px rgba(43,127,255,.65), 0 0 22px rgba(81,162,255,.35); transform: translateY(-1px); }
+.btn-soft:hover:not(:disabled) { box-shadow: 0 0 0 1px rgba(81,162,255,.35), 0 0 20px rgba(81,162,255,.25); }
+.btn-ghost:hover:not(:disabled) { box-shadow: 0 0 0 1px rgba(255,255,255,.12), 0 0 18px rgba(81,162,255,.16); }
+.btn-danger:hover { box-shadow: 0 0 0 1px rgba(255,110,110,.4), 0 0 20px rgba(255,90,90,.25); }
+.btn:active:not(:disabled), .play:active { transform: translateY(1px) scale(.985); }
+.play { transition: transform .2s cubic-bezier(.2,.8,.2,1), box-shadow .25s, filter .2s; }
+.play:hover { transform: translateY(-2px); filter: brightness(1.07); box-shadow: 0 0 0 1px rgba(140,200,255,.55), 0 14px 38px -6px rgba(43,127,255,.8), 0 0 34px rgba(81,162,255,.55); }
+.play svg { transition: transform .2s; }
+.play:hover svg { transform: translateX(2px) scale(1.1); }
+.nav-btn:hover:not(.active) { background: rgba(255,255,255,.05); box-shadow: 0 0 18px rgba(81,162,255,.12); }
+.nav-btn.active { box-shadow: inset 0 0 0 1px rgba(81,162,255,.22), 0 0 22px rgba(81,162,255,.16); }
+.nav-btn svg { transition: transform .2s; }
+.nav-btn:hover svg { transform: translateY(-1px) scale(1.08); }
+.social:hover, .account:hover, .version-pill:hover { box-shadow: 0 0 0 1px rgba(81,162,255,.35), 0 0 20px rgba(81,162,255,.22); }
+.extra:hover, .tab:hover, .seg button:hover:not(.on) { box-shadow: 0 0 14px rgba(81,162,255,.16); }
+.toggle i { transition: background .18s, box-shadow .2s; }
+.toggle:hover i { box-shadow: 0 0 0 3px rgba(81,162,255,.14); }
+.toggle input:checked + i { box-shadow: 0 0 14px rgba(43,127,255,.45); }
+.brand img { transition: transform .5s cubic-bezier(.2,1.4,.4,1), filter .3s; }
+.brand:hover img { transform: rotate(18deg) scale(1.08); filter: drop-shadow(0 0 12px rgba(81,162,255,.7)); }
+
+/* glow on hover: cards and tiles, with a light that follows the cursor */
+.tile, .prof-cardx, .world, .mod, .card, .cape-card, .ex-row { position: relative; }
+.tile::after, .prof-cardx::after, .world::after, .mod::after, .card::after, .cape-card::after, .ex-row::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none; opacity: 0; transition: opacity .25s;
+  background: radial-gradient(240px circle at var(--mx, 50%) var(--my, 50%), rgba(81,162,255,.13), transparent 70%); }
+.tile:hover::after, .prof-cardx:hover::after, .world:hover::after, .mod:hover::after, .card:hover::after, .cape-card:hover::after, .ex-row:hover::after { opacity: 1; }
+.tile:hover, .prof-cardx:hover, .world:hover, .mod:hover, .cape-card:hover:not(.on) {
+  box-shadow: inset 0 0 0 1px rgba(81,162,255,.38), 0 10px 30px -12px rgba(43,127,255,.5), 0 0 24px rgba(81,162,255,.14); }
+.prof-cardx.on:hover, .world.on:hover { box-shadow: inset 0 0 0 2px var(--accent), 0 10px 30px -12px rgba(43,127,255,.6), 0 0 26px rgba(81,162,255,.22); }
+.tile-ico { transition: transform .25s cubic-bezier(.2,1.4,.4,1), background .2s, box-shadow .2s; }
+.tile:hover .tile-ico { transform: scale(1.1) rotate(-4deg); background: rgba(81,162,255,.22); box-shadow: 0 0 18px rgba(81,162,255,.35); }
+
+/* small refinements */
+.hero { box-shadow: 0 0 0 1px rgba(255,255,255,.05), 0 24px 60px -30px rgba(0,0,0,.8); }
+.hero h1 { text-shadow: 0 4px 30px rgba(0,0,0,.45), 0 0 40px rgba(26,27,36,.5); }
+.hero-hello { text-shadow: 0 0 18px rgba(81,162,255,.5); }
+.page-head h2 { letter-spacing: -.01em; }
+input[type=text]:focus, input[type=password]:focus, input[type=number]:focus, input[type=search]:focus, select:focus { box-shadow: inset 0 0 0 1px var(--accent), 0 0 0 3px rgba(81,162,255,.14); }
+.bar i { box-shadow: 0 0 12px rgba(81,162,255,.6); }
+main { scroll-behavior: smooth; }
+::selection { background: rgba(81,162,255,.35); }
+.toast { box-shadow: 0 0 0 1px rgba(81,162,255,.25), 0 18px 40px rgba(0,0,0,.5), 0 0 26px rgba(81,162,255,.18); }
+.modal-card { box-shadow: 0 0 0 1px var(--ring-2), 0 30px 80px rgba(0,0,0,.55), 0 0 60px rgba(81,162,255,.08); }
+/* "fewer animations": no hover lifts, no cursor light */
+body.no-motion .tile::after, body.no-motion .prof-cardx::after, body.no-motion .world::after, body.no-motion .mod::after, body.no-motion .card::after, body.no-motion .cape-card::after, body.no-motion .ex-row::after { display: none; }

@@ -54,14 +54,14 @@
     if (I18N.en["err." + s]) return t("err." + s);
     if (s === "not logged in") return t("acc.need");
     if (s === "cf_no_key") return t("mods.cfKey");
-    if (s.startsWith("no_version:")) return `${s.slice(11)}: ${{ ru: "нет версии для", uk: "немає версії для" }[S.settings.language] || "no build for"} ${currentGame()}`;
+    if (s.startsWith("no_version:")) return `${s.slice(11)}: ${{ ru: "нет версии для" }[S.settings.language] || "no build for"} ${currentGame()}`;
     if (s.startsWith("skin_bad_size:")) return t("err.skin_bad_size", s.slice(14).replace("x", "×"));
     if (s.startsWith("skin_no_player:")) return t("err.skin_no_player", s.slice(15));
     if (s.startsWith("skin_upload_failed:")) return t("err.skin_upload_failed", s.slice(19));
     if (s.startsWith("cape_bad_size:")) return t("err.cape_bad_size", s.slice(14).replace("x", "×"));
     if (s.startsWith("host_unavailable:")) return t("host.unavailable", s.slice(17));
     if (s.startsWith("keystrokes_unavailable:")) return t("ks.unavailable", s.slice(23));
-    if (s.startsWith("cf_no_download:")) return `${s.slice(15)}: ${{ ru: "автор запретил сторонние загрузки", uk: "автор заборонив сторонні завантаження" }[S.settings.language] || "author disabled third-party downloads"}`;
+    if (s.startsWith("cf_no_download:")) return `${s.slice(15)}: ${{ ru: "автор запретил сторонние загрузки" }[S.settings.language] || "author disabled third-party downloads"}`;
     return t("err.generic", s);
   }
 
@@ -90,6 +90,16 @@
     if (u) api.call("open_url", { url: u.dataset.url });
   });
 
+  // A soft light follows the cursor over cards and tiles (CSS reads --mx/--my).
+  const GLOW = ".tile, .prof-cardx, .world, .mod, .card, .cape-card, .ex-row";
+  document.addEventListener("pointermove", (e) => {
+    const el = e.target.closest?.(GLOW);
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    el.style.setProperty("--mx", `${e.clientX - r.left}px`);
+    el.style.setProperty("--my", `${e.clientY - r.top}px`);
+  }, { passive: true });
+
   // Nothing animates in the background: pause when hidden or while Minecraft runs.
   const syncPause = () => document.body.classList.toggle("paused", document.hidden || S.running);
   document.addEventListener("visibilitychange", syncPause);
@@ -105,10 +115,9 @@
     $("#gc-label").textContent = S.settings.gc === "lowlatency" ? "ZGC" : "G1";
     const n = S.installed.length || 2;
     let word;
-    if (S.settings.language === "ru" || S.settings.language === "uk") {
-      const uk = S.settings.language === "uk";
+    if (S.settings.language === "ru") {
       const m10 = n % 10, m100 = n % 100;
-      word = m10 === 1 && m100 !== 11 ? "мод" : m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14) ? (uk ? "моди" : "мода") : uk ? "модів" : "модов";
+      word = m10 === 1 && m100 !== 11 ? "мод" : m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14) ? "мода" : "модов";
     } else word = n === 1 ? "mod" : "mods";
     $("#mods-chip-label").textContent = t("modsCount", n, word);
     // tiles of the new home screen
@@ -500,7 +509,7 @@
   S.hostSel = null;
   function renderHost() {
     const sel = S.worlds.find((w) => w.id === S.hostSel) || null;
-    const when = (w) => (w.lastPlayed ? t("host.last", new Date(w.lastPlayed * 1000).toLocaleDateString(S.settings.language === "uk" ? "uk-UA" : S.settings.language === "ru" ? "ru-RU" : "en-GB")) : "");
+    const when = (w) => (w.lastPlayed ? t("host.last", new Date(w.lastPlayed * 1000).toLocaleDateString(S.settings.language === "ru" ? "ru-RU" : "en-GB")) : "");
     $("#host-worlds").innerHTML = S.worlds.length
       ? S.worlds
           .map((w) => `<button class="world ${sel && sel.id === w.id ? "on" : ""}" data-world="${esc(w.id)}"><img alt="" src="${esc(w.icon || WORLD_ICON)}" /><span><b>${esc(w.id)}</b><small>${esc(when(w))}</small></span></button>`)
@@ -1032,13 +1041,19 @@
   // ── cape editor: any picture → a sharp cape texture, positioned by dragging ──
   const CE = { img: null, zoom: 1, x: 0, y: 0, done: null };
   const CE_U = 32; // texture scale: 64×32 layout × 32 = 2048×1024, the cape face is 320×512
+  // Pictures are read as data: URLs. A blob: URL would be simpler, but the app's content
+  // security policy only allows 'self' and data: images, so blob: fails there (not in a browser).
   const loadImage = (file) =>
     new Promise((res, rej) => {
-      const url = URL.createObjectURL(file);
-      const img = new Image();
-      img.onload = () => res(img);
-      img.onerror = () => rej(new Error("cape_not_png"));
-      img.src = url;
+      const r = new FileReader();
+      r.onerror = () => rej(new Error("read"));
+      r.onload = () => {
+        const img = new Image();
+        img.onload = () => (img.width && img.height ? res(img) : rej(new Error("empty")));
+        img.onerror = () => rej(new Error("decode"));
+        img.src = String(r.result);
+      };
+      r.readAsDataURL(file);
     });
   const isCapeLayout = (f, img) => f.type === "image/png" && ((img.width === 2 * img.height && img.width >= 64 && img.width % 64 === 0) || (img.width === 22 && img.height === 17));
   const ceCover = () => Math.max(320 / CE.img.width, 512 / CE.img.height);
@@ -1592,6 +1607,7 @@
   async function boot() {
     S.init = await api.call("get_init");
     S.settings = S.init.settings;
+    if (!I18N[S.settings.language]) S.settings.language = S.settings.language === "uk" ? "ru" : "en"; // Ukrainian was removed
     S.settings.keystrokes ||= { enabled: false, keys: true, mouse: true, space: true, fps: false, ping: false };
     S.settings.capeMode ||= "account";
     S.settings.cape ||= "";

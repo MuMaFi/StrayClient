@@ -179,9 +179,7 @@ pub fn system_language() -> &'static str {
 
 fn language_for(locale: &str) -> &'static str {
     let l = locale.to_ascii_lowercase();
-    if l.starts_with("uk") {
-        "uk"
-    } else if l.starts_with("ru") || l.starts_with("be") || l.starts_with("kk") {
+    if l.starts_with("ru") || l.starts_with("uk") || l.starts_with("be") || l.starts_with("kk") {
         "ru"
     } else {
         "en"
@@ -191,7 +189,14 @@ fn language_for(locale: &str) -> &'static str {
 impl Settings {
     pub async fn load(paths: &Paths) -> Self {
         match tokio::fs::read(paths.settings_file()).await {
-            Ok(b) => serde_json::from_slice(&b).unwrap_or_default(),
+            Ok(b) => {
+                let mut s: Self = serde_json::from_slice(&b).unwrap_or_default();
+                // The Ukrainian interface was removed: fall back to Russian.
+                if s.language != "ru" && s.language != "en" {
+                    s.language = if s.language == "uk" { "ru" } else { "en" }.into();
+                }
+                s
+            }
             Err(_) => Self::default(),
         }
     }
@@ -248,7 +253,7 @@ mod tests {
 
     #[test]
     fn languages() {
-        assert_eq!(super::language_for("uk-UA"), "uk");
+        assert_eq!(super::language_for("uk-UA"), "ru");
         assert_eq!(super::language_for("ru_RU"), "ru");
         assert_eq!(super::language_for("de-DE"), "en");
         assert_eq!(super::language_for("en-US"), "en");
