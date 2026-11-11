@@ -648,3 +648,7 @@ body.home-new .home-bar { margin-top: 14px; }
 .prof-cardx.add { min-height: 0; }
 .tile { min-height: 0; }
 .hud-tip { margin-bottom: 14px; }
+/* new home: the hero grows with its text, and the mods chip is replaced by the Mods tile */
+body.home-new .hero { height: auto; min-height: 300px; }
+body.home-new .hero-content { position: relative; left: 0; top: 0; padding: 30px 48px 40px; }
+body.home-new .notch-ip { display: none; }
