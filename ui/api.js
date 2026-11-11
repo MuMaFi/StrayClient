@@ -29,7 +29,7 @@
     // Like the real client until Mojang approves direct sign-in: play through the official launcher.
     playMode: "official",
     keystrokes: { enabled: true, keys: true, mouse: true, space: true, fps: true, ping: false },
-    homeLayout: params.get("home") === "classic" ? "classic" : "new", skipIntro: false, profile: "",
+    skipIntro: false, introSound: true, profile: "",
     profiles: params.has("profiles") ? [{ id: "pvp", name: "PvP", gameVersion: "", performanceMods: true, standardMods: true }, { id: "vanilla", name: "Vanilla+", gameVersion: "", performanceMods: true, standardMods: false }] : [],
   };
   // Demo cape library (the real client keeps PNGs in its data folder).

@@ -748,3 +748,9 @@ main { scroll-behavior: smooth; }
 .modal-card { box-shadow: 0 0 0 1px var(--ring-2), 0 30px 80px rgba(0,0,0,.55), 0 0 60px rgba(81,162,255,.08); }
 /* "fewer animations": no hover lifts, no cursor light */
 body.no-motion .tile::after, body.no-motion .prof-cardx::after, body.no-motion .world::after, body.no-motion .mod::after, body.no-motion .card::after, body.no-motion .cape-card::after, body.no-motion .ex-row::after { display: none; }
+
+/* ───────── one home screen (the New/Classic switch is gone) ───────── */
+body.home-new .notch-online { display: block; }
+body.home-new .tiles { grid-template-columns: repeat(3, 1fr); }
+body.home-new .cards { margin-top: 12px; }
+.home-bar { margin-top: 14px; }

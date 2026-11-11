@@ -129,8 +129,6 @@
     $("#tile-modules").textContent = mods.join(" · ") || t("tile.modulesNone");
     $("#tile-wardrobe").textContent =
       S.settings.capeMode === "local" && S.settings.cape ? S.settings.cape.replace(/\.png$/, "") : S.settings.capeMode === "none" ? t("tile.capeNone") : t("tile.capeAccount");
-    $("#tile-perf").textContent = `${gb(S.settings.memoryMb)} RAM · ${S.settings.gc === "lowlatency" ? "ZGC" : "G1"}`;
-    $("#tile-mem-bar").style.width = $("#mem-bar").style.width;
     $(".core-mods").classList.toggle("off", !!activeProfile() && !activeProfile().performanceMods);
   }
 
@@ -146,9 +144,7 @@
   const profVersion = (p) => (p ? p.gameVersion : S.settings.gameVersion) || (S.versions[0] ? `${t("version.latest")} (${S.versions[0]})` : t("version.latest"));
   function renderHome() {
     if (!S.settings) return;
-    const layout = S.settings.homeLayout === "classic" ? "classic" : "new";
-    document.body.classList.toggle("home-new", layout === "new");
-    $$("#home-switch button, #set-home button").forEach((b) => b.classList.toggle("on", b.dataset.v === layout));
+    document.body.classList.add("home-new");
     const acc = S.accounts?.accounts?.find((a) => a.uuid === S.accounts.active) || S.init?.account;
     $("#hero-hello").textContent = acc?.name ? t("home.hello", acc.name) : t("home.helloGuest");
     const act = activeProfile();
@@ -182,13 +178,6 @@
     await saveSettings();
     await reloadInstalled();
   }
-  function setLayout(v) {
-    S.settings.homeLayout = v;
-    renderHome();
-    saveSoon();
-  }
-  $("#home-switch").addEventListener("click", (e) => e.target.closest("button") && setLayout(e.target.closest("button").dataset.v));
-  $("#set-home").addEventListener("click", (e) => e.target.closest("button") && setLayout(e.target.closest("button").dataset.v));
   document.body.appendChild($("#prof-menu"));
   $("#prof-pill").addEventListener("click", (e) => {
     e.stopPropagation();
@@ -784,14 +773,17 @@
       renderStatus();
       saveSoon();
     });
-    const checks = { "#set-autojoin": "autoJoin", "#set-close": "closeOnLaunch", "#set-motion": "reduceMotion", "#set-intro": "skipIntro" };
+    const checks = { "#set-autojoin": "autoJoin", "#set-close": "closeOnLaunch", "#set-motion": "reduceMotion", "#set-intro": "skipIntro", "#set-sound": "introSound" };
     for (const [sel, key] of Object.entries(checks)) {
       const el = $(sel);
       el.checked = !!s[key];
       el.addEventListener("change", () => {
         s[key] = el.checked;
         document.body.classList.toggle("no-motion", s.reduceMotion);
-        try { localStorage.setItem("stray-skip-intro", s.skipIntro ? "1" : "0"); } catch {}
+        try {
+          localStorage.setItem("stray-skip-intro", s.skipIntro ? "1" : "0");
+          localStorage.setItem("stray-intro-sound", s.introSound === false ? "0" : "1");
+        } catch {}
         saveSoon();
       });
     }
@@ -1516,6 +1508,10 @@
       return { done, ready() {} };
     }
     const back = "cubic-bezier(.2,1.5,.4,1)", out = "cubic-bezier(.2,.8,.2,1)", inOut = "cubic-bezier(.7,0,.3,1)";
+    // sounds: e-piano scale with the letters, coin when the logo is complete, whoosh on open
+    const sfx = window.StraySfx?.start() || null;
+    sfx?.cue("scale", 1.35);
+    sfx?.cue("coin", 2.2);
     const anims = [];
     const play = (node, frames, opts) => {
       const a = node.animate(frames, { fill: "both", easing: out, ...opts });
@@ -1580,6 +1576,8 @@
     function close() {
       if (closing) return;
       closing = true;
+      sfx?.now("whoosh");
+      sfx?.end(1.6);
       document.documentElement.classList.remove("intro-on");
       for (const n of [$(".top"), $("main")]) {
         n.animate([{ opacity: 0, transform: "translateY(16px) scale(.98)" }, { opacity: 1, transform: "none" }], { duration: 650, delay: 120, easing: out, fill: "backwards" });
@@ -1598,6 +1596,7 @@
     setTimeout(() => ((played = true), (appReady = true), maybeClose()), 9000); // never get stuck behind the intro
     el.addEventListener("click", () => {
       anims.forEach((a) => a.finish());
+      if (!closing) sfx?.silence(); // skipped: cut the music, no whoosh over it
       played = appReady = true;
       close();
     });
@@ -1613,10 +1612,13 @@
     S.settings.cape ||= "";
     S.settings.profiles ||= [];
     S.settings.profile ||= "";
-    S.settings.homeLayout ||= "new";
+    S.settings.introSound ??= true;
     S.accounts = S.init.accounts || { active: null, accounts: S.init.account ? [S.init.account] : [] };
     document.body.classList.toggle("no-motion", S.settings.reduceMotion);
-    try { localStorage.setItem("stray-skip-intro", S.settings.skipIntro ? "1" : "0"); } catch {}
+    try {
+      localStorage.setItem("stray-skip-intro", S.settings.skipIntro ? "1" : "0");
+      localStorage.setItem("stray-intro-sound", S.settings.introSound === false ? "0" : "1");
+    } catch {}
     bindSettings();
     applyI18n();
     S.versions = await api.call("game_versions").catch(() => []);

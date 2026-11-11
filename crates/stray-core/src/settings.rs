@@ -50,10 +50,12 @@ pub struct Settings {
     pub profiles: Vec<Profile>,
     /// Id of the active profile; empty = the default profile.
     pub profile: String,
-    /// `new` or `classic` home screen.
+    /// Unused since 1.8.1 (there is one home screen); kept so old settings files still load.
     pub home_layout: String,
     /// Skip the start-up animation.
     pub skip_intro: bool,
+    /// Sounds during the start-up animation.
+    pub intro_sound: bool,
 }
 
 /// A player-made profile with its own mods.
@@ -167,6 +169,7 @@ impl Default for Settings {
             profile: String::new(),
             home_layout: "new".into(),
             skip_intro: false,
+            intro_sound: true,
         }
     }
 }

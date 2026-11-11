@@ -65,7 +65,7 @@
       nextShoot = t + 7 + Math.random() * 9;
     }
     // sun with a dithered halo that slowly breathes
-    const cx = 138, cy = 54, r = 11, pulse = Math.sin(t * 0.9) > 0 ? 1 : 0, phase = Math.floor(t * 1.2) % 2;
+    const cx = 112, cy = 54, r = 11, pulse = Math.sin(t * 0.9) > 0 ? 1 : 0, phase = Math.floor(t * 1.2) % 2;
     for (let y = cy - r - 6; y <= cy + r + 6; y++)
       for (let x = cx - r - 6; x <= cx + r + 6; x++) {
         const d = Math.hypot(x - cx, y - cy);
