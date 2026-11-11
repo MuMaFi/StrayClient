@@ -29,5 +29,16 @@
   "strayclient.menu.host.tip": "Поділися цим світом із друзями будь-де: вони заходять за адресою з чату.",
   "strayclient.host.on": "Твій світ тепер доступний друзям. Надішли їм адресу з рядка чату нижче (натисни, щоб скопіювати). Вони заходять через «Мережева гра» → «Пряме підключення».",
   "strayclient.host.lan": "Світ відкрито для локальної мережі (LAN). Щоб хостити на весь світ, запусти його через «Хост» у Stray Client.",
-  "strayclient.host.failed": "Не вдалося захостити цей світ."
+  "strayclient.host.failed": "Не вдалося захостити цей світ.",
+  "strayclient.title.singleplayer": "Одиночна гра",
+  "strayclient.title.multiplayer": "Мережева гра",
+  "strayclient.title.mods": "Моди й модулі",
+  "strayclient.title.mods.tip": "Вмикай і вимикай модулі та моди, рухай HUD.",
+  "strayclient.title.options": "Налаштування",
+  "strayclient.title.quit": "Вийти з гри",
+  "strayclient.title.classic": "Класичне меню",
+  "strayclient.title.classic.tip": "Повернути звичайне головне меню Minecraft. Увімкнути меню Stray знову можна через Right Shift.",
+  "strayclient.title.hint": "Right Shift: меню Stray Client",
+  "strayclient.menu.mainmenu": "Головне меню Stray",
+  "strayclient.menu.mainmenu.tip": "Показує головне меню Stray Client замість екрана Minecraft."
 }

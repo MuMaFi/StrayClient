@@ -29,5 +29,16 @@
   "strayclient.menu.host.tip": "Share this world with friends anywhere: they join with the address shown in chat.",
   "strayclient.host.on": "Your world is now hosted. Send your friends the address from the chat line below (click it to copy). They join via Multiplayer → Direct Connection.",
   "strayclient.host.lan": "Your world is open to your local network (LAN). For hosting worldwide, start it with “Host” in Stray Client.",
-  "strayclient.host.failed": "Could not host this world."
+  "strayclient.host.failed": "Could not host this world.",
+  "strayclient.title.singleplayer": "Singleplayer",
+  "strayclient.title.multiplayer": "Multiplayer",
+  "strayclient.title.mods": "Mods & modules",
+  "strayclient.title.mods.tip": "Switch modules and mods on and off, move the HUD.",
+  "strayclient.title.options": "Options",
+  "strayclient.title.quit": "Quit game",
+  "strayclient.title.classic": "Classic menu",
+  "strayclient.title.classic.tip": "Back to Minecraft's own main menu. Turn the Stray menu on again with Right Shift.",
+  "strayclient.title.hint": "Right Shift: Stray Client menu",
+  "strayclient.menu.mainmenu": "Stray main menu",
+  "strayclient.menu.mainmenu.tip": "Shows the Stray Client main menu instead of Minecraft's title screen."
 }

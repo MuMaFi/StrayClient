@@ -42,7 +42,7 @@ public final class HudEditScreen extends Screen {
     private double grabX, grabY;
 
     public HudEditScreen(Screen parent) {
-        super(Component.translatable("strayclient.hud.title"));
+        super(Tr.t("strayclient.hud.title"));
         this.parent = parent;
     }
 
@@ -61,7 +61,7 @@ public final class HudEditScreen extends Screen {
         }
         if (Modules.pvpLoaded()) {
             if (Modules.pvp("hudInfo") || Modules.pvp("hudEffects")) {
-                boxes.add(new Box(Component.translatable("strayclient.hud.info"), 150, 72) {
+                boxes.add(new Box(Tr.t("strayclient.hud.info"), 150, 72) {
                     @Override int x() { return 2 + HudOffsets.infoDx; }
                     @Override int y() { return 2 + HudOffsets.infoDy; }
                     @Override void moveTo(int x, int y) { HudOffsets.infoDx = x - 2; HudOffsets.infoDy = y - 2; }
@@ -70,7 +70,7 @@ public final class HudEditScreen extends Screen {
             }
             if (Modules.pvp("hudArmor") || Modules.pvp("hudItems")) {
                 final int baseY = height / 2 - 72;
-                boxes.add(new Box(Component.translatable("strayclient.hud.armor"), 76, 112) {
+                boxes.add(new Box(Tr.t("strayclient.hud.armor"), 76, 112) {
                     @Override int x() { return 2 + HudOffsets.armorDx; }
                     @Override int y() { return baseY + HudOffsets.armorDy; }
                     @Override void moveTo(int x, int y) { HudOffsets.armorDx = x - 2; HudOffsets.armorDy = y - baseY; }
@@ -79,9 +79,9 @@ public final class HudEditScreen extends Screen {
             }
         }
         int bw = 110, by = height - 28;
-        addRenderableWidget(Button.builder(Component.translatable("strayclient.hud.reset"), b -> boxes.forEach(Box::reset))
+        addRenderableWidget(Button.builder(Tr.t("strayclient.hud.reset"), b -> boxes.forEach(Box::reset))
                 .bounds(width / 2 - bw - 3, by, bw, 20).build());
-        addRenderableWidget(Button.builder(Component.translatable("strayclient.menu.done"), b -> onClose())
+        addRenderableWidget(Button.builder(Tr.t("strayclient.menu.done"), b -> onClose())
                 .bounds(width / 2 + 3, by, bw, 20).build());
     }
 
@@ -139,7 +139,7 @@ public final class HudEditScreen extends Screen {
             g.text(font, b.label, b.x() + 4, b.y() + b.h - 11, 0xFFFFFFFF);
         }
         super.extractRenderState(g, mouseX, mouseY, delta);
-        Component hint = boxes.isEmpty() ? Component.translatable("strayclient.hud.empty") : title;
+        Component hint = boxes.isEmpty() ? Tr.t("strayclient.hud.empty") : title;
         g.centeredText(font, hint, width / 2, height - 42, 0xFFFFFFFF);
     }
 

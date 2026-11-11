@@ -55,7 +55,7 @@ public final class Hosting {
     public static void tick(Minecraft mc) {
         if (world == null) return;
         if (!opening) {
-            if (mc.gui.overlay() == null && mc.gui.screen() instanceof TitleScreen) {
+            if (mc.gui.overlay() == null && (mc.gui.screen() instanceof TitleScreen || mc.gui.screen() instanceof StrayTitleScreen)) {
                 opening = true;
                 String w = world;
                 mc.createWorldOpenFlows().openWorld(w, () -> {
@@ -82,18 +82,18 @@ public final class Hosting {
         if (server == null) return;
         try {
             if (!server.isPublished() && !server.publishServer(MinecraftServer.MultiplayerScope.LAN, HttpUtil.getAvailablePort())) {
-                say(mc, Component.translatable("strayclient.host.failed").withStyle(ChatFormatting.RED));
+                say(mc, Tr.t("strayclient.host.failed").withStyle(ChatFormatting.RED));
                 return;
             }
             if (sessionName != null && !sessionName.isEmpty()) server.setMotd(sessionName);
         } catch (RuntimeException e) {
             StrayCapes.LOG.warn("Hosting failed", e);
-            say(mc, Component.translatable("strayclient.host.failed").withStyle(ChatFormatting.RED));
+            say(mc, Tr.t("strayclient.host.failed").withStyle(ChatFormatting.RED));
             return;
         }
         boolean global = FabricLoader.getInstance().isModLoaded("e4mc");
         say(mc, Component.literal("Stray Client » ").withColor(0x51A2FF)
-                .append(Component.translatable(global ? "strayclient.host.on" : "strayclient.host.lan").withStyle(ChatFormatting.WHITE)));
+                .append(Tr.t(global ? "strayclient.host.on" : "strayclient.host.lan").withStyle(ChatFormatting.WHITE)));
     }
 
     private static void say(Minecraft mc, Component message) {

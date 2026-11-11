@@ -33,8 +33,21 @@ public final class StrayMenuScreen extends Screen {
     private int px, py, pw, ph, colW, rows;
     private Component status = Component.empty();
 
+    private final Screen parent;
+
     public StrayMenuScreen() {
-        super(Component.translatable("strayclient.menu.title"));
+        this(null);
+    }
+
+    /** @param parent the screen to go back to (the main menu), or null when opened in game */
+    public StrayMenuScreen(Screen parent) {
+        super(Tr.t("strayclient.menu.title"));
+        this.parent = parent;
+    }
+
+    @Override
+    public void onClose() {
+        minecraft.gui.setScreen(parent);
     }
 
     @Override
@@ -54,8 +67,11 @@ public final class StrayMenuScreen extends Screen {
             y += ROW;
         }
         Button cape = toggle(lx, y, "strayclient.menu.cape", Modules::capeOn, Modules::setCape,
-                Tooltip.create(Component.translatable("strayclient.menu.cape.tip")));
+                Tooltip.create(Tr.t("strayclient.menu.cape.tip")));
         cape.active = Modules.hasCapeFile() || Modules.capeOn();
+        y += ROW;
+        toggle(lx, y, "strayclient.menu.mainmenu", ClientConfig::customMenu, ClientConfig::setCustomMenu,
+                Tooltip.create(Tr.t("strayclient.menu.mainmenu.tip")));
         y += ROW;
         if (Modules.pvpLoaded()) {
             toggle(lx, y, "strayclient.menu.pvp.hud", () -> Modules.pvp("hudInfo"), v -> Modules.setPvp("hudInfo", v), null);
@@ -66,7 +82,7 @@ public final class StrayMenuScreen extends Screen {
             y += ROW;
             Screen more = Modules.pvpScreen(this);
             if (more != null && y + 20 <= py + ph - 32) {
-                addRenderableWidget(Button.builder(Component.translatable("strayclient.menu.pvp.more"),
+                addRenderableWidget(Button.builder(Tr.t("strayclient.menu.pvp.more"),
                         b -> minecraft.gui.setScreen(more)).bounds(lx, y, colW, 20).build());
             }
         }
@@ -81,11 +97,11 @@ public final class StrayMenuScreen extends Screen {
             Button b = Button.builder(modLabel(m), btn -> {
                 ModsFolder.toggle(m);
                 btn.setMessage(modLabel(m));
-                status = Component.translatable("strayclient.menu.mods.restart").withStyle(ChatFormatting.YELLOW);
+                status = Tr.t("strayclient.menu.mods.restart").withStyle(ChatFormatting.YELLOW);
             }).bounds(rx, top + (i - from) * ROW, colW, 20).build();
             if (m.locked) {
                 b.active = false;
-                b.setTooltip(Tooltip.create(Component.translatable("strayclient.menu.mods.locked")));
+                b.setTooltip(Tooltip.create(Tr.t("strayclient.menu.mods.locked")));
             }
             addRenderableWidget(b);
         }
@@ -98,21 +114,21 @@ public final class StrayMenuScreen extends Screen {
         }
 
         if (Hosting.canHost(minecraft)) {
-            int hw = Math.min(120, font.width(Component.translatable("strayclient.menu.host")) + 16);
-            addRenderableWidget(Button.builder(Component.translatable("strayclient.menu.host"), b -> {
+            int hw = Math.min(120, font.width(Tr.t("strayclient.menu.host")) + 16);
+            addRenderableWidget(Button.builder(Tr.t("strayclient.menu.host"), b -> {
                 Hosting.publish(minecraft, "");
                 onClose();
             }).bounds(px + pw - 10 - hw, py + 5, hw, 18)
-                    .tooltip(Tooltip.create(Component.translatable("strayclient.menu.host.tip"))).build());
+                    .tooltip(Tooltip.create(Tr.t("strayclient.menu.host.tip"))).build());
         }
         int half = (colW - 4) / 2;
-        addRenderableWidget(Button.builder(Component.translatable("strayclient.menu.hud"), b -> minecraft.gui.setScreen(new HudEditScreen(this)))
+        addRenderableWidget(Button.builder(Tr.t("strayclient.menu.hud"), b -> minecraft.gui.setScreen(new HudEditScreen(this)))
                 .bounds(px + 10, py + ph - 28, half, 20)
-                .tooltip(Tooltip.create(Component.translatable("strayclient.menu.hud.tip"))).build());
-        addRenderableWidget(Button.builder(Component.translatable("strayclient.menu.done"), b -> onClose())
+                .tooltip(Tooltip.create(Tr.t("strayclient.menu.hud.tip"))).build());
+        addRenderableWidget(Button.builder(Tr.t("strayclient.menu.done"), b -> onClose())
                 .bounds(px + 10 + half + 4, py + ph - 28, colW - half - 4, 20).build());
         if (ModsFolder.hasPending()) {
-            status = Component.translatable("strayclient.menu.mods.restart").withStyle(ChatFormatting.YELLOW);
+            status = Tr.t("strayclient.menu.mods.restart").withStyle(ChatFormatting.YELLOW);
         }
     }
 
@@ -126,11 +142,11 @@ public final class StrayMenuScreen extends Screen {
     }
 
     private static Component onOff(String key, boolean on) {
-        return Component.translatable(key).append(": ").append(state(on));
+        return Tr.t(key).append(": ").append(state(on));
     }
 
     private static MutableComponent state(boolean on) {
-        return Component.translatable(on ? "strayclient.menu.on" : "strayclient.menu.off")
+        return Tr.t(on ? "strayclient.menu.on" : "strayclient.menu.off")
                 .withStyle(on ? ChatFormatting.GREEN : ChatFormatting.RED);
     }
 
@@ -155,14 +171,14 @@ public final class StrayMenuScreen extends Screen {
         super.extractRenderState(g, mouseX, mouseY, delta);
         g.text(font, Component.literal("STRAY ").append(Component.literal("CLIENT").withColor(ACCENT)), px + 10, py + 8, 0xFFFFFFFF);
         if (!Hosting.canHost(minecraft)) {
-            Component hint = Component.translatable("strayclient.menu.hint");
+            Component hint = Tr.t("strayclient.menu.hint");
             g.text(font, hint, px + pw - 10 - font.width(hint), py + 8, MUTED);
         }
-        g.text(font, Component.translatable("strayclient.menu.modules"), px + 10, py + 20, MUTED);
-        g.text(font, Component.translatable("strayclient.menu.mods"), px + 20 + colW, py + 20, MUTED);
+        g.text(font, Tr.t("strayclient.menu.modules"), px + 10, py + 20, MUTED);
+        g.text(font, Tr.t("strayclient.menu.mods"), px + 20 + colW, py + 20, MUTED);
         int rx = px + 20 + colW;
         if (mods.isEmpty()) {
-            List<net.minecraft.util.FormattedCharSequence> lines = font.split(Component.translatable("strayclient.menu.mods.empty"), colW);
+            List<net.minecraft.util.FormattedCharSequence> lines = font.split(Tr.t("strayclient.menu.mods.empty"), colW);
             for (int i = 0; i < lines.size(); i++) g.text(font, lines.get(i), rx, py + 48 + i * 10, MUTED);
         } else if (mods.size() > rows) {
             int pages = (mods.size() + rows - 1) / rows;
@@ -171,7 +187,7 @@ public final class StrayMenuScreen extends Screen {
         }
         if (!Modules.keystrokesLoaded() && !Modules.pvpLoaded()) {
             int y = py + 44 + ROW + 4;
-            for (var line : font.split(Component.translatable("strayclient.menu.modules.more"), colW)) {
+            for (var line : font.split(Tr.t("strayclient.menu.modules.more"), colW)) {
                 g.text(font, line, px + 10, y, MUTED);
                 y += 10;
             }
