@@ -29,6 +29,8 @@
     // Like the real client until Mojang approves direct sign-in: play through the official launcher.
     playMode: "official",
     keystrokes: { enabled: true, keys: true, mouse: true, space: true, fps: true, ping: false },
+    homeLayout: params.get("home") === "classic" ? "classic" : "new", skipIntro: false, profile: "",
+    profiles: params.has("profiles") ? [{ id: "pvp", name: "PvP", gameVersion: "", performanceMods: true, standardMods: true }, { id: "vanilla", name: "Vanilla+", gameVersion: "", performanceMods: true, standardMods: false }] : [],
   };
   // Demo cape library (the real client keeps PNGs in its data folder).
   let skins = [{ file: "straysmp.png", variant: "classic", width: 64, height: 64, dataUrl: "assets/demo-skin.png" }];
@@ -58,6 +60,7 @@
       return { playMode, official: { launcherFound: true }, settings, account: current() && { name: active, uuid: active }, accounts: list(), totalMemoryMb: 16384, hasClientId: true, hasCfKey: false, appVersion: "1.2.0", os: "macos", dataDir: "~/Library/Application Support/StrayLauncher" };
     },
     async save_settings({ settings: s }) { settings = s; store.set("mock-lang", s.language); return !!s.curseforgeKey; },
+    async profile_delete({ id }) { settings.profiles = (settings.profiles || []).filter((p) => p.id !== id); if (settings.profile === id) settings.profile = ""; return settings; },
     async game_versions() { return ["26.3", "26.2", "26.1.2", "26.1.1", "26.1", "1.21.11", "1.21.10", "1.21.8", "1.21.4", "1.21.1", "1.20.6", "1.20.4", "1.20.1"]; },
     async server_status() { await wait(400); return { online: true, players: 137, max: 2026, version: "Velocity 1.20-26.3", ping_ms: 38 }; },
     // Demo sign-in: the real client opens Microsoft's page in its own window here.

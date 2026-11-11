@@ -5,11 +5,22 @@ use std::path::{Path, PathBuf};
 #[derive(Debug, Clone)]
 pub struct Paths {
     pub root: PathBuf,
+    /// Folder name of the active profile's instance (shared by all clones). `None` = the
+    /// default profile, which keeps one instance per game version.
+    profile: std::sync::Arc<std::sync::RwLock<Option<String>>>,
 }
 
 impl Paths {
     pub fn new(root: PathBuf) -> Self {
-        Self { root }
+        Self {
+            root,
+            profile: Default::default(),
+        }
+    }
+
+    /// Switch the instance folder to a profile's own one (`None` = default profile).
+    pub fn set_profile(&self, dir: Option<String>) {
+        *self.profile.write().unwrap() = dir.map(|d| sanitize(&d));
     }
 
     /// `%APPDATA%\StrayLauncher` on Windows, `~/Library/Application Support/StrayLauncher` on macOS.
@@ -35,7 +46,10 @@ impl Paths {
         self.root.join("cache")
     }
     pub fn instance(&self, game_version: &str) -> PathBuf {
-        self.root.join("instances").join(sanitize(game_version))
+        let dir = self.profile.read().unwrap().clone();
+        self.root
+            .join("instances")
+            .join(dir.unwrap_or_else(|| sanitize(game_version)))
     }
     pub fn natives(&self, game_version: &str) -> PathBuf {
         self.instance(game_version).join(".natives")

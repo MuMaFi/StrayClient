@@ -92,8 +92,33 @@ async fn sync_ingame(state: &AppState) -> Settings {
 async fn save_settings(state: State<'_, AppState>, settings: Settings) -> Res<bool> {
     settings.save(&state.paths).await.map_err(err)?;
     let has_cf = mods::curseforge_key(&settings.curseforge_key).is_some();
+    state.paths.set_profile(settings.profile_dir());
     *state.settings.write().await = settings;
     Ok(has_cf)
+}
+
+/// Delete an own profile together with its game folder (mods, worlds, options).
+#[tauri::command]
+async fn profile_delete(state: State<'_, AppState>, id: String) -> Res<Settings> {
+    if state.running.load(Ordering::SeqCst) {
+        return Err("already_running".into());
+    }
+    let mut settings = state.settings.read().await.clone();
+    let Some(pos) = settings.profiles.iter().position(|p| p.id == id) else {
+        return Ok(settings);
+    };
+    let profile = settings.profiles.remove(pos);
+    if settings.profile == id {
+        settings.profile.clear();
+    }
+    if stray_core::settings::Profile::valid_id(&profile.id) {
+        let dir = state.paths.root.join("instances").join(profile.dir());
+        let _ = tokio::fs::remove_dir_all(dir).await;
+    }
+    settings.save(&state.paths).await.map_err(err)?;
+    state.paths.set_profile(settings.profile_dir());
+    *state.settings.write().await = settings.clone();
+    Ok(settings)
 }
 
 #[tauri::command]
@@ -102,7 +127,7 @@ async fn game_versions(state: State<'_, AppState>) -> Res<Vec<String>> {
 }
 
 async fn current_game(state: &AppState) -> Res<String> {
-    let chosen = state.settings.read().await.game_version.clone();
+    let chosen = state.settings.read().await.chosen_game().to_string();
     if !chosen.is_empty() {
         return Ok(chosen);
     }
@@ -549,6 +574,7 @@ fn main() {
     tauri::async_runtime::set(rt.handle().clone());
     let paths = Paths::new(Paths::default_root());
     let settings = rt.block_on(Settings::load(&paths));
+    paths.set_profile(settings.profile_dir());
 
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
@@ -560,6 +586,7 @@ fn main() {
         .invoke_handler(tauri::generate_handler![
             get_init,
             save_settings,
+            profile_delete,
             game_versions,
             server_status,
             login_start,

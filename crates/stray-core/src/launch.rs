@@ -67,7 +67,7 @@ pub async fn prepare(
         java_fut,
         mojang::install_game_files(paths, &version, progress),
         mojang::install_assets(paths, &version, progress),
-        mods::ensure_core(paths, game, progress),
+        mods::ensure_core(paths, game, settings.performance_mods(), progress),
     )?;
     // Capes + HUD modules. A failure here (e.g. keystrokes not built for this version yet)
     // must not stop the game from starting.

@@ -41,6 +41,7 @@
     renderAccount();
     updateMemHint();
     renderStatus();
+    renderHome();
     if (!S.busy && !S.running) $("#play-label").textContent = t("play");
     // sign-in method hint, auto-join toggle and account chip (boot + every language change)
     if (S.init) applyPlayMode();
@@ -107,25 +108,175 @@
       word = m10 === 1 && m100 !== 11 ? "мод" : m10 >= 2 && m10 <= 4 && (m100 < 12 || m100 > 14) ? (uk ? "моди" : "мода") : uk ? "модів" : "модов";
     } else word = n === 1 ? "mod" : "mods";
     $("#mods-chip-label").textContent = t("modsCount", n, word);
+    // tiles of the new home screen
+    $("#tile-mods").textContent = t("tile.mods", S.installed.length);
+    const std = !activeProfile() || activeProfile().standardMods;
+    const mods = [];
+    if (std && S.settings.keystrokes?.enabled) mods.push("Keystrokes");
+    if (std && S.settings.pvpPlus) mods.push("PvP Plus");
+    $("#tile-modules").textContent = mods.join(" · ") || t("tile.modulesNone");
+    $("#tile-wardrobe").textContent =
+      S.settings.capeMode === "local" && S.settings.cape ? S.settings.cape.replace(/\.png$/, "") : S.settings.capeMode === "none" ? t("tile.capeNone") : t("tile.capeAccount");
+    $("#tile-perf").textContent = `${gb(S.settings.memoryMb)} RAM · ${S.settings.gc === "lowlatency" ? "ZGC" : "G1"}`;
+    $("#tile-mem-bar").style.width = $("#mem-bar").style.width;
+    $(".core-mods").classList.toggle("off", !!activeProfile() && !activeProfile().performanceMods);
   }
 
+  // ───────── home screen: layout switch + profiles ─────────
+  const pencil = '<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4"/></svg>';
+  const profTags = (p) => {
+    const tags = [];
+    if (!p || p.performanceMods) tags.push(`<span class="y">${esc(t("prof.tag.perf"))}</span>`);
+    if (!p || p.standardMods) tags.push(`<span class="y">${esc(t("prof.tag.std"))}</span>`);
+    if (!tags.length) tags.push(`<span>${esc(t("prof.tag.plain"))}</span>`);
+    return tags.join("");
+  };
+  const profVersion = (p) => (p ? p.gameVersion : S.settings.gameVersion) || (S.versions[0] ? `${t("version.latest")} (${S.versions[0]})` : t("version.latest"));
+  function renderHome() {
+    if (!S.settings) return;
+    const layout = S.settings.homeLayout === "classic" ? "classic" : "new";
+    document.body.classList.toggle("home-new", layout === "new");
+    $$("#home-switch button, #set-home button").forEach((b) => b.classList.toggle("on", b.dataset.v === layout));
+    const acc = S.accounts?.accounts?.find((a) => a.uuid === S.accounts.active) || S.init?.account;
+    $("#hero-hello").textContent = acc?.name ? t("home.hello", acc.name) : t("home.helloGuest");
+    const act = activeProfile();
+    $("#prof-pill-name").textContent = act ? act.name : t("prof.default");
+    const list = [null, ...(S.settings.profiles || [])];
+    $("#prof-strip").innerHTML =
+      list
+        .map((p) => `<button class="prof-cardx ${(p ? p.id : "") === (act ? act.id : "") ? "on" : ""}" data-prof="${p ? esc(p.id) : ""}">
+          <b>${esc(p ? p.name : t("prof.default"))}</b><small>${esc(profVersion(p))}</small>
+          <span class="prof-tags">${profTags(p)}</span>
+          ${p ? `<span class="prof-card-edit" data-prof-edit="${esc(p.id)}" title="${esc(t("prof.edit"))}">${pencil}</span>` : ""}</button>`)
+        .join("") + `<button class="prof-cardx add" data-prof-new><i>+</i><span>${esc(t("prof.new"))}</span></button>`;
+    $("#prof-menu").innerHTML =
+      list
+        .map((p) => `<button class="prof-row ${(p ? p.id : "") === (act ? act.id : "") ? "on" : ""}" data-prof="${p ? esc(p.id) : ""}">
+          <span><b>${esc(p ? p.name : t("prof.default"))}</b><small>${esc(profVersion(p))}</small></span>
+          ${p ? `<span class="icon-edit" data-prof-edit="${esc(p.id)}" title="${esc(t("prof.edit"))}">${pencil}</span>` : ""}</button>`)
+        .join("") + `<button class="prof-row add" data-prof-new>+ ${esc(t("prof.new"))}</button>`;
+  }
+  async function reloadInstalled() {
+    S.installed = await api.call("mods_list", { game: currentGame() }).catch(() => []);
+    renderPerf();
+    renderStatus();
+    if (S.tab === "installed") renderInstalled();
+  }
+  async function selectProfile(id) {
+    if (S.busy || S.running) return;
+    S.settings.profile = id;
+    renderVersionSelects();
+    renderHome();
+    await saveSettings();
+    await reloadInstalled();
+  }
+  function setLayout(v) {
+    S.settings.homeLayout = v;
+    renderHome();
+    saveSoon();
+  }
+  $("#home-switch").addEventListener("click", (e) => e.target.closest("button") && setLayout(e.target.closest("button").dataset.v));
+  $("#set-home").addEventListener("click", (e) => e.target.closest("button") && setLayout(e.target.closest("button").dataset.v));
+  document.body.appendChild($("#prof-menu"));
+  $("#prof-pill").addEventListener("click", (e) => {
+    e.stopPropagation();
+    const m = $("#prof-menu");
+    const r = $("#prof-pill").getBoundingClientRect();
+    m.style.left = r.left + "px";
+    m.style.top = r.bottom + 8 + "px";
+    m.hidden = !m.hidden;
+  });
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest("#prof-menu")) $("#prof-menu").hidden = true;
+  });
+  for (const root of [$("#prof-strip"), $("#prof-menu")]) {
+    root.addEventListener("click", (e) => {
+      const edit = e.target.closest("[data-prof-edit]");
+      $("#prof-menu").hidden = true;
+      if (edit) return openProfileDialog(edit.dataset.profEdit);
+      if (e.target.closest("[data-prof-new]")) return openProfileDialog(null);
+      const b = e.target.closest("[data-prof]");
+      if (b) selectProfile(b.dataset.prof);
+    });
+  }
+
+  // Create / edit dialog: name, version and the two "which mods?" questions.
+  let profEditing = null;
+  function openProfileDialog(id) {
+    profEditing = id;
+    const p = id ? S.settings.profiles.find((x) => x.id === id) : null;
+    $("#prof-modal-title").textContent = t(p ? "prof.edit.title" : "prof.create.title");
+    $("#prof-name").value = p ? p.name : "";
+    $("#prof-name").placeholder = t("prof.namePh");
+    const latest = S.versions[0] ? `${t("version.latest")} (${S.versions[0]})` : t("version.latest");
+    $("#prof-version").innerHTML = `<option value="">${latest}</option>` + S.versions.map((v) => `<option>${v}</option>`).join("");
+    $("#prof-version").value = p ? p.gameVersion : chosenGame();
+    $("#prof-perf").checked = p ? p.performanceMods : true;
+    $("#prof-std").checked = p ? p.standardMods : true;
+    $("#prof-save").textContent = t(p ? "prof.save" : "prof.create");
+    const del = $("#prof-delete");
+    del.hidden = !p;
+    del.textContent = t("prof.delete");
+    del.dataset.sure = "";
+    $("#prof-modal").hidden = false;
+    setTimeout(() => $("#prof-name").focus(), 50);
+  }
+  $("#prof-cancel").addEventListener("click", () => ($("#prof-modal").hidden = true));
+  $("#prof-modal").addEventListener("mousedown", (e) => e.target === e.currentTarget && ($("#prof-modal").hidden = true));
+  $("#prof-name").addEventListener("keydown", (e) => e.key === "Enter" && $("#prof-save").click());
+  $("#prof-save").addEventListener("click", async () => {
+    const name = $("#prof-name").value.trim() || t("prof.new");
+    const data = { name, gameVersion: $("#prof-version").value, performanceMods: $("#prof-perf").checked, standardMods: $("#prof-std").checked };
+    S.settings.profiles ||= [];
+    let p = profEditing && S.settings.profiles.find((x) => x.id === profEditing);
+    if (p) Object.assign(p, data);
+    else {
+      p = { id: "p" + Date.now().toString(36) + Math.random().toString(36).slice(2, 6), ...data };
+      S.settings.profiles.push(p);
+      toast(t("prof.created", name));
+    }
+    $("#prof-modal").hidden = true;
+    await selectProfile(p.id);
+  });
+  $("#prof-delete").addEventListener("click", async (e) => {
+    const b = e.currentTarget;
+    if (!b.dataset.sure) {
+      b.dataset.sure = "1";
+      b.textContent = t("prof.deleteSure");
+      return;
+    }
+    const p = S.settings.profiles.find((x) => x.id === profEditing);
+    $("#prof-modal").hidden = true;
+    try {
+      await saveSettings();
+      S.settings = await api.call("profile_delete", { id: profEditing });
+      toast(t("prof.deleted", p?.name || ""));
+    } catch (err) {
+      toast(errText(err), true);
+    }
+    renderVersionSelects();
+    renderHome();
+    await reloadInstalled();
+  });
+
   // ───────── versions ─────────
-  const currentGame = () => S.settings.gameVersion || S.versions[0] || "";
+  const activeProfile = () => (S.settings.profiles || []).find((p) => p.id === S.settings.profile) || null;
+  const chosenGame = () => (activeProfile() ? activeProfile().gameVersion : S.settings.gameVersion) || "";
+  const currentGame = () => chosenGame() || S.versions[0] || "";
   function renderVersionSelects() {
     for (const sel of [$("#version-select"), $("#set-version")]) {
       const latest = S.versions[0] ? `${t("version.latest")} (${S.versions[0]})` : t("version.latest");
       sel.innerHTML = `<option value="">${latest}</option>` + S.versions.map((v) => `<option>${v}</option>`).join("");
-      sel.value = S.settings.gameVersion;
+      sel.value = chosenGame();
     }
   }
   for (const sel of [$("#version-select"), $("#set-version")]) {
     sel.addEventListener("change", async () => {
-      S.settings.gameVersion = sel.value;
+      if (activeProfile()) activeProfile().gameVersion = sel.value;
+      else S.settings.gameVersion = sel.value;
       renderVersionSelects();
       await saveSettings();
-      S.installed = await api.call("mods_list", { game: currentGame() }).catch(() => []);
-      renderPerf();
-      if (S.tab === "installed") renderInstalled();
+      await reloadInstalled();
     });
   }
 
@@ -567,7 +718,7 @@
       renderStatus();
       saveSoon();
     });
-    const checks = { "#set-autojoin": "autoJoin", "#set-close": "closeOnLaunch", "#set-motion": "reduceMotion" };
+    const checks = { "#set-autojoin": "autoJoin", "#set-close": "closeOnLaunch", "#set-motion": "reduceMotion", "#set-intro": "skipIntro" };
     for (const [sel, key] of Object.entries(checks)) {
       const el = $(sel);
       el.checked = !!s[key];
@@ -690,6 +841,10 @@
     applyModulesSoon();
   });
   async function loadModules() {
+    const prof = activeProfile();
+    const pn0 = $("#prof-notice");
+    pn0.hidden = !prof || prof.standardMods;
+    pn0.textContent = pn0.hidden ? "" : t("prof.modsOff", prof.name);
     renderKeystrokes();
     renderPvp();
     renderExtras();
@@ -765,6 +920,7 @@
       const u = img.width === 22 ? 1 : img.width / 64; // 64×32 layout (22×17 = old OptiFine)
       canvas.width = Math.round(10 * u);
       canvas.height = Math.round(16 * u);
+      canvas.classList.toggle("hd", u > 4); // edited pictures are high-res: show them smooth
       ctx.imageSmoothingEnabled = false;
       const sx = (side === "front" ? 1 : 12) * u;
       ctx.drawImage(img, sx, u, 10 * u, 16 * u, 0, 0, canvas.width, canvas.height);
@@ -793,7 +949,7 @@
           <canvas></canvas><span>${esc(c.file.replace(/\.png$/, ""))}</span></div>`
         )
         .join("") +
-      `<label class="cape-card add"><b>+</b><span>${t("cape.add")}</span><input type="file" accept="image/png" multiple hidden /></label>`;
+      `<label class="cape-card add"><b>+</b><span>${t("cape.add")}</span><input type="file" accept="image/*" multiple hidden /></label>`;
     grid.querySelectorAll(".cape-card[data-file]").forEach((card) => {
       const c = S.capes.find((x) => x.file === card.dataset.file);
       drawCape(card.querySelector("canvas"), c.dataUrl, "front");
@@ -815,11 +971,158 @@
       r.onerror = rej;
       r.readAsDataURL(file);
     });
+  // ── cape editor: any picture → a sharp cape texture, positioned by dragging ──
+  const CE = { img: null, zoom: 1, x: 0, y: 0, done: null };
+  const CE_U = 32; // texture scale: 64×32 layout × 32 = 2048×1024, the cape face is 320×512
+  const loadImage = (file) =>
+    new Promise((res, rej) => {
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = () => res(img);
+      img.onerror = () => rej(new Error("cape_not_png"));
+      img.src = url;
+    });
+  const isCapeLayout = (f, img) => f.type === "image/png" && ((img.width === 2 * img.height && img.width >= 64 && img.width % 64 === 0) || (img.width === 22 && img.height === 17));
+  const ceCover = () => Math.max(320 / CE.img.width, 512 / CE.img.height);
+  function ceClamp() {
+    const k = ceCover() * CE.zoom;
+    const w = CE.img.width * k, h = CE.img.height * k;
+    CE.x = Math.min(0, Math.max(320 - w, CE.x));
+    CE.y = Math.min(0, Math.max(512 - h, CE.y));
+  }
+  function ceDrawFace(ctx) {
+    const k = ceCover() * CE.zoom;
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = "high";
+    ctx.drawImage(CE.img, CE.x, CE.y, CE.img.width * k, CE.img.height * k);
+  }
+  function ceRender() {
+    ceClamp();
+    const c = $("#ce-canvas"), ctx = c.getContext("2d");
+    ctx.clearRect(0, 0, 320, 512);
+    ceDrawFace(ctx);
+    const p = $("#ce-prev").getContext("2d");
+    p.imageSmoothingQuality = "high";
+    p.clearRect(0, 0, 80, 128);
+    p.drawImage(c, 0, 0, 80, 128);
+  }
+  function ceZoomTo(z, cx = 160, cy = 256) {
+    z = Math.min(4, Math.max(1, z));
+    const k0 = ceCover() * CE.zoom, k1 = ceCover() * z;
+    CE.x = cx - ((cx - CE.x) / k0) * k1;
+    CE.y = cy - ((cy - CE.y) / k0) * k1;
+    CE.zoom = z;
+    $("#ce-zoom").value = Math.round(z * 100);
+    $("#ce-zoom").style.setProperty("--fill", `${((z - 1) / 3) * 100}%`);
+    ceRender();
+  }
+  /** The full cape texture (vanilla 64×32 layout, scaled): outside, inside, edges and elytra. */
+  function ceTexture() {
+    const U = CE_U, tex = document.createElement("canvas");
+    tex.width = 64 * U;
+    tex.height = 32 * U;
+    const ctx = tex.getContext("2d");
+    const face = document.createElement("canvas");
+    face.width = 320;
+    face.height = 512;
+    ceDrawFace(face.getContext("2d"));
+    ctx.drawImage(face, U, U); // outside (seen from behind)
+    ctx.save(); // inside: mirrored and darker
+    ctx.translate(22 * U, U);
+    ctx.scale(-1, 1);
+    ctx.drawImage(face, 0, 0);
+    ctx.restore();
+    ctx.fillStyle = "rgba(0,0,0,.35)";
+    ctx.fillRect(12 * U, U, 10 * U, 16 * U);
+    ctx.imageSmoothingEnabled = false; // edges: stretch the outermost pixels
+    ctx.drawImage(face, 0, 0, 1, 512, 0, U, U, 16 * U);
+    ctx.drawImage(face, 319, 0, 1, 512, 11 * U, U, U, 16 * U);
+    ctx.drawImage(face, 0, 0, 320, 1, U, 0, 10 * U, U);
+    ctx.drawImage(face, 0, 511, 320, 1, 11 * U, 0, 10 * U, U);
+    ctx.imageSmoothingEnabled = true; // elytra wings: the same picture, filling their area
+    ctx.imageSmoothingQuality = "high";
+    const ew = 24 * U, eh = 22 * U, k = Math.max(ew / 320, eh / 512);
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(22 * U, 0, ew, eh);
+    ctx.clip();
+    ctx.drawImage(face, 22 * U + (ew - 320 * k) / 2, (eh - 512 * k) / 2, 320 * k, 512 * k);
+    ctx.restore();
+    return tex;
+  }
+  /** Opens the editor for one picture; resolves with the saved file name or null. */
+  function editCape(file, img) {
+    return new Promise((resolve) => {
+      CE.img = img;
+      CE.zoom = 1;
+      const k = ceCover();
+      CE.x = (320 - img.width * k) / 2;
+      CE.y = (512 - img.height * k) / 2;
+      CE.done = resolve;
+      $("#ce-zoom").value = 100;
+      $("#ce-zoom").style.setProperty("--fill", "0%");
+      $("#ce-name").value = file.name.replace(/\.[a-z0-9]+$/i, "").slice(0, 32);
+      $("#cape-edit").hidden = false;
+      ceRender();
+    });
+  }
+  function ceClose(result) {
+    $("#cape-edit").hidden = true;
+    const done = CE.done;
+    CE.done = null;
+    done?.(result);
+  }
+  {
+    const c = $("#ce-canvas");
+    let drag = null;
+    c.addEventListener("pointerdown", (e) => {
+      drag = { px: e.clientX, py: e.clientY, x: CE.x, y: CE.y };
+      c.setPointerCapture(e.pointerId);
+      c.classList.add("drag");
+    });
+    c.addEventListener("pointermove", (e) => {
+      if (!drag) return;
+      const f = 320 / c.getBoundingClientRect().width;
+      CE.x = drag.x + (e.clientX - drag.px) * f;
+      CE.y = drag.y + (e.clientY - drag.py) * f;
+      ceRender();
+    });
+    const end = () => {
+      drag = null;
+      c.classList.remove("drag");
+    };
+    c.addEventListener("pointerup", end);
+    c.addEventListener("pointercancel", end);
+    c.addEventListener("wheel", (e) => {
+      e.preventDefault();
+      const r = c.getBoundingClientRect(), f = 320 / r.width;
+      ceZoomTo(CE.zoom * (e.deltaY < 0 ? 1.08 : 1 / 1.08), (e.clientX - r.left) * f, (e.clientY - r.top) * f);
+    }, { passive: false });
+    $("#ce-zoom").addEventListener("input", (e) => ceZoomTo(e.target.value / 100));
+    $("#ce-cancel").addEventListener("click", () => ceClose(null));
+    $("#ce-save").addEventListener("click", async () => {
+      try {
+        const blob = await new Promise((res) => ceTexture().toBlob(res, "image/png"));
+        const name = ($("#ce-name").value.trim() || "cape") + ".png";
+        ceClose(await api.call("cape_add", { name, data: await readB64(blob) }));
+      } catch (e) {
+        toast(errText(e), true);
+      }
+    });
+  }
   async function addCapeFiles(files) {
     let last = null;
     for (const f of files) {
       try {
-        last = await api.call("cape_add", { name: f.name, data: await readB64(f) });
+        const img = await loadImage(f).catch(() => null);
+        if (!img) {
+          toast(t("ce.bad"), true);
+          continue;
+        }
+        // A ready-made cape texture goes in as it is; any other picture opens the editor.
+        const file = isCapeLayout(f, img) ? await api.call("cape_add", { name: f.name, data: await readB64(f) }) : await editCape(f, img);
+        if (!file) continue;
+        last = file;
         toast(t("cape.added", last.replace(/\.png$/, "")));
       } catch (e) {
         toast(errText(e), true);
@@ -1128,18 +1431,46 @@
     if ($("#page-capes").classList.contains("active")) loadSkins();
   }
 
+  // Start-up animation: orb, letters, loading bar, then the app eases in.
+  function playIntro() {
+    const el = $("#intro");
+    const q = new URLSearchParams(location.search);
+    if (S.settings.skipIntro || S.settings.reduceMotion || (q.has("shot") && !q.has("intro")) || q.has("nointro")) return;
+    const word = $("#intro-word");
+    let i = 0;
+    word.innerHTML = ["STRAY", "CLIENT"]
+      .map((w, n) => `<div class="w${n + 1}">${[...w].map((ch) => `<span style="animation-delay:${(0.45 + i++ * 0.055).toFixed(3)}s">${ch}</span>`).join("")}</div>`)
+      .join("");
+    document.body.classList.add("intro-on");
+    el.hidden = false;
+    const finish = () => {
+      el.hidden = true;
+      document.body.classList.remove("intro-on");
+    };
+    const timer = setTimeout(finish, 2900);
+    el.addEventListener("click", () => {
+      clearTimeout(timer);
+      finish();
+    });
+  }
+
   async function boot() {
     S.init = await api.call("get_init");
     S.settings = S.init.settings;
     S.settings.keystrokes ||= { enabled: false, keys: true, mouse: true, space: true, fps: false, ping: false };
     S.settings.capeMode ||= "account";
     S.settings.cape ||= "";
+    S.settings.profiles ||= [];
+    S.settings.profile ||= "";
+    S.settings.homeLayout ||= "new";
     S.accounts = S.init.accounts || { active: null, accounts: S.init.account ? [S.init.account] : [] };
     document.body.classList.toggle("no-motion", S.settings.reduceMotion);
+    playIntro();
     bindSettings();
     applyI18n();
     S.versions = await api.call("game_versions").catch(() => []);
     renderVersionSelects();
+    renderHome();
     S.installed = await api.call("mods_list", { game: currentGame() }).catch(() => []);
     renderPerf();
     const page = new URLSearchParams(location.search).get("page");

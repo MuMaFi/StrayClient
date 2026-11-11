@@ -229,7 +229,7 @@ pub async fn install_profile(
     }
 
     // Mods, capes and HUD modules live in our own instance folder (used as gameDir).
-    mods::ensure_core(paths, game, progress).await?;
+    mods::ensure_core(paths, game, settings.performance_mods(), progress).await?;
     let _ = cosmetics::apply(paths, game, settings, progress).await;
 
     let java_major = mojang::version(paths, game)

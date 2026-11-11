@@ -17,5 +17,12 @@
   "strayclient.menu.mods.locked": "Частина клієнта, завжди увімкнений.",
   "strayclient.menu.done": "Готово",
   "strayclient.menu.modules.more": "Увімкни Keystrokes і PvP Plus у лаунчері (вкладка «Модулі»).",
-  "key.strayclient.menu": "Меню Stray Client"
+  "key.strayclient.menu": "Меню Stray Client",
+  "strayclient.menu.hud": "Рухати HUD",
+  "strayclient.menu.hud.tip": "Перетягни Keystrokes і PvP-HUD у будь-яке місце екрана.",
+  "strayclient.hud.title": "Перетягни модулі туди, де вони тобі зручні",
+  "strayclient.hud.info": "PvP-інфо",
+  "strayclient.hud.armor": "Броня й предмети",
+  "strayclient.hud.reset": "Скинути",
+  "strayclient.hud.empty": "Немає увімкнених модулів для переміщення. Спершу увімкни Keystrokes або PvP Plus."
 }

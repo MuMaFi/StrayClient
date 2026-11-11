@@ -313,7 +313,9 @@ pub async fn apply(
 
     // ── PvP Plus ──
     let pvp_jar = instance.join("mods").join(PVP_PLUS_JAR_NAME);
-    if settings.pvp_plus && pvp_plus_supported(game) {
+    let std_mods = settings.standard_mods();
+    let pvp_on = std_mods && settings.pvp_plus && pvp_plus_supported(game);
+    if pvp_on {
         // It depends on Fabric API.
         if !mods::installed(paths, game)
             .await
@@ -329,9 +331,10 @@ pub async fn apply(
 
     // ── Keystrokes ──
     let ks = &settings.keystrokes;
+    let ks_on = std_mods && ks.enabled;
     let installed = mods::installed(paths, game).await;
     let existing = installed.iter().find(|m| m.slug == KEYSTROKES_SLUG);
-    if ks.enabled {
+    if ks_on {
         if existing.is_none() {
             let available = mods::modrinth_game_versions(KEYSTROKES_SLUG)
                 .await
@@ -347,18 +350,18 @@ pub async fn apply(
     } else if let Some(m) = existing.filter(|m| m.enabled) {
         mods::set_enabled(paths, game, &m.project_id, false).await?;
     }
-    if ks.enabled || existing.is_some() {
+    if ks_on || existing.is_some() {
         write_keystrokes_config(
             &instance.join("config").join("modern-keystrokes.properties"),
             settings,
-            settings.pvp_plus && pvp_plus_supported(game),
+            pvp_on,
         )
         .await?;
     }
 
     // ── Standard mods (Lunar-style) ──
     for e in EXTRAS {
-        let want = settings.extra_enabled(e.id);
+        let want = std_mods && settings.extra_enabled(e.id);
         let installed = mods::installed(paths, game).await;
         match installed.iter().find(|m| m.slug == e.id) {
             None if want => {

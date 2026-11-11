@@ -17,7 +17,12 @@ async fn main() -> stray_core::Result<()> {
         t.elapsed()
     );
     let game = std::env::var("GAME").unwrap_or_else(|_| versions[0].clone());
-    let settings = Settings::default();
+    let mut settings = Settings::default();
+    if std::env::var("MODULES").is_ok() {
+        // also install the HUD modules (PvP Plus, Keystrokes)
+        settings.pvp_plus = true;
+        settings.keystrokes.enabled = true;
+    }
     let last = Arc::new(std::sync::Mutex::new(String::new()));
     let l2 = last.clone();
     let progress = Arc::new(move |p: Progress| {

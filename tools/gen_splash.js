@@ -1,4 +1,4 @@
-// Renders the StraySMP loading-screen logo for the Stray Client mod.
+// Renders the "Stray Client" loading-screen logo for the Stray Client mod.
 // Minecraft draws mojangstudios.png (512×512) as a wide 1024×256 logo: the top half is the
 // left part, the bottom half the right part. Usage: node tools/gen_splash.js <out.png>
 const { chromium } = require('playwright');
@@ -12,13 +12,13 @@ const fs = require('fs');
     @font-face { font-family: U; src: url(file://${ui}/fonts/unbounded-latin-wght-normal.woff2); font-weight: 200 900; }
     html, body { margin: 0; background: transparent; }
     .wide { width: 1024px; height: 256px; display: flex; align-items: center; justify-content: center; gap: 26px; }
-    .orb { width: 150px; height: 150px; image-rendering: pixelated; }
+    .orb { width: 132px; height: 132px; flex: none; image-rendering: pixelated; }
     .orb svg { width: 100%; height: 100%; }
-    .txt { display: flex; flex-direction: column; align-items: flex-end; }
-    .big { font: 800 104px/1 U; letter-spacing: .02em; color: #fff; }
-    .small { font: 600 38px/1 U; letter-spacing: .32em; color: #51a2ff; margin-top: 8px; margin-right: -.32em; }
+    .txt { display: flex; align-items: baseline; gap: 26px; white-space: nowrap; }
+    .big { font: 800 78px/1 U; letter-spacing: .04em; color: #fff; }
+    .big.blue { color: #51a2ff; }
   </style></head><body><div class="wide" id="w"><div class="orb">${logo}</div>
-  <div class="txt"><div class="big">STRAYSMP</div><div class="small">CLIENT</div></div></div></body></html>`;
+  <div class="txt"><div class="big">STRAY</div><div class="big blue">CLIENT</div></div></div></body></html>`;
   const tmp = path.join(require('os').tmpdir(), `splash-${process.pid}.html`);
   fs.writeFileSync(tmp, html);
   const b = await chromium.launch();

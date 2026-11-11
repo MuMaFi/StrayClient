@@ -7,7 +7,8 @@
     "AbstractClientPlayerMixin",
     "LogoTextureMixin",
     "LoadingOverlayMixin",
-    "KeyboardHandlerMixin"
+    "KeyboardHandlerMixin",
+    "PvpHudMixin"
   ],
   "injectors": {
     "defaultRequire": 1

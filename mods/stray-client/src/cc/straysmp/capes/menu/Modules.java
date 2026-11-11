@@ -47,6 +47,49 @@ final class Modules {
         }
     }
 
+    static int keystrokesX() {
+        return ksInt("x", 25);
+    }
+
+    static int keystrokesY() {
+        return ksInt("y", 10);
+    }
+
+    static float keystrokesScale() {
+        try {
+            return cls(KS_CONFIG).getField("scale").getFloat(null);
+        } catch (ReflectiveOperationException | RuntimeException e) {
+            return 1f;
+        }
+    }
+
+    private static int ksInt(String field, int fallback) {
+        try {
+            return cls(KS_CONFIG).getField(field).getInt(null);
+        } catch (ReflectiveOperationException | RuntimeException e) {
+            return fallback;
+        }
+    }
+
+    static void setKeystrokesPos(int x, int y) {
+        try {
+            Class<?> c = cls(KS_CONFIG);
+            c.getField("x").setInt(null, x);
+            c.getField("y").setInt(null, y);
+        } catch (ReflectiveOperationException | RuntimeException e) {
+            StrayCapes.LOG.warn("Keystrokes move failed", e);
+        }
+    }
+
+    static void saveKeystrokes() {
+        if (!keystrokesLoaded()) return;
+        try {
+            cls(KS_CONFIG).getMethod("save").invoke(null);
+        } catch (ReflectiveOperationException | RuntimeException e) {
+            StrayCapes.LOG.warn("Keystrokes save failed", e);
+        }
+    }
+
     // ── Cape (our own mod) ──
     private static Path capeConfig() {
         return FabricLoader.getInstance().getConfigDir().resolve("stray-capes").resolve("config.properties");

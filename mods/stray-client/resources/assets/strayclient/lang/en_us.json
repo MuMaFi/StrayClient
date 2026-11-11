@@ -17,5 +17,12 @@
   "strayclient.menu.mods.locked": "Part of the client, always on.",
   "strayclient.menu.done": "Done",
   "strayclient.menu.modules.more": "Turn on Keystrokes and PvP Plus in the launcher (Modules tab).",
-  "key.strayclient.menu": "Stray Client menu"
+  "key.strayclient.menu": "Stray Client menu",
+  "strayclient.menu.hud": "Move HUD",
+  "strayclient.menu.hud.tip": "Drag Keystrokes and the PvP HUD to any place on your screen.",
+  "strayclient.hud.title": "Drag the modules to where you want them",
+  "strayclient.hud.info": "PvP info",
+  "strayclient.hud.armor": "Armor & items",
+  "strayclient.hud.reset": "Reset",
+  "strayclient.hud.empty": "No movable module is on. Turn on Keystrokes or PvP Plus first."
 }

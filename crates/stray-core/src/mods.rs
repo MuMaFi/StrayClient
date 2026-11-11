@@ -570,7 +570,27 @@ pub async fn remove(paths: &Paths, game: &str, project_id: &str) -> Result<()> {
 }
 
 /// Make sure Sodium + FerriteCore are present for `game`. Cheap when already installed.
-pub async fn ensure_core(paths: &Paths, game: &str, progress: &ProgressFn) -> Result<()> {
+/// With `wanted == false` (a profile without performance mods) they are switched off instead.
+pub async fn ensure_core(
+    paths: &Paths,
+    game: &str,
+    wanted: bool,
+    progress: &ProgressFn,
+) -> Result<()> {
+    if !wanted {
+        let instance = paths.instance(game);
+        for m in installed(paths, game).await {
+            if m.locked && m.enabled {
+                let dir = instance.join("mods");
+                let _ = tokio::fs::rename(
+                    dir.join(&m.file_name),
+                    dir.join(format!("{}.disabled", m.file_name)),
+                )
+                .await;
+            }
+        }
+        return Ok(());
+    }
     let have: HashSet<String> = installed(paths, game)
         .await
         .into_iter()

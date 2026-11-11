@@ -7,6 +7,15 @@
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
+  <!-- Start-up animation (skipped with a click, "fewer animations" or the setting) -->
+  <div class="intro" id="intro" hidden>
+    <div class="intro-glow"></div>
+    <div class="intro-inner">
+      <div class="intro-orb"><img src="assets/logo.svg" alt="" width="96" height="96" /><i></i><i></i></div>
+      <div class="intro-word" id="intro-word" aria-label="Stray Client"></div>
+      <div class="intro-bar"><i></i></div>
+    </div>
+  </div>
   <div class="drag" data-tauri-drag-region></div>
 
   <header class="top" data-tauri-drag-region>
@@ -65,6 +74,7 @@
         <div class="hero-art"></div>
         <div class="hero-shade"></div>
         <div class="hero-content">
+          <div class="hero-hello" id="hero-hello"></div>
           <h1 data-i18n="hero.title"></h1>
           <p data-i18n="hero.sub"></p>
           <div class="play-row">
@@ -73,11 +83,17 @@
               <span id="play-label" data-i18n="play"></span>
               <i class="play-fill" id="play-fill"></i>
             </button>
+            <button class="version-pill prof-pill" id="prof-pill">
+              <span data-i18n="prof.pill"></span>
+              <b id="prof-pill-name"></b>
+              <svg viewBox="0 0 24 24"><path d="m6 9 6 6 6-6"/></svg>
+            </button>
             <label class="version-pill">
               <span data-i18n="version"></span>
               <select id="version-select"></select>
             </label>
           </div>
+          <div class="prof-menu" id="prof-menu" hidden></div>
           <div class="stage" id="stage"></div>
         </div>
         <div class="notch notch-ip">
@@ -97,7 +113,36 @@
         </div>
       </div>
 
-      <div class="cards">
+      <div class="home-bar">
+        <h3 class="home-new-only" data-i18n="home.profiles"></h3>
+        <span class="home-bar-gap"></span>
+        <div class="seg home-switch" id="home-switch">
+          <button data-v="new" data-i18n="home.layout.new"></button>
+          <button data-v="classic" data-i18n="home.layout.classic"></button>
+        </div>
+      </div>
+      <div class="prof-strip home-new-only" id="prof-strip"></div>
+      <div class="tiles home-new-only">
+        <button class="tile" data-page="mods">
+          <span class="tile-ico"><svg viewBox="0 0 24 24"><path d="M12 2 3 7v10l9 5 9-5V7zM12 12 3 7m9 5 9-5m-9 5v10"/></svg></span>
+          <b data-i18n="nav.mods"></b><small id="tile-mods"></small>
+        </button>
+        <button class="tile" data-page="modules">
+          <span class="tile-ico"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7" rx="2"/><rect x="14" y="3" width="7" height="7" rx="2"/><rect x="3" y="14" width="7" height="7" rx="2"/><path d="M17.5 14v7M14 17.5h7"/></svg></span>
+          <b data-i18n="nav.modules"></b><small id="tile-modules"></small>
+        </button>
+        <button class="tile" data-page="capes">
+          <span class="tile-ico"><svg viewBox="0 0 24 24"><path d="M7 3h10l2 18-7-3-7 3z"/><path d="M9 3c0 2 1.3 3 3 3s3-1 3-3"/></svg></span>
+          <b data-i18n="nav.wardrobe"></b><small id="tile-wardrobe"></small>
+        </button>
+        <button class="tile" data-page="settings">
+          <span class="tile-ico"><svg viewBox="0 0 24 24"><path d="M13 2 4 14h7l-1 8 9-12h-7z"/></svg></span>
+          <b data-i18n="tile.perf"></b><small id="tile-perf"></small>
+          <span class="bar tile-bar"><i id="tile-mem-bar"></i></span>
+        </button>
+      </div>
+
+      <div class="cards home-classic-only">
         <div class="card perf">
           <div class="card-head">
             <div>
@@ -159,6 +204,8 @@
       <div class="page-head">
         <div><h2 data-i18n="mod.title"></h2><p class="muted" data-i18n="mod.sub"></p></div>
       </div>
+      <div class="notice hud-tip"><span data-i18n="mod.hud"></span></div>
+      <div class="notice" id="prof-notice" hidden></div>
       <div class="notice" id="ks-notice" hidden></div>
       <div class="module-card card">
         <div class="module-top">
@@ -267,7 +314,7 @@
         <label class="btn btn-primary" id="cape-add-btn">
           <svg viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg>
           <span data-i18n="cape.add"></span>
-          <input type="file" id="cape-file" accept="image/png" multiple hidden />
+          <input type="file" id="cape-file" accept="image/*" multiple hidden />
         </label>
       </div>
       <div class="notice" id="cape-notice" hidden></div>
@@ -317,6 +364,14 @@
           <label class="toggle"><input type="checkbox" id="set-autojoin" /><i></i><span data-i18n="set.autojoin"></span></label>
           <label class="toggle"><input type="checkbox" id="set-close" /><i></i><span data-i18n="set.close"></span></label>
           <label class="toggle"><input type="checkbox" id="set-motion" /><i></i><span data-i18n="set.motion"></span></label>
+          <label class="toggle"><input type="checkbox" id="set-intro" /><i></i><span data-i18n="set.intro"></span></label>
+          <div class="field">
+            <label data-i18n="set.home"></label>
+            <div class="seg" id="set-home">
+              <button data-v="new" data-i18n="home.layout.new"></button>
+              <button data-v="classic" data-i18n="home.layout.classic"></button>
+            </div>
+          </div>
         </div>
 
         <div class="card set-card">
@@ -410,6 +465,59 @@
         <button class="btn btn-ghost" id="off-close" data-i18n="off.close"></button>
         <button class="btn btn-primary" id="off-download" hidden data-i18n="off.download"></button>
         <button class="btn btn-primary" id="off-go" data-i18n="off.go"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create / edit a profile -->
+  <div class="modal" id="prof-modal" hidden>
+    <div class="modal-card prof-card">
+      <div class="ms-head"><img src="assets/logo.svg" alt="" width="34" height="34" class="pixel" /><h3 id="prof-modal-title"></h3></div>
+      <div class="field">
+        <label data-i18n="prof.name"></label>
+        <input type="text" id="prof-name" maxlength="24" spellcheck="false" autocomplete="off" />
+      </div>
+      <div class="field">
+        <label data-i18n="prof.version"></label>
+        <select id="prof-version"></select>
+      </div>
+      <label class="toggle prof-q"><input type="checkbox" id="prof-perf" /><i></i>
+        <span><b data-i18n="prof.q.perf"></b><small data-i18n="prof.q.perfSub"></small></span></label>
+      <label class="toggle prof-q"><input type="checkbox" id="prof-std" /><i></i>
+        <span><b data-i18n="prof.q.std"></b><small data-i18n="prof.q.stdSub"></small></span></label>
+      <p class="muted small" data-i18n="prof.note"></p>
+      <div class="modal-actions">
+        <button class="btn btn-danger" id="prof-delete" hidden></button>
+        <button class="btn btn-ghost" id="prof-cancel" data-i18n="prof.cancel"></button>
+        <button class="btn btn-primary" id="prof-save"></button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Cape editor: any picture, moved and zoomed into place -->
+  <div class="modal" id="cape-edit" hidden>
+    <div class="modal-card ce-card">
+      <div><h3 data-i18n="ce.title"></h3><p class="muted small" data-i18n="ce.sub"></p></div>
+      <div class="ce-body">
+        <div class="ce-stage"><canvas id="ce-canvas" width="320" height="512"></canvas></div>
+        <div class="ce-side">
+          <div class="field">
+            <label data-i18n="ce.zoom"></label>
+            <input type="range" id="ce-zoom" min="100" max="400" value="100" />
+          </div>
+          <div class="field">
+            <label data-i18n="ce.name"></label>
+            <input type="text" id="ce-name" maxlength="32" spellcheck="false" autocomplete="off" />
+          </div>
+          <div class="ce-prev">
+            <canvas id="ce-prev" width="80" height="128"></canvas>
+            <span class="muted small" data-i18n="ce.hint"></span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button class="btn btn-ghost" id="ce-cancel" data-i18n="prof.cancel"></button>
+        <button class="btn btn-primary" id="ce-save" data-i18n="ce.save"></button>
       </div>
     </div>
   </div>

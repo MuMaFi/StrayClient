@@ -97,8 +97,12 @@ public final class StrayMenuScreen extends Screen {
                     .bounds(rx + colW - 20, by, 20, 20).build());
         }
 
+        int half = (colW - 4) / 2;
+        addRenderableWidget(Button.builder(Component.translatable("strayclient.menu.hud"), b -> minecraft.gui.setScreen(new HudEditScreen(this)))
+                .bounds(px + 10, py + ph - 28, half, 20)
+                .tooltip(Tooltip.create(Component.translatable("strayclient.menu.hud.tip"))).build());
         addRenderableWidget(Button.builder(Component.translatable("strayclient.menu.done"), b -> onClose())
-                .bounds(px + 10, py + ph - 28, colW, 20).build());
+                .bounds(px + 10 + half + 4, py + ph - 28, colW - half - 4, 20).build());
         if (ModsFolder.hasPending()) {
             status = Component.translatable("strayclient.menu.mods.restart").withStyle(ChatFormatting.YELLOW);
         }
