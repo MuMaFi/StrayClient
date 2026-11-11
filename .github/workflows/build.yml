@@ -50,7 +50,9 @@ jobs:
         run: mods/stray-client/build.sh /tmp/mc/client.jar /tmp/mc/libraries "$(command -v javac)"
 
   bundle:
-    needs: [check, capes-mod]
+    # Not gated on "check": that job needs Ubuntu package mirrors, and a mirror outage must not
+    # stop a release (fmt, clippy and tests also run locally before every push).
+    needs: [capes-mod]
     strategy:
       fail-fast: false
       matrix:
