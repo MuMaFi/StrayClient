@@ -11,7 +11,7 @@ on:
 # (a cancelled macOS job is how a release ends up without its .dmg).
 concurrency:
   group: ${{ github.workflow }}-v2-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  cancel-in-progress: true
 
 permissions:
   contents: write
