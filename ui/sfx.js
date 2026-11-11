@@ -1,5 +1,5 @@
 // Start-up sounds, synthesised with the Web Audio API (no audio files):
-//  • a bit-crushed e-piano running up a minor scale while the letters appear,
+//  • a warm e-piano running up a Cmaj9 arpeggio while the logo builds, ending on the chord,
 //  • a coin "ding" with an echo when the logo is complete,
 //  • a whoosh when the app opens.
 // `StraySfx.build(ctx)` works on any (also an offline) audio context so it can be tested.
@@ -19,32 +19,57 @@ window.StraySfx = (() => {
     tone.frequency.value = 5200;
     crush.connect(tone).connect(master);
 
-    // e-piano: a sine carrier with a decaying FM "tine" and a short bell partial
-    function piano(freq, t, len = 0.55, vol = 0.5) {
-      const car = ctx.createOscillator(), mod = ctx.createOscillator(), idx = ctx.createGain(), amp = ctx.createGain();
-      const bell = ctx.createOscillator(), bellAmp = ctx.createGain();
-      car.frequency.value = freq;
-      mod.frequency.value = freq * 2;
-      idx.gain.setValueAtTime(freq * 2.2, t);
-      idx.gain.exponentialRampToValueAtTime(freq * 0.15, t + 0.3);
-      mod.connect(idx).connect(car.frequency);
+    // Warm bus for the e-piano: no bit crusher, a soft lowpass and a short room echo.
+    const warm = ctx.createBiquadFilter();
+    warm.type = "lowpass";
+    warm.frequency.value = 2600;
+    const room = ctx.createDelay(1), roomFb = ctx.createGain(), roomLp = ctx.createBiquadFilter();
+    room.delayTime.value = 0.11;
+    roomFb.gain.value = 0.28;
+    roomLp.type = "lowpass";
+    roomLp.frequency.value = 1800;
+    warm.connect(master);
+    warm.connect(room);
+    room.connect(roomLp).connect(roomFb).connect(room);
+    roomLp.connect(master);
+
+    // Rhodes-style e-piano: two slightly detuned sine carriers with a gentle FM "tine",
+    // a soft attack and a long natural decay.
+    function piano(freq, t, len = 1.2, vol = 0.4) {
+      const amp = ctx.createGain();
       amp.gain.setValueAtTime(0.0001, t);
-      amp.gain.exponentialRampToValueAtTime(vol, t + 0.006);
-      amp.gain.exponentialRampToValueAtTime(0.0008, t + len);
-      bell.frequency.value = freq * 4;
-      bellAmp.gain.setValueAtTime(vol * 0.25, t);
-      bellAmp.gain.exponentialRampToValueAtTime(0.0005, t + 0.09);
-      car.connect(amp).connect(crush);
-      bell.connect(bellAmp).connect(crush);
-      for (const o of [car, mod, bell]) {
+      amp.gain.exponentialRampToValueAtTime(vol, t + 0.012);
+      amp.gain.exponentialRampToValueAtTime(vol * 0.45, t + 0.25);
+      amp.gain.exponentialRampToValueAtTime(0.0006, t + len);
+      amp.connect(warm);
+      const mod = ctx.createOscillator(), idx = ctx.createGain();
+      mod.frequency.value = freq; // 1:1 ratio = mellow tine
+      idx.gain.setValueAtTime(freq * 0.9, t);
+      idx.gain.exponentialRampToValueAtTime(freq * 0.05, t + 0.35);
+      mod.connect(idx);
+      const oscs = [mod];
+      for (const det of [-3, 3]) {
+        const car = ctx.createOscillator(), g = ctx.createGain();
+        car.frequency.value = freq;
+        car.detune.value = det;
+        g.gain.value = 0.5;
+        idx.connect(car.frequency);
+        car.connect(g).connect(amp);
+        oscs.push(car);
+      }
+      for (const o of oscs) {
         o.start(t);
         o.stop(t + len + 0.05);
       }
     }
-    /** Eight notes up the C natural minor scale (C4 to C5), the last one ringing out. */
-    function scale(t, step = 0.088) {
-      const root = 261.63; // C4
-      [1, 9 / 8, 6 / 5, 4 / 3, 3 / 2, 8 / 5, 9 / 5, 2].forEach((r, i) => piano(root * r, t + i * step, i === 7 ? 0.9 : 0.42, i === 7 ? 0.55 : 0.42));
+    // Rising Cmaj9 arpeggio (C3 G3 B3 D4 E4 G4 B4 D5): jazzy, open, bright, not sad.
+    const ARP = [130.81, 196.0, 246.94, 293.66, 329.63, 392.0, 493.88, 587.33];
+    const ARP_STEP = 0.13;
+    /** The arpeggio, then a soft Cmaj9 chord that rings under the coin. */
+    function scale(t, step = ARP_STEP) {
+      ARP.forEach((f, i) => piano(f, t + i * step, i === ARP.length - 1 ? 2.2 : 1.3, 0.34 + i * 0.012));
+      const end = t + ARP.length * step;
+      for (const f of [130.81, 246.94, 329.63, 392.0]) piano(f, end, 2.4, 0.16);
     }
 
     /** Classic two-tone coin with a feedback echo. */
@@ -90,7 +115,7 @@ window.StraySfx = (() => {
       src.start(t);
       src.stop(t + 0.85);
     }
-    return { scale, coin, whoosh, master };
+    return { scale, coin, whoosh, master, arpLength: ARP.length * ARP_STEP };
   }
 
   /** Live player: null when sound is off or the system won't start audio without a click. */

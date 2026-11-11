@@ -1510,8 +1510,8 @@
     const back = "cubic-bezier(.2,1.5,.4,1)", out = "cubic-bezier(.2,.8,.2,1)", inOut = "cubic-bezier(.7,0,.3,1)";
     // sounds: e-piano scale with the letters, coin when the logo is complete, whoosh on open
     const sfx = window.StraySfx?.start() || null;
-    sfx?.cue("scale", 1.35);
-    sfx?.cue("coin", 2.2);
+    sfx?.cue("scale", 1.0);
+    sfx?.cue("coin", 2.18);
     const anims = [];
     const play = (node, frames, opts) => {
       const a = node.animate(frames, { fill: "both", easing: out, ...opts });
