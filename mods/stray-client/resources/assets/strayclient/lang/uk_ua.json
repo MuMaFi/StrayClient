@@ -40,5 +40,6 @@
   "strayclient.title.classic.tip": "Повернути звичайне головне меню Minecraft. Увімкнути меню Stray знову можна через Right Shift.",
   "strayclient.title.hint": "Right Shift: меню Stray Client",
   "strayclient.menu.mainmenu": "Головне меню Stray",
-  "strayclient.menu.mainmenu.tip": "Показує головне меню Stray Client замість екрана Minecraft."
+  "strayclient.menu.mainmenu.tip": "Показує головне меню Stray Client замість екрана Minecraft.",
+  "strayclient.title.smp": "Грати на StraySMP"
 }

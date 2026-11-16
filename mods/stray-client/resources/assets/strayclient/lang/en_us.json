@@ -40,5 +40,6 @@
   "strayclient.title.classic.tip": "Back to Minecraft's own main menu. Turn the Stray menu on again with Right Shift.",
   "strayclient.title.hint": "Right Shift: Stray Client menu",
   "strayclient.menu.mainmenu": "Stray main menu",
-  "strayclient.menu.mainmenu.tip": "Shows the Stray Client main menu instead of Minecraft's title screen."
+  "strayclient.menu.mainmenu.tip": "Shows the Stray Client main menu instead of Minecraft's title screen.",
+  "strayclient.title.smp": "Play StraySMP"
 }

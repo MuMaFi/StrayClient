@@ -754,3 +754,11 @@ body.home-new .notch-online { display: block; }
 body.home-new .tiles { grid-template-columns: repeat(3, 1fr); }
 body.home-new .cards { margin-top: 12px; }
 .home-bar { margin-top: 14px; }
+
+/* live StraySMP tile */
+body.home-new .tiles { grid-template-columns: repeat(4, 1fr); }
+.tile-smp b { display: flex; align-items: center; gap: 8px; }
+.smp-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--panel-3); flex: none; }
+.smp-dot.on { background: #3ddc84; box-shadow: 0 0 0 3px rgba(61,220,132,.18), 0 0 12px rgba(61,220,132,.6); animation: smp-pulse 2.4s ease-in-out infinite; }
+@keyframes smp-pulse { 50% { box-shadow: 0 0 0 5px rgba(61,220,132,.06), 0 0 16px rgba(61,220,132,.35); } }
+@media (max-width: 1000px) { body.home-new .tiles { grid-template-columns: repeat(2, 1fr); } }

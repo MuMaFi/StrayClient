@@ -5,7 +5,10 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.Tooltip;
+import net.minecraft.client.gui.screens.ConnectScreen;
 import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.client.multiplayer.ServerData;
+import net.minecraft.client.multiplayer.resolver.ServerAddress;
 import net.minecraft.client.gui.screens.TitleScreen;
 import net.minecraft.client.gui.screens.multiplayer.JoinMultiplayerScreen;
 import net.minecraft.client.gui.screens.multiplayer.SafetyScreen;
@@ -41,8 +44,12 @@ public final class StrayTitleScreen extends Screen {
     @Override
     protected void init() {
         panelW = Math.max(170, Math.min(230, width / 3));
-        int bw = panelW - 40, x = 20, gap = 24;
-        int y = Math.max(74, height / 2 - 62);
+        boolean compact = height < 320; // small window / large GUI scale
+        int bw = panelW - 40, x = 20, gap = compact ? 22 : 24;
+        int y = compact ? 100 : Math.max(110, height / 2 - 46);
+        addRenderableWidget(Button.builder(Tr.t("strayclient.title.smp"), b -> joinSmp())
+                .bounds(x, y - gap - 6, bw, 20)
+                .tooltip(Tooltip.create(Component.literal("play.straysmp.cc"))).build());
         addRenderableWidget(Button.builder(Tr.t("strayclient.title.singleplayer"), b -> minecraft.gui.setScreen(new SelectWorldScreen(this)))
                 .bounds(x, y, bw, 20).build());
         addRenderableWidget(Button.builder(Tr.t("strayclient.title.multiplayer"), b -> {
@@ -63,6 +70,12 @@ public final class StrayTitleScreen extends Screen {
                 .tooltip(Tooltip.create(Tr.t("strayclient.title.classic.tip"))).build());
     }
 
+    private void joinSmp() {
+        String host = "play.straysmp.cc";
+        ConnectScreen.startConnecting(this, minecraft, ServerAddress.parseString(host),
+                new ServerData("StraySMP", host, ServerData.Type.OTHER), false, null);
+    }
+
     @Override
     public void extractBackground(GuiGraphicsExtractor g, int mouseX, int mouseY, float delta) {
         extractPanorama(g, delta);
@@ -75,7 +88,7 @@ public final class StrayTitleScreen extends Screen {
     public void extractRenderState(GuiGraphicsExtractor g, int mouseX, int mouseY, float delta) {
         super.extractRenderState(g, mouseX, mouseY, delta);
         // logo: "STRAY" white over "CLIENT" blue, drawn large with the pixel font
-        float scale = panelW >= 200 ? 3f : 2.5f;
+        float scale = height < 320 ? 2f : panelW >= 200 ? 3f : 2.5f;
         g.pose().pushMatrix();
         g.pose().translate(20, 22);
         g.pose().scale(scale, scale);

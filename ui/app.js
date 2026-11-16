@@ -79,6 +79,7 @@
   function go(page) {
     $$(".page").forEach((p) => p.classList.toggle("active", p.id === "page-" + page));
     $$(".nav-btn").forEach((b) => b.classList.toggle("active", b.dataset.page === page));
+    if (page === "home") pollSmp();
     if (page === "mods") loadMods();
     if (page === "modules") loadModules();
     if (page === "capes") loadWardrobe();
@@ -545,6 +546,30 @@
       toast(errText(e), true);
     }
   });
+
+  // ───────── live StraySMP status on the home screen ─────────
+  let smpLast = null;
+  function renderSmp() {
+    const st = smpLast;
+    $("#smp-dot").classList.toggle("on", !!st?.online);
+    $("#tile-smp").textContent = !st ? "…" : st.online ? t("smp.online", st.players, st.ping_ms ?? st.pingMs ?? 0) : t("smp.offline");
+    $("#smp-tile").title = t("smp.tip");
+  }
+  async function pollSmp() {
+    if (!document.hidden && !S.running && $("#page-home").classList.contains("active")) {
+      smpLast = await api.call("server_status").catch(() => ({ online: false }));
+      renderSmp();
+    }
+  }
+  $("#smp-tile").addEventListener("click", async () => {
+    try {
+      await navigator.clipboard.writeText("play.straysmp.cc");
+      toast(t("smp.copied"));
+    } catch {
+      toast("play.straysmp.cc");
+    }
+  });
+  setInterval(pollSmp, 60000);
 
   // Explains the official-launcher flow (first play, account chip, or launcher missing).
   function showOfficialInfo(thenPlay, missing = false) {
@@ -1624,6 +1649,8 @@
     S.versions = await api.call("game_versions").catch(() => []);
     renderVersionSelects();
     renderHome();
+    renderSmp();
+    pollSmp();
     S.installed = await api.call("mods_list", { game: currentGame() }).catch(() => []);
     renderPerf();
     const page = new URLSearchParams(location.search).get("page");
