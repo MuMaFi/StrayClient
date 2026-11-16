@@ -9,6 +9,8 @@ use crate::paths::Paths;
 use crate::{http, Result};
 
 const META: &str = "https://meta.fabricmc.net/v2";
+/// Error text when Fabric has no loader for a version (it then runs as vanilla).
+pub const NO_FABRIC: &str = "no_fabric";
 
 #[derive(Debug, Deserialize)]
 struct LoaderEntry {
@@ -32,12 +34,20 @@ pub async fn game_versions() -> Result<Vec<GameVersion>> {
 
 /// Newest stable loader for a game version.
 pub async fn latest_loader(game: &str) -> Result<String> {
-    let list: Vec<LoaderEntry> = http::get_json(&format!("{META}/versions/loader/{game}")).await?;
+    let resp = http::client()
+        .get(format!("{META}/versions/loader/{game}"))
+        .send()
+        .await?;
+    // Fabric answers 400/404 for versions it doesn't know (very old ones, brand-new snapshots).
+    if matches!(resp.status().as_u16(), 400 | 404) {
+        return Err(crate::Error::other(format!("{NO_FABRIC} {game}")));
+    }
+    let list: Vec<LoaderEntry> = resp.error_for_status()?.json().await?;
     list.iter()
         .find(|e| e.loader.stable)
         .or(list.first())
         .map(|e| e.loader.version.clone())
-        .ok_or_else(|| crate::Error::other(format!("Fabric does not support {game} yet")))
+        .ok_or_else(|| crate::Error::other(format!("{NO_FABRIC} {game}")))
 }
 
 /// Profile JSON for game+loader, cached on disk so we can launch offline.
@@ -74,13 +84,17 @@ fn lib_key(name: &str) -> String {
 
 /// Fabric profile on top of vanilla: fabric libraries first, its main class and extra args.
 pub fn merge(vanilla: VersionJson, fabric: VersionJson) -> VersionJson {
-    let mut seen: HashSet<String> = HashSet::new();
-    let mut libraries: Vec<Library> = Vec::new();
-    for lib in fabric.libraries.into_iter().chain(vanilla.libraries) {
-        if seen.insert(lib_key(&lib.name)) {
-            libraries.push(lib);
-        }
-    }
+    // Fabric's libraries replace vanilla's of the same artifact. Vanilla entries are not
+    // de-duplicated among themselves: older versions list one library twice with OS rules
+    // (e.g. lwjgl-glfw 3.2.1 for macOS, 3.2.2 for the rest) and both must stay.
+    let fabric_keys: HashSet<String> = fabric.libraries.iter().map(|l| lib_key(&l.name)).collect();
+    let mut libraries: Vec<Library> = fabric.libraries;
+    libraries.extend(
+        vanilla
+            .libraries
+            .into_iter()
+            .filter(|l| !fabric_keys.contains(&lib_key(&l.name))),
+    );
     let mut arguments = vanilla.arguments;
     arguments.jvm.extend(fabric.arguments.jvm);
     arguments.game.extend(fabric.arguments.game);
@@ -95,5 +109,45 @@ pub fn merge(vanilla: VersionJson, fabric: VersionJson) -> VersionJson {
         downloads: vanilla.downloads,
         java_version: vanilla.java_version,
         kind: vanilla.kind,
+        minecraft_arguments: vanilla.minecraft_arguments,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn lib(name: &str) -> Library {
+        serde_json::from_value(serde_json::json!({ "name": name })).unwrap()
+    }
+
+    #[test]
+    fn merge_keeps_per_os_duplicates_and_lets_fabric_win() {
+        let vanilla = VersionJson {
+            id: "1.16.5".into(),
+            libraries: vec![
+                lib("org.lwjgl:lwjgl-glfw:3.2.1"),
+                lib("org.lwjgl:lwjgl-glfw:3.2.2"),
+                lib("org.ow2.asm:asm:7.0"),
+            ],
+            minecraft_arguments: None,
+            ..Default::default()
+        };
+        let fabric = VersionJson {
+            id: "fabric-loader-0.20.1-1.16.5".into(),
+            libraries: vec![lib("org.ow2.asm:asm:9.8")],
+            ..Default::default()
+        };
+        let m = merge(vanilla, fabric);
+        let names: Vec<_> = m.libraries.iter().map(|l| l.name.as_str()).collect();
+        assert_eq!(
+            names,
+            [
+                "org.ow2.asm:asm:9.8",
+                "org.lwjgl:lwjgl-glfw:3.2.1",
+                "org.lwjgl:lwjgl-glfw:3.2.2"
+            ]
+        );
+        assert_eq!(m.vanilla_id(), "1.16.5");
     }
 }

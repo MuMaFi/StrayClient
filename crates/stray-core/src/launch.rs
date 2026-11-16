@@ -17,19 +17,27 @@ pub struct Prepared {
     pub java_major: u32,
 }
 
-/// Remember the Fabric loader per instance so launching works offline.
-pub async fn loader_for(paths: &Paths, game: &str) -> Result<String> {
+/// The Fabric loader for a version, or None when Fabric doesn't support it (very old
+/// releases, brand-new snapshots): the game then runs as vanilla. Remembered per instance
+/// so launching works offline.
+pub async fn loader_for(paths: &Paths, game: &str) -> Result<Option<String>> {
     let file = paths.instance(game).join("loader.txt");
+    let remember = |v: String| async move {
+        tokio::fs::create_dir_all(paths.instance(game)).await?;
+        let _ = tokio::fs::write(&file, &v).await;
+        Ok::<_, crate::Error>(v)
+    };
     match fabric::latest_loader(game).await {
-        Ok(l) => {
-            tokio::fs::create_dir_all(paths.instance(game)).await?;
-            let _ = tokio::fs::write(&file, &l).await;
-            Ok(l)
+        Ok(l) => Ok(Some(remember(l).await?)),
+        Err(e) if e.to_string().contains(fabric::NO_FABRIC) => {
+            remember("none".into()).await?;
+            Ok(None)
         }
-        Err(e) => tokio::fs::read_to_string(&file)
-            .await
-            .map(|s| s.trim().to_string())
-            .map_err(|_| e),
+        Err(e) => match tokio::fs::read_to_string(paths.instance(game).join("loader.txt")).await {
+            Ok(s) if s.trim() == "none" => Ok(None),
+            Ok(s) => Ok(Some(s.trim().to_string())),
+            Err(_) => Err(e),
+        },
     }
 }
 
@@ -47,8 +55,14 @@ pub async fn prepare(
     });
     let (vanilla, loader) =
         tokio::try_join!(mojang::version(paths, game), loader_for(paths, game))?;
-    let profile = fabric::profile(paths, game, &loader).await?;
-    let version = fabric::merge(vanilla, profile);
+    let fabric_on = loader.is_some();
+    let version = match loader {
+        Some(l) => fabric::merge(vanilla, fabric::profile(paths, game, &l).await?),
+        None => vanilla,
+    };
+    // Sodium + FerriteCore only where they exist (they need Fabric too).
+    let optimized = fabric_on && mods::optimizable(paths, game).await;
+    let x64_java = version.has_legacy_natives();
 
     let (component, major) = version
         .java_version
@@ -60,18 +74,27 @@ pub async fn prepare(
         if !settings.java_path.trim().is_empty() {
             Ok(PathBuf::from(settings.java_path.trim()))
         } else {
-            java::ensure(paths, &component, progress).await
+            java::ensure_for(paths, &component, x64_java, progress).await
         }
     };
     let (java, _, _, _) = tokio::try_join!(
         java_fut,
         mojang::install_game_files(paths, &version, progress),
         mojang::install_assets(paths, &version, progress),
-        mods::ensure_core(paths, game, settings.performance_mods(), progress),
+        mods::ensure_core(
+            paths,
+            game,
+            settings.performance_mods() && optimized,
+            progress
+        ),
     )?;
-    // Capes + HUD modules. A failure here (e.g. keystrokes not built for this version yet)
-    // must not stop the game from starting.
-    let _ = crate::cosmetics::apply(paths, game, settings, progress).await;
+    // Capes + HUD modules (Fabric only). A failure here (e.g. keystrokes not built for this
+    // version yet) must not stop the game from starting.
+    // Our mod, the modules and the standard mods are built and tested for the current
+    // releases only: snapshots and older versions run with plain Fabric (plus own mods).
+    if fabric_on && optimized {
+        let _ = crate::cosmetics::apply(paths, game, settings, progress).await;
+    }
     Ok(Prepared {
         game: game.to_string(),
         version,
@@ -121,6 +144,14 @@ pub fn jvm_flags(settings: &Settings, java_major: u32) -> Vec<String> {
                 "-XX:SurvivorRatio=32",
                 "-XX:MaxTenuringThreshold=1",
                 "-XX:+PerfDisableSharedMem",
+                "-XX:+DisableExplicitGC",
+            ]
+            .map(String::from),
+        ),
+        GcPreset::LowLatency if java_major < 17 => f.extend(
+            [
+                "-XX:+UseG1GC",
+                "-XX:MaxGCPauseMillis=37",
                 "-XX:+DisableExplicitGC",
             ]
             .map(String::from),
@@ -222,6 +253,10 @@ pub fn build_args(paths: &Paths, p: &Prepared, settings: &Settings, acc: &Accoun
         ),
         ("auth_xuid", acc.xuid.clone()),
         ("user_type", "msa".into()),
+        // pre-1.13 versions
+        ("auth_session", acc.access_token.clone()),
+        ("user_properties", "{}".into()),
+        ("game_assets", paths.assets().to_string_lossy().into_owned()),
         ("version_type", "StraySMP".into()),
         (
             "natives_directory",
@@ -244,14 +279,24 @@ pub fn build_args(paths: &Paths, p: &Prepared, settings: &Settings, acc: &Accoun
         ("is_quick_play_multiplayer", settings.auto_join),
     ]);
 
+    let a = v.effective_arguments();
     let mut args = jvm_flags(settings, p.java_major);
-    args.extend(expand(&v.arguments.jvm, &features, &vars));
+    args.extend(expand(&a.jvm, &features, &vars));
     args.push(
         v.main_class
             .clone()
             .unwrap_or_else(|| "net.minecraft.client.main.Main".into()),
     );
-    args.extend(expand(&v.arguments.game, &features, &vars));
+    args.extend(expand(&a.game, &features, &vars));
+    // Old versions have no quick-play argument: join the server the old way.
+    if settings.auto_join && v.minecraft_arguments.is_some() && v.arguments.game.is_empty() {
+        args.extend([
+            "--server".into(),
+            SERVER_HOST.into(),
+            "--port".into(),
+            "25565".into(),
+        ]);
+    }
     args
 }
 
@@ -265,6 +310,13 @@ pub async fn spawn(
     let game_dir = paths.instance(&p.game);
     tokio::fs::create_dir_all(&game_dir).await?;
     tokio::fs::create_dir_all(paths.natives(&p.game)).await?;
+    let natives: Vec<PathBuf> = mojang::native_jobs(paths, &p.version.libraries)
+        .into_iter()
+        .map(|j| j.path)
+        .collect();
+    if !natives.is_empty() {
+        mojang::extract_natives(&natives, &paths.natives(&p.game))?;
+    }
     tokio::fs::create_dir_all(paths.logs()).await?;
     let log = std::fs::File::create(paths.logs().join("latest-launch.log"))?;
     let args = build_args(paths, p, settings, acc);

@@ -127,6 +127,10 @@ fn library(paths: &Paths) -> PathBuf {
 
 /// `26.3` → true, `1.21.11` → false.
 pub fn capes_supported(game: &str) -> bool {
+    // releases only: snapshots rename the classes our mod hooks into
+    if !game.chars().all(|c| c.is_ascii_digit() || c == '.') {
+        return false;
+    }
     game.split('.')
         .next()
         .and_then(|m| m.parse::<u32>().ok())
@@ -506,6 +510,7 @@ mod tests {
         assert!(capes_supported("26.3"));
         assert!(capes_supported("26.1.2"));
         assert!(!capes_supported("1.21.11"));
+        assert!(!capes_supported("26.4-snapshot-8") && !capes_supported("26w14a"));
     }
 
     #[tokio::test]

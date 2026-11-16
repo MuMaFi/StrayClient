@@ -58,12 +58,30 @@ pub fn platform_key() -> &'static str {
     }
 }
 
+/// Platform key for a runtime. `x64` asks for the Intel build on an Apple Silicon Mac (it runs
+/// through Rosetta): Minecraft before 1.19 only ships x86_64 natives for macOS.
+pub fn platform_for(x64: bool) -> &'static str {
+    if x64 && platform_key() == "mac-os-arm64" {
+        "mac-os"
+    } else {
+        platform_key()
+    }
+}
+
 pub fn runtime_dir(paths: &Paths, component: &str) -> PathBuf {
-    paths.runtimes().join(component).join(platform_key())
+    runtime_dir_for(paths, component, false)
+}
+
+fn runtime_dir_for(paths: &Paths, component: &str, x64: bool) -> PathBuf {
+    paths.runtimes().join(component).join(platform_for(x64))
 }
 
 pub fn java_exe(paths: &Paths, component: &str) -> PathBuf {
-    let base = runtime_dir(paths, component);
+    java_exe_for(paths, component, false)
+}
+
+fn java_exe_for(paths: &Paths, component: &str, x64: bool) -> PathBuf {
+    let base = runtime_dir_for(paths, component, x64);
     if cfg!(target_os = "windows") {
         // javaw = no console window flashing up behind the game.
         base.join("bin").join("javaw.exe")
@@ -76,24 +94,42 @@ pub fn java_exe(paths: &Paths, component: &str) -> PathBuf {
 
 /// Ensure the runtime `component` (e.g. `java-runtime-delta`) is installed; returns the java binary.
 pub async fn ensure(paths: &Paths, component: &str, progress: &ProgressFn) -> Result<PathBuf> {
-    let exe = java_exe(paths, component);
-    let marker = runtime_dir(paths, component).join(".stray-complete");
+    ensure_for(paths, component, false, progress).await
+}
+
+/// Like `ensure`, optionally the x86_64 runtime on Apple Silicon (see `platform_for`).
+/// Mojang has no Apple Silicon build of some old runtimes (Java 8): then Intel is used too.
+pub async fn ensure_for(
+    paths: &Paths,
+    component: &str,
+    x64: bool,
+    progress: &ProgressFn,
+) -> Result<PathBuf> {
+    let exe = java_exe_for(paths, component, x64);
+    let marker = runtime_dir_for(paths, component, x64).join(".stray-complete");
     if exe.exists() && marker.exists() {
         return Ok(exe);
     }
     let all: HashMap<String, HashMap<String, Vec<RuntimeEntry>>> = http::get_json(ALL_URL).await?;
-    let entry = all
-        .get(platform_key())
-        .and_then(|p| p.get(component))
-        .and_then(|v| v.first())
-        .ok_or_else(|| {
-            Error::other(format!(
+    let pick = |key: &str| {
+        all.get(key)
+            .and_then(|p| p.get(component))
+            .and_then(|v| v.first())
+    };
+    let entry = match pick(platform_for(x64)) {
+        Some(e) => e,
+        None if !x64 && platform_key() == "mac-os-arm64" => {
+            return Box::pin(ensure_for(paths, component, true, progress)).await;
+        }
+        None => {
+            return Err(Error::other(format!(
                 "no Java runtime {component} for {}",
-                platform_key()
-            ))
-        })?;
+                platform_for(x64)
+            )))
+        }
+    };
     let manifest: RuntimeManifest = http::get_json(&entry.manifest.url).await?;
-    let base = runtime_dir(paths, component);
+    let base = runtime_dir_for(paths, component, x64);
     let mut jobs = Vec::new();
     #[cfg_attr(not(unix), allow(unused_mut))]
     let mut links = Vec::new();

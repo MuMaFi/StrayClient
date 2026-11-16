@@ -20,3 +20,4 @@ urlencoding = "2"
 sha2 = "0.10"
 base64 = "0.22"
 sys-locale = "0.3"
+zip = { version = "2", default-features = false, features = ["deflate"] }

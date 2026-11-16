@@ -162,6 +162,15 @@
     async open_dir() {},
     async open_url({ url }) { window.open(url, "_blank"); },
     async official_status() { return { launcherFound: true, minecraftDir: "~/Library/Application Support/minecraft" }; },
+    async all_versions() {
+      const r = (id, fabric, optimized) => ({ id, kind: "release", fabric, optimized });
+      return [
+        { id: "26.4-snapshot-8", kind: "snapshot", fabric: true, optimized: false },
+        { id: "26.4-snapshot-7", kind: "snapshot", fabric: true, optimized: false },
+        r("26.3", true, true), r("26.2", true, true), r("26.1.2", true, true), r("1.21.11", true, true), r("1.20.1", true, true),
+        r("1.19.4", true, false), r("1.16.5", true, false), r("1.12.2", false, false), r("1.8.9", false, false),
+      ];
+    },
     async host_worlds() {
       const day = 86400, now = Math.floor(Date.now() / 1000);
       return { available: true, worlds: [{ id: "Survival", lastPlayed: now - day, icon: null }, { id: "StraySMP Test", lastPlayed: now - 6 * day, icon: null }, { id: "Creative Build", lastPlayed: now - 30 * day, icon: null }] };

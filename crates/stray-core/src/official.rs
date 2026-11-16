@@ -207,30 +207,43 @@ pub async fn install_profile(
         done: 0,
         total: 1,
     });
-    let loader = launch::loader_for(paths, game).await?;
-    let profile = fabric::profile(paths, game, &loader).await?;
-    // The Fabric profile is a normal launcher version that inherits from vanilla; the
-    // official launcher downloads vanilla, libraries and assets itself.
-    let version_id = profile.id.clone();
-    let vdir = mc_dir.join("versions").join(&version_id);
-    tokio::fs::create_dir_all(&vdir).await?;
-    let fabric_json = tokio::fs::read(
-        paths
-            .versions()
-            .join(&version_id)
-            .join(format!("{version_id}.json")),
-    )
-    .await?;
-    tokio::fs::write(vdir.join(format!("{version_id}.json")), &fabric_json).await?;
-    // Older launchers expect a jar next to the json (the Fabric installer writes it empty too).
-    let jar = vdir.join(format!("{version_id}.jar"));
-    if !jar.exists() {
-        tokio::fs::write(&jar, b"").await?;
-    }
-
-    // Mods, capes and HUD modules live in our own instance folder (used as gameDir).
-    mods::ensure_core(paths, game, settings.performance_mods(), progress).await?;
-    let _ = cosmetics::apply(paths, game, settings, progress).await;
+    // With Fabric: write its version json (inherits from vanilla). Without (very old
+    // releases, new snapshots): the official launcher knows the vanilla id itself.
+    let version_id = match launch::loader_for(paths, game).await? {
+        Some(loader) => {
+            let profile = fabric::profile(paths, game, &loader).await?;
+            let version_id = profile.id.clone();
+            let vdir = mc_dir.join("versions").join(&version_id);
+            tokio::fs::create_dir_all(&vdir).await?;
+            let fabric_json = tokio::fs::read(
+                paths
+                    .versions()
+                    .join(&version_id)
+                    .join(format!("{version_id}.json")),
+            )
+            .await?;
+            tokio::fs::write(vdir.join(format!("{version_id}.json")), &fabric_json).await?;
+            // Older launchers expect a jar next to the json (the Fabric installer writes it empty too).
+            let jar = vdir.join(format!("{version_id}.jar"));
+            if !jar.exists() {
+                tokio::fs::write(&jar, b"").await?;
+            }
+            // Mods, capes and HUD modules live in our own instance folder (used as gameDir).
+            let optimized = mods::optimizable(paths, game).await;
+            mods::ensure_core(
+                paths,
+                game,
+                settings.performance_mods() && optimized,
+                progress,
+            )
+            .await?;
+            if optimized {
+                let _ = cosmetics::apply(paths, game, settings, progress).await;
+            }
+            version_id
+        }
+        None => game.to_string(),
+    };
 
     let java_major = mojang::version(paths, game)
         .await

@@ -609,6 +609,80 @@ pub async fn ensure_core(
     Ok(())
 }
 
+/// One entry of the version picker.
+#[derive(Debug, Clone, Serialize, Deserialize)]
+#[serde(rename_all = "camelCase")]
+pub struct GameVersionInfo {
+    pub id: String,
+    /// `release` or `snapshot`.
+    pub kind: String,
+    /// Runs with Fabric (and so with mods and modules).
+    pub fabric: bool,
+    /// Sodium + FerriteCore available.
+    pub optimized: bool,
+}
+
+/// Oldest release offered (1.8.x: the classic PvP version).
+const OLDEST: &str = "1.8";
+/// Snapshots are listed back to this release.
+const SNAPSHOTS_SINCE: &str = "1.20";
+
+/// Every playable version, newest first: releases down to 1.8 and recent snapshots.
+pub async fn all_versions(paths: &Paths) -> Result<Vec<GameVersionInfo>> {
+    let cache = paths.cache().join("all_versions.json");
+    let fetched: Result<Vec<GameVersionInfo>> = async {
+        let (manifest, fabric, optimized) = tokio::join!(
+            crate::mojang::manifest(paths),
+            crate::fabric::game_versions(),
+            supported_versions(paths),
+        );
+        let manifest = manifest?;
+        let fabric: HashSet<String> = fabric?.into_iter().map(|g| g.version).collect();
+        let optimized: HashSet<String> = optimized.unwrap_or_default().into_iter().collect();
+        let mut out = Vec::new();
+        let mut snapshots = true;
+        for v in &manifest.versions {
+            let release = v.kind == "release";
+            if !(release || (v.kind == "snapshot" && snapshots)) {
+                continue;
+            }
+            out.push(GameVersionInfo {
+                id: v.id.clone(),
+                kind: if release { "release" } else { "snapshot" }.into(),
+                fabric: fabric.contains(&v.id),
+                optimized: optimized.contains(&v.id),
+            });
+            if v.id == SNAPSHOTS_SINCE {
+                snapshots = false;
+            }
+            if v.id == OLDEST {
+                break;
+            }
+        }
+        Ok(out)
+    }
+    .await;
+    match fetched {
+        Ok(list) if !list.is_empty() => {
+            let _ = tokio::fs::create_dir_all(paths.cache()).await;
+            let _ = tokio::fs::write(&cache, serde_json::to_vec(&list)?).await;
+            Ok(list)
+        }
+        other => match tokio::fs::read(&cache).await {
+            Ok(b) => Ok(serde_json::from_slice(&b)?),
+            Err(_) => other,
+        },
+    }
+}
+
+/// Whether Sodium + FerriteCore exist for `game` (cached list, works offline).
+pub async fn optimizable(paths: &Paths, game: &str) -> bool {
+    supported_versions(paths)
+        .await
+        .map(|v| v.iter().any(|g| g == game))
+        .unwrap_or(false)
+}
+
 /// Release versions (newest first) that Fabric, Sodium and FerriteCore all support.
 pub async fn supported_versions(paths: &Paths) -> Result<Vec<String>> {
     let cache = paths.cache().join("supported_versions.json");

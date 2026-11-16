@@ -1,7 +1,7 @@
 //! Vanilla Minecraft metadata from Mojang's piston-meta.
 
 use std::collections::HashMap;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 
 use serde::{Deserialize, Serialize};
 
@@ -42,12 +42,41 @@ pub struct VersionJson {
     pub java_version: Option<JavaVersion>,
     #[serde(rename = "type")]
     pub kind: Option<String>,
+    /// Pre-1.13 game arguments as one string (`--username ${auth_player_name} …`).
+    pub minecraft_arguments: Option<String>,
 }
 
 impl VersionJson {
     /// The vanilla id (the client jar lives under it, even for a merged Fabric profile).
     pub fn vanilla_id(&self) -> &str {
         self.inherits_from.as_deref().unwrap_or(&self.id)
+    }
+
+    /// Versions before 1.19 ship their native libraries (LWJGL) as per-OS classifier jars,
+    /// built for x86_64 only on macOS.
+    pub fn has_legacy_natives(&self) -> bool {
+        self.libraries.iter().any(|l| l.natives.is_some())
+    }
+
+    /// Game and JVM arguments; the pre-1.13 single-string format is turned into the new one.
+    pub fn effective_arguments(&self) -> Arguments {
+        if !self.arguments.game.is_empty() || self.minecraft_arguments.is_none() {
+            return self.arguments.clone();
+        }
+        let game = self
+            .minecraft_arguments
+            .as_deref()
+            .unwrap_or_default()
+            .split_whitespace()
+            .map(|s| Arg::Plain(s.to_string()))
+            .collect();
+        let mut jvm: Vec<Arg> = vec![
+            Arg::Plain("-Djava.library.path=${natives_directory}".into()),
+            Arg::Plain("-cp".into()),
+            Arg::Plain("${classpath}".into()),
+        ];
+        jvm.splice(0..0, self.arguments.jvm.iter().cloned());
+        Arguments { game, jvm }
     }
 }
 
@@ -104,13 +133,15 @@ pub struct Library {
     pub sha1: Option<String>,
     pub size: Option<u64>,
     pub rules: Option<Vec<Rule>>,
-    /// Legacy (<1.19) natives map — those versions are not supported.
+    /// Legacy (<1.19) natives: OS name → classifier (e.g. `osx` → `natives-osx`).
     pub natives: Option<HashMap<String, String>>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
 pub struct LibraryDownloads {
     pub artifact: Option<Artifact>,
+    /// Legacy native jars by classifier.
+    pub classifiers: Option<HashMap<String, Artifact>>,
 }
 
 #[derive(Debug, Clone, Deserialize, Serialize)]
@@ -274,6 +305,81 @@ pub fn library_jobs(paths: &Paths, libs: &[Library]) -> Vec<Job> {
     jobs
 }
 
+/// Native-library jars (pre-1.19) for this OS. They are unpacked into the natives folder
+/// before the game starts.
+pub fn native_jobs(paths: &Paths, libs: &[Library]) -> Vec<Job> {
+    let no_features = HashMap::new();
+    let arch = if cfg!(target_pointer_width = "32") {
+        "32"
+    } else {
+        "64"
+    };
+    let mut jobs = Vec::new();
+    for lib in libs {
+        let Some(natives) = &lib.natives else {
+            continue;
+        };
+        if let Some(rules) = &lib.rules {
+            if !rules_allow(rules, &no_features) {
+                continue;
+            }
+        }
+        let Some(classifier) = natives.get(os_name()) else {
+            continue;
+        };
+        let classifier = classifier.replace("${arch}", arch);
+        let art = lib
+            .downloads
+            .as_ref()
+            .and_then(|d| d.classifiers.as_ref())
+            .and_then(|c| c.get(&classifier));
+        if let Some(art) = art {
+            let rel = art
+                .path
+                .clone()
+                .or_else(|| maven_path(&format!("{}:{classifier}", lib.name)));
+            if let Some(rel) = rel {
+                jobs.push(Job {
+                    url: art.url.clone(),
+                    path: paths.libraries().join(rel),
+                    sha1: art.sha1.clone(),
+                    size: art.size,
+                    executable: false,
+                });
+            }
+        }
+    }
+    jobs
+}
+
+/// Unpack the native jars into `dir` (dll/so/dylib/jnilib files only, no META-INF).
+pub fn extract_natives(jars: &[PathBuf], dir: &Path) -> Result<usize> {
+    std::fs::create_dir_all(dir)?;
+    let mut n = 0;
+    for jar in jars {
+        let file = std::fs::File::open(jar)?;
+        let mut zip =
+            zip::ZipArchive::new(file).map_err(|e| crate::Error::other(format!("natives: {e}")))?;
+        for i in 0..zip.len() {
+            let mut entry = zip
+                .by_index(i)
+                .map_err(|e| crate::Error::other(format!("natives: {e}")))?;
+            let name = entry.name().to_string();
+            if entry.is_dir() || name.starts_with("META-INF") {
+                continue;
+            }
+            // flat file name only: never write outside the natives folder
+            let Some(base) = Path::new(&name).file_name() else {
+                continue;
+            };
+            let mut out = std::fs::File::create(dir.join(base))?;
+            std::io::copy(&mut entry, &mut out)?;
+            n += 1;
+        }
+    }
+    Ok(n)
+}
+
 /// Client jar + libraries.
 pub async fn install_game_files(
     paths: &Paths,
@@ -281,9 +387,15 @@ pub async fn install_game_files(
     progress: &ProgressFn,
 ) -> Result<()> {
     let mut jobs = library_jobs(paths, &v.libraries);
+    jobs.extend(native_jobs(paths, &v.libraries));
     if let Some(d) = &v.downloads {
         jobs.push(Job {
-            url: d.client.url.clone(),
+            // Old versions point at launcher.mojang.com; Mojang serves the same objects from
+            // its current CDN, which is what the official launcher uses today.
+            url: d.client.url.replace(
+                "https://launcher.mojang.com/v1/objects/",
+                "https://piston-data.mojang.com/v1/objects/",
+            ),
             path: client_jar(paths, v.vanilla_id()),
             sha1: d.client.sha1.clone(),
             size: d.client.size,
@@ -332,4 +444,72 @@ pub async fn install_assets(paths: &Paths, v: &VersionJson, progress: &ProgressF
         })
         .collect();
     download::run("assets", jobs, progress).await
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn old_argument_string_becomes_arguments() {
+        let v: VersionJson = serde_json::from_str(
+            r#"{"id":"1.8.9","minecraftArguments":"--username ${auth_player_name} --userProperties ${user_properties}","libraries":[]}"#,
+        )
+        .unwrap();
+        let a = v.effective_arguments();
+        let s = |args: &[Arg]| {
+            args.iter()
+                .map(|x| match x {
+                    Arg::Plain(s) => s.clone(),
+                    _ => "?".into(),
+                })
+                .collect::<Vec<_>>()
+        };
+        assert_eq!(
+            s(&a.game),
+            [
+                "--username",
+                "${auth_player_name}",
+                "--userProperties",
+                "${user_properties}"
+            ]
+        );
+        assert_eq!(
+            s(&a.jvm),
+            [
+                "-Djava.library.path=${natives_directory}",
+                "-cp",
+                "${classpath}"
+            ]
+        );
+        assert!(!v.has_legacy_natives());
+    }
+
+    #[test]
+    fn natives_pick_this_os() {
+        let v: VersionJson = serde_json::from_value(serde_json::json!({
+            "id": "1.8.9",
+            "libraries": [{
+                "name": "org.lwjgl.lwjgl:lwjgl-platform:2.9.4",
+                "natives": { "linux": "natives-linux", "osx": "natives-osx", "windows": "natives-windows-${arch}" },
+                "downloads": { "classifiers": {
+                    "natives-linux": { "path": "l.jar", "url": "https://x/l.jar" },
+                    "natives-osx": { "path": "o.jar", "url": "https://x/o.jar" },
+                    "natives-windows-64": { "path": "w.jar", "url": "https://x/w.jar" }
+                } }
+            }]
+        }))
+        .unwrap();
+        assert!(v.has_legacy_natives());
+        let jobs = native_jobs(&Paths::new("/d".into()), &v.libraries);
+        assert_eq!(jobs.len(), 1);
+        let want = if cfg!(target_os = "macos") {
+            "o.jar"
+        } else if cfg!(windows) {
+            "w.jar"
+        } else {
+            "l.jar"
+        };
+        assert!(jobs[0].path.ends_with(want));
+    }
 }

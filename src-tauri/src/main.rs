@@ -127,6 +127,12 @@ async fn game_versions(state: State<'_, AppState>) -> Res<Vec<String>> {
     mods::supported_versions(&state.paths).await.map_err(err)
 }
 
+/// Every playable version for the picker (releases down to 1.8, recent snapshots).
+#[tauri::command]
+async fn all_versions(state: State<'_, AppState>) -> Res<Vec<mods::GameVersionInfo>> {
+    mods::all_versions(&state.paths).await.map_err(err)
+}
+
 async fn current_game(state: &AppState) -> Res<String> {
     let chosen = state.settings.read().await.chosen_game().to_string();
     if !chosen.is_empty() {
@@ -633,6 +639,7 @@ fn main() {
             save_settings,
             profile_delete,
             game_versions,
+            all_versions,
             server_status,
             login_start,
             login_window,

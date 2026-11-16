@@ -211,7 +211,7 @@
     $("#prof-name").value = p ? p.name : "";
     $("#prof-name").placeholder = t("prof.namePh");
     const latest = S.versions[0] ? `${t("version.latest")} (${S.versions[0]})` : t("version.latest");
-    $("#prof-version").innerHTML = `<option value="">${latest}</option>` + S.versions.map((v) => `<option>${v}</option>`).join("");
+    $("#prof-version").innerHTML = versionOptions();
     $("#prof-version").value = p ? p.gameVersion : chosenGame();
     $("#prof-perf").checked = p ? p.performanceMods : true;
     $("#prof-std").checked = p ? p.standardMods : true;
@@ -265,10 +265,23 @@
   const activeProfile = () => (S.settings.profiles || []).find((p) => p.id === S.settings.profile) || null;
   const chosenGame = () => (activeProfile() ? activeProfile().gameVersion : S.settings.gameVersion) || "";
   const currentGame = () => chosenGame() || S.versions[0] || "";
+  // Grouped version list: recommended (optimized) releases, other releases, snapshots.
+  function versionOptions() {
+    const latest = S.versions[0] ? `${t("version.latest")} (${S.versions[0]})` : t("version.latest");
+    const all = S.allVersions?.length ? S.allVersions : S.versions.map((id) => ({ id, kind: "release", fabric: true, optimized: true }));
+    const opt = (v) => `<option value="${esc(v.id)}">${esc(v.id)}${v.optimized ? "" : ` · ${t(v.fabric ? "version.fabric" : "version.vanilla")}`}</option>`;
+    const group = (label, list) => (list.length ? `<optgroup label="${esc(label)}">${list.map(opt).join("")}</optgroup>` : "");
+    return (
+      `<option value="">${esc(latest)}</option>` +
+      group(t("version.recommended"), all.filter((v) => v.kind === "release" && v.optimized)) +
+      group(t("version.older"), all.filter((v) => v.kind === "release" && !v.optimized)) +
+      group(t("version.snapshots"), all.filter((v) => v.kind === "snapshot"))
+    );
+  }
+  const versionInfo = (id) => S.allVersions?.find((v) => v.id === id);
   function renderVersionSelects() {
     for (const sel of [$("#version-select"), $("#set-version")]) {
-      const latest = S.versions[0] ? `${t("version.latest")} (${S.versions[0]})` : t("version.latest");
-      sel.innerHTML = `<option value="">${latest}</option>` + S.versions.map((v) => `<option>${v}</option>`).join("");
+      sel.innerHTML = versionOptions();
       sel.value = chosenGame();
     }
   }
@@ -276,6 +289,8 @@
     sel.addEventListener("change", async () => {
       if (activeProfile()) activeProfile().gameVersion = sel.value;
       else S.settings.gameVersion = sel.value;
+      const info = versionInfo(sel.value);
+      if (info && !info.optimized) toast(t(info.fabric ? "version.noteFabric" : "version.noteVanilla", info.id));
       renderVersionSelects();
       await saveSettings();
       await reloadInstalled();
@@ -1647,6 +1662,7 @@
     bindSettings();
     applyI18n();
     S.versions = await api.call("game_versions").catch(() => []);
+    S.allVersions = await api.call("all_versions").catch(() => []);
     renderVersionSelects();
     renderHome();
     renderSmp();
