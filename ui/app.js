@@ -284,13 +284,23 @@
       sel.innerHTML = versionOptions();
       sel.value = chosenGame();
     }
+    renderVersionWarn();
+  }
+  // Warning on Home, Mods and Modules when the chosen version has no mods.
+  function renderVersionWarn() {
+    if (S.init) renderHome(); // profile cards show the chosen version
+    const info = versionInfo(currentGame());
+    const off = !!info && !info.optimized;
+    $$("[data-ver-warn]").forEach((el) => {
+      el.hidden = !off;
+      if (off) el.querySelector("span").textContent = t("version.noMods", info.id);
+    });
   }
   for (const sel of [$("#version-select"), $("#set-version")]) {
     sel.addEventListener("change", async () => {
       if (activeProfile()) activeProfile().gameVersion = sel.value;
       else S.settings.gameVersion = sel.value;
-      const info = versionInfo(sel.value);
-      if (info && !info.optimized) toast(t(info.fabric ? "version.noteFabric" : "version.noteVanilla", info.id));
+
       renderVersionSelects();
       await saveSettings();
       await reloadInstalled();
