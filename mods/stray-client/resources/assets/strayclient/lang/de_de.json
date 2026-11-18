@@ -41,5 +41,9 @@
   "strayclient.title.hint": "Right Shift: Stray-Client-Menü",
   "strayclient.menu.mainmenu": "Stray-Hauptmenü",
   "strayclient.menu.mainmenu.tip": "Zeigt das Stray-Client-Hauptmenü statt Minecrafts Titelbildschirm.",
-  "strayclient.title.smp": "StraySMP spielen"
+  "strayclient.title.smp": "StraySMP spielen",
+  "strayclient.title.backStray": "Stray-Menü",
+  "strayclient.title.backStray.tip": "Zurück zum Stray-Client-Hauptmenü.",
+  "strayclient.menu.design": "Stray-Design",
+  "strayclient.menu.design.tip": "Minecrafts Knöpfe (Pausemenü, Optionen …) im dunklen Stray-Look."
 }

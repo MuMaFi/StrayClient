@@ -41,5 +41,9 @@
   "strayclient.title.hint": "Right Shift: меню Stray Client",
   "strayclient.menu.mainmenu": "Головне меню Stray",
   "strayclient.menu.mainmenu.tip": "Показує головне меню Stray Client замість екрана Minecraft.",
-  "strayclient.title.smp": "Грати на StraySMP"
+  "strayclient.title.smp": "Грати на StraySMP",
+  "strayclient.title.backStray": "Меню Stray",
+  "strayclient.title.backStray.tip": "Повернутися до головного меню Stray Client.",
+  "strayclient.menu.design": "Дизайн Stray",
+  "strayclient.menu.design.tip": "Кнопки Minecraft (пауза, налаштування …) у темному стилі Stray."
 }

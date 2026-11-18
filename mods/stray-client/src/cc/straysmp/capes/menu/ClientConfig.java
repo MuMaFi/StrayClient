@@ -14,6 +14,7 @@ import net.fabricmc.loader.api.FabricLoader;
 public final class ClientConfig {
     private static boolean loaded;
     private static boolean customMenu = true;
+    private static boolean strayDesign = true;
 
     private ClientConfig() {}
 
@@ -31,6 +32,7 @@ public final class ClientConfig {
             return;
         }
         customMenu = !"false".equals(p.getProperty("customMenu", "true").trim());
+        strayDesign = !"false".equals(p.getProperty("strayDesign", "true").trim());
     }
 
     /** Whether the Stray Client main menu replaces Minecraft's title screen. */
@@ -39,11 +41,28 @@ public final class ClientConfig {
         return customMenu;
     }
 
+    /** Minecraft's own buttons drawn in the Stray look. */
+    public static boolean strayDesign() {
+        load();
+        return strayDesign;
+    }
+
+    public static synchronized void setStrayDesign(boolean on) {
+        load();
+        strayDesign = on;
+        save();
+    }
+
     public static synchronized void setCustomMenu(boolean on) {
         load();
         customMenu = on;
+        save();
+    }
+
+    private static void save() {
         Properties p = new Properties();
-        p.setProperty("customMenu", Boolean.toString(on));
+        p.setProperty("customMenu", Boolean.toString(customMenu));
+        p.setProperty("strayDesign", Boolean.toString(strayDesign));
         try {
             Files.createDirectories(file().getParent());
             try (OutputStream out = Files.newOutputStream(file())) {

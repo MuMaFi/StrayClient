@@ -593,6 +593,47 @@ pub async fn remove(paths: &Paths, game: &str, project_id: &str) -> Result<()> {
     save_list(paths, game, &list).await
 }
 
+/// Performance mods for Forge / NeoForge profiles (whatever exists for the version):
+/// Sodium (or Embeddium on older Forge), FerriteCore, Lithium, ImmediatelyFast, EntityCulling.
+const LOADER_OPTIMIZATIONS: &[&str] = &[
+    "sodium",
+    "ferrite-core",
+    "lithium",
+    "immediatelyfast",
+    "entityculling",
+];
+
+/// Install the performance mods for the active (Forge / NeoForge) profile. Mods without a
+/// build for this version are skipped; nothing here can stop the game from starting.
+pub async fn ensure_optimizations(paths: &Paths, game: &str, progress: &ProgressFn) -> Vec<String> {
+    let have: HashSet<String> = installed(paths, game)
+        .await
+        .into_iter()
+        .map(|m| m.slug)
+        .collect();
+    let mut added = Vec::new();
+    for slug in LOADER_OPTIMIZATIONS {
+        if have.contains(*slug) {
+            continue;
+        }
+        let ok = install(paths, Source::Modrinth, slug, game, "", progress)
+            .await
+            .is_ok();
+        if ok {
+            added.push(slug.to_string());
+        } else if *slug == "sodium" && !have.contains("embeddium") {
+            // Forge: the Sodium port
+            if install(paths, Source::Modrinth, "embeddium", game, "", progress)
+                .await
+                .is_ok()
+            {
+                added.push("embeddium".into());
+            }
+        }
+    }
+    added
+}
+
 /// Make sure Sodium + FerriteCore are present for `game`. Cheap when already installed.
 /// With `wanted == false` (a profile without performance mods) they are switched off instead.
 pub async fn ensure_core(

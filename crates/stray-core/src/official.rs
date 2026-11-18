@@ -213,6 +213,9 @@ pub async fn install_profile(
     let kind = settings.loader();
     if matches!(kind, Loader::Forge | Loader::NeoForge) {
         let id = crate::loaders::install(paths, kind, game, mc_dir, progress).await?;
+        // Optimised on every loader: the Forge/NeoForge builds of the performance mods.
+        mods::set_loader(kind);
+        let _ = mods::ensure_optimizations(paths, game, progress).await;
         return finish_profile(paths, mc_dir, game, settings, id, progress).await;
     }
     let fabric_loader = if kind == Loader::Vanilla {

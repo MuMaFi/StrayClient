@@ -1,5 +1,25 @@
 [
   {
+    "version": "1.4.3",
+    "date": "2026-11-18",
+    "en": {
+      "title": "Optimised on every loader, Stray design in game",
+      "items": [
+        "NeoForge/Forge profiles get Sodium, FerriteCore, Lithium & co. automatically",
+        "Minecraft's buttons in the dark Stray look (can be turned off)",
+        "Back to the Stray menu from Minecraft's own title screen"
+      ]
+    },
+    "ru": {
+      "title": "Оптимизация на любом загрузчике, дизайн Stray в игре",
+      "items": [
+        "Профили NeoForge/Forge сами получают Sodium, FerriteCore, Lithium и др.",
+        "Кнопки Minecraft в тёмном стиле Stray (можно выключить)",
+        "Возврат в меню Stray из обычного главного меню Minecraft"
+      ]
+    }
+  },
+  {
     "version": "1.4.2",
     "date": "2026-11-18",
     "en": {

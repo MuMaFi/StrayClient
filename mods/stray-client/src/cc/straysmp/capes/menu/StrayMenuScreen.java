@@ -73,6 +73,9 @@ public final class StrayMenuScreen extends Screen {
         toggle(lx, y, "strayclient.menu.mainmenu", ClientConfig::customMenu, ClientConfig::setCustomMenu,
                 Tooltip.create(Tr.t("strayclient.menu.mainmenu.tip")));
         y += ROW;
+        toggle(lx, y, "strayclient.menu.design", ClientConfig::strayDesign, ClientConfig::setStrayDesign,
+                Tooltip.create(Tr.t("strayclient.menu.design.tip")));
+        y += ROW;
         if (Modules.pvpLoaded()) {
             toggle(lx, y, "strayclient.menu.pvp.hud", () -> Modules.pvp("hudInfo"), v -> Modules.setPvp("hudInfo", v), null);
             y += ROW;

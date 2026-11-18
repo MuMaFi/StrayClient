@@ -9,7 +9,10 @@
     "LoadingOverlayMixin",
     "KeyboardHandlerMixin",
     "PvpHudMixin",
-    "MinecraftMixin"
+    "MinecraftMixin",
+    "ButtonStyleMixin",
+    "CycleButtonStyleMixin",
+    "TitleScreenMixin"
   ],
   "injectors": {
     "defaultRequire": 1
