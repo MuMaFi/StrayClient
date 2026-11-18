@@ -140,6 +140,12 @@ async fn stats_cistiers(name: String) -> Res<Option<stray_core::stats::CisProfil
     stray_core::stats::cistiers(&name).await.map_err(err)
 }
 
+/// MCTiers profile of a player (None = not on the tier list).
+#[tauri::command]
+async fn stats_mctiers(name: String) -> Res<Option<stray_core::stats::TierProfile>> {
+    stray_core::stats::mctiers(&name).await.map_err(err)
+}
+
 /// News for the home screen.
 #[tauri::command]
 async fn news(state: State<'_, AppState>) -> Res<serde_json::Value> {
@@ -661,6 +667,7 @@ fn main() {
             all_versions,
             playtime,
             stats_cistiers,
+            stats_mctiers,
             news,
             server_status,
             login_start,

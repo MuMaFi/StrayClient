@@ -44,7 +44,10 @@
     renderStatus();
     renderHome();
     if (!S.busy && !S.running) $("#play-label").textContent = t("play");
-    if (S.init) loadNews();
+    if (S.init) {
+      loadNews();
+      loadHomeTiers();
+    }
     // sign-in method hint, auto-join toggle and account chip (boot + every language change)
     if (S.init) applyPlayMode();
   }
@@ -1048,39 +1051,82 @@
   // ───────── stats (CISTiers) ─────────
   const TIER_COLORS = { HT1: "#f9e2af", LT1: "#cfa565", HT2: "#cdd6f4", LT2: "#a6adc8", HT3: "#fab387", LT3: "#c68258", HT4: "#89b4fa", LT4: "#6985c8", HT5: "#9399b2", LT5: "#6c7086" };
   let statsLoaded = false;
-  async function showStats(name) {
-    const body = $("#cis-body");
+  const MCT_COLORS = { HT1: "#e8ba3a", LT1: "#d5b355", HT2: "#c4d3e7", LT2: "#a0a7b2", HT3: "#f89f5a", LT3: "#c67b42", HT4: "#81749a", LT4: "#655b79", HT5: "#8f82a8", LT5: "#655b79" };
+  const tierColor = (src, tier) => (src === "mct" ? MCT_COLORS : TIER_COLORS)[tier.replace(/^R/, "")] || "#6c7086";
+  const kitName = (k) => k.replace(/_/g, " ");
+  // Both lists, cached per name for a few minutes (home card + stats page share it).
+  const tierCache = new Map();
+  function fetchTiers(src, name) {
+    const key = src + ":" + name.toLowerCase();
+    const hit = tierCache.get(key);
+    if (hit && Date.now() - hit.at < 5 * 60 * 1000) return hit.p;
+    const p = api.call(src === "mct" ? "stats_mctiers" : "stats_cistiers", { name });
+    tierCache.set(key, { at: Date.now(), p });
+    p.catch(() => tierCache.delete(key));
+    return p;
+  }
+  async function showTierCard(src, name, body) {
     body.innerHTML = `<div class="cis-loading"><i class="spinner"></i>${esc(t("stats.loading"))}</div>`;
     let p;
     try {
-      p = await api.call("stats_cistiers", { name });
+      p = await fetchTiers(src, name);
     } catch (e) {
-      body.innerHTML = `<div class="cis-empty">${esc(String(e).includes("stats_bad_name") ? t("err.skin_no_player", name) : t("stats.offline"))}</div>`;
+      body.innerHTML = `<div class="cis-empty">${esc(String(e).includes("stats_bad_name") ? t("err.skin_no_player", name) : src === "mct" ? t("stats.offline").replace("CISTiers", "MCTiers") : t("stats.offline"))}</div>`;
       return;
     }
     if (!p) {
-      body.innerHTML = `<div class="cis-empty">${esc(t("stats.notFound", name))}</div>`;
+      body.innerHTML = `<div class="cis-empty">${esc(t(src === "mct" ? "stats.mctNotFound" : "stats.notFound", name))}</div>`;
       return;
     }
     const kits = p.tiers.length
       ? `<div class="cis-kits">${p.tiers
-          .map((k) => `<div class="cis-kit"><span>${esc(k.kit.replace(/_/g, " "))}</span><b class="cis-tier" style="--c:${TIER_COLORS[k.tier] || "#6c7086"}">${esc(k.tier)}</b></div>`)
+          .map((k) => `<div class="cis-kit"><span>${esc(kitName(k.kit))}</span><b class="cis-tier" style="--c:${tierColor(src, k.tier)}">${esc(k.tier)}</b></div>`)
           .join("")}</div>`
       : `<div class="cis-empty">${esc(t("stats.noTiers"))}</div>`;
+    const third = src === "mct" && p.region ? [t("stats.region"), p.region] : [t("stats.kits"), p.tiers.length];
     body.innerHTML = `<div class="cis-sum">
         <div class="cis-stat cis-player"><img alt="" src="https://mc-heads.net/avatar/${encodeURIComponent(p.nickname)}/44" /><b>${esc(p.nickname)}</b></div>
         <div class="cis-stat"><small>${esc(t("stats.rank"))}</small><b>${p.rankPosition ? "#" + p.rankPosition : "—"}</b></div>
         <div class="cis-stat"><small>${esc(t("stats.points"))}</small><b>${p.totalPoints}</b></div>
-        <div class="cis-stat"><small>${esc(t("stats.kits"))}</small><b>${p.tiers.length}</b></div>
+        <div class="cis-stat"><small>${esc(third[0])}</small><b>${esc(String(third[1]))}</b></div>
       </div>${kits}`;
     const img = body.querySelector(".cis-player img");
     img?.addEventListener("error", () => (img.style.visibility = "hidden"));
   }
+  function showStats(name) {
+    showTierCard("cis", name, $("#cis-body"));
+    showTierCard("mct", name, $("#mct-body"));
+  }
+  const accountName = () => (S.accounts?.accounts?.find((a) => a.uuid === S.accounts.active) || S.init?.account)?.name || "";
+  // Home: best tiers from both lists for the signed-in player.
+  async function loadHomeTiers() {
+    const name = accountName();
+    $("#tiers-sub").textContent = name ? t("tiers.for", name) : t("tiers.noAcc");
+    for (const [src, box, rank] of [["cis", "#tiers-cis", "#tiers-cis-rank"], ["mct", "#tiers-mct", "#tiers-mct-rank"]]) {
+      if (!name) {
+        $(box).innerHTML = "";
+        $(rank).textContent = "";
+        continue;
+      }
+      $(box).innerHTML = `<span class="tiers-none">${esc(t("tiers.loading"))}</span>`;
+      fetchTiers(src, name).then(
+        (p) => {
+          $(rank).textContent = p?.rankPosition ? "#" + p.rankPosition : "";
+          $(box).innerHTML = p?.tiers?.length
+            ? p.tiers.slice(0, 4).map((k) => `<span class="tiers-badge">${esc(kitName(k.kit))}<b class="cis-tier" style="--c:${tierColor(src, k.tier)}">${esc(k.tier)}</b></span>`).join("")
+            : `<span class="tiers-none">${esc(t("tiers.none"))}</span>`;
+        },
+        () => {
+          $(rank).textContent = "";
+          $(box).innerHTML = `<span class="tiers-none">${esc(t("tiers.off"))}</span>`;
+        }
+      );
+    }
+  }
   function loadStats() {
     $("#stats-name").placeholder = t("stats.namePh");
     if (statsLoaded) return;
-    const acc = S.accounts?.accounts?.find((a) => a.uuid === S.accounts.active) || S.init?.account;
-    const name = $("#stats-name").value.trim() || acc?.name || "";
+    const name = $("#stats-name").value.trim() || accountName();
     $("#stats-name").value = name;
     if (name) {
       statsLoaded = true;
@@ -1773,6 +1819,7 @@
     pollSmp();
     loadPlaytime();
     loadNews();
+    loadHomeTiers();
     S.installed = await api.call("mods_list", { game: currentGame() }).catch(() => []);
     renderPerf();
     const page = new URLSearchParams(location.search).get("page");

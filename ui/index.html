@@ -151,6 +151,14 @@
         </button>
       </div>
 
+      <button class="card tiers-card" id="tiers-card" data-page="stats">
+        <div class="card-head"><div><h3 data-i18n="tiers.title"></h3><p class="muted" id="tiers-sub"></p></div><span class="tiers-more" data-i18n="tiers.more"></span></div>
+        <div class="tiers-cols">
+          <div class="tiers-col"><div class="tiers-src"><i class="cis-logo sm">CIS</i><b>CISTiers</b><span class="muted" id="tiers-cis-rank"></span></div><div class="tiers-badges" id="tiers-cis"></div></div>
+          <div class="tiers-col"><div class="tiers-src"><i class="cis-logo sm mct">MC</i><b>MCTiers</b><span class="muted" id="tiers-mct-rank"></span></div><div class="tiers-badges" id="tiers-mct"></div></div>
+        </div>
+      </button>
+
       <div class="card news-card">
         <div class="card-head"><div><h3 data-i18n="news.title"></h3><p class="muted" data-i18n="news.sub"></p></div></div>
         <div class="news-list" id="news-list"></div>
@@ -296,6 +304,14 @@
           <button class="btn btn-ghost" data-url="https://cistiers.com/" data-i18n="stats.open"></button>
         </div>
         <div id="cis-body"></div>
+      </div>
+      <div class="card cis-card mct-card">
+        <div class="cis-head">
+          <div class="cis-logo mct">MC</div>
+          <div><h3>MCTiers</h3><p class="muted small" data-i18n="stats.mctSub"></p></div>
+          <button class="btn btn-ghost" data-url="https://mctiers.com/" data-i18n="stats.open"></button>
+        </div>
+        <div id="mct-body"></div>
       </div>
     </section>
 

@@ -1,5 +1,23 @@
 [
   {
+    "version": "1.3.8",
+    "date": "2026-11-18",
+    "en": {
+      "title": "MCTiers and tiers on the home screen",
+      "items": [
+        "MCTiers next to CISTiers in Stats",
+        "Your best tiers from both lists on the home screen"
+      ]
+    },
+    "ru": {
+      "title": "MCTiers и тиры на главном экране",
+      "items": [
+        "MCTiers рядом с CISTiers в «Статистике»",
+        "Твои лучшие тиры из обоих списков на главном экране"
+      ]
+    }
+  },
+  {
     "version": "1.3.7",
     "date": "2026-11-18",
     "en": {

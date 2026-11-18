@@ -942,3 +942,20 @@ body.home-new .hero p { font-size: 14.5px; color: rgba(255,255,255,.75); }
 .cis-tier { font: 800 12px var(--display); padding: 5px 9px; border-radius: 9px; color: #1a1b24; background: var(--c, #6c7086); box-shadow: 0 0 14px -2px var(--c, transparent); }
 .cis-empty { margin-top: 16px; padding: 22px; border-radius: 16px; text-align: center; color: var(--muted); box-shadow: inset 0 0 0 1px var(--edge); }
 .cis-loading { margin-top: 16px; display: flex; align-items: center; gap: 10px; color: var(--muted); }
+
+/* MCTiers + home tiers card */
+.cis-logo.mct { background: linear-gradient(135deg, #8ad2ff, #5865f2); color: #0d1430; box-shadow: 0 8px 22px -10px rgba(88,101,242,.8); }
+.mct-card { margin-top: 14px; }
+.cis-logo.sm { width: 26px; height: 26px; border-radius: 8px; font-size: 9px; font-style: normal; flex: none; }
+.tiers-card { display: block; width: 100%; margin-top: 12px; text-align: left; cursor: pointer; }
+.tiers-more { font-size: 12px; font-weight: 700; color: var(--accent); white-space: nowrap; }
+.tiers-cols { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 14px; }
+.tiers-col { padding: 12px 14px; border-radius: 16px; background: rgba(0,0,0,.18); box-shadow: inset 0 0 0 1px var(--edge); min-width: 0; }
+.tiers-src { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+.tiers-src b { font-family: var(--display); font-size: 13px; }
+.tiers-src span { margin-left: auto; font-size: 12px; font-weight: 700; }
+.tiers-badges { display: flex; flex-wrap: wrap; gap: 6px; min-height: 26px; }
+.tiers-badge { display: inline-flex; align-items: center; gap: 6px; padding: 3px 4px 3px 9px; border-radius: 9px; background: rgba(255,255,255,.04); font-size: 12px; font-weight: 600; text-transform: capitalize; }
+.tiers-badge .cis-tier { font-size: 10.5px; padding: 3px 7px; border-radius: 7px; }
+.tiers-none { font-size: 12px; color: var(--muted); }
+@media (max-width: 900px) { .tiers-cols { grid-template-columns: 1fr; } }
