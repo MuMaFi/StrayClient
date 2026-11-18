@@ -178,6 +178,13 @@
         { kit: "vanilla", tier: "HT3", points: 6 }, { kit: "sword", tier: "LT3", points: 5 }, { kit: "mace", tier: "HT4", points: 4 },
         { kit: "nethop", tier: "LT4", points: 3 }, { kit: "uhc", tier: "LT5", points: 1 } ] };
     },
+    async stats_mcpvp({ name }) {
+      await wait(400);
+      if (!/^[A-Za-z0-9_]{1,16}$/.test(name)) throw "stats_bad_name";
+      if (name.toLowerCase() === "nobody") return null;
+      return { nickname: name, rankPosition: null, totalPoints: 0, region: null, tiers: [
+        { kit: "End Game", tier: "HT3", points: 19 }, { kit: "Early Game", tier: "MT2", points: 22 }, { kit: "Sword", tier: "LT4", points: 13 } ].sort((a, b) => b.points - a.points) };
+    },
     async playtime() { return { "": 47 * 3600 + 12 * 60, pvp: 5 * 3600 + 3 * 60, vanilla: 0 }; },
     async news() { return fetch("../CHANGELOG.json").then((r) => r.json()).catch(() => []); },
     async all_versions() {

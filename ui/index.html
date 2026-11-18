@@ -152,11 +152,13 @@
       </div>
 
       <button class="card tiers-card" id="tiers-card" data-page="stats">
-        <div class="card-head"><div class="tiers-who"><img id="tiers-head" alt="" /><div><h3 data-i18n="tiers.title"></h3><p class="muted" id="tiers-sub"></p></div></div><span class="tiers-more" data-i18n="tiers.more"></span></div>
-        <div class="tiers-cols">
+        <div class="card-head tiers-headrow"><div class="tiers-who"><img id="tiers-head" alt="" /><div><h3 data-i18n="tiers.title"></h3><p class="muted" id="tiers-sub"></p></div></div><span class="tiers-more" data-i18n="tiers.more"></span></div>
+        <div class="tiers-cols three">
           <div class="tiers-col tl-cis"><div class="tiers-src"><i class="cis-logo sm">CIS</i><b>CISTiers</b><span class="tiers-rank" id="tiers-cis-rank"></span></div><div class="tiers-panel" id="tiers-cis"></div></div>
           <div class="tiers-col tl-mct"><div class="tiers-src"><i class="cis-logo sm mct">MC</i><b>MCTiers</b><span class="tiers-rank" id="tiers-mct-rank"></span></div><div class="tiers-panel" id="tiers-mct"></div></div>
+          <div class="tiers-col tl-pvp"><div class="tiers-src"><i class="cis-logo sm pvp">PVP</i><b>MCPVP</b><span class="tiers-rank" id="tiers-pvp-rank"></span></div><div class="tiers-panel" id="tiers-pvp"></div></div>
         </div>
+        <p class="tiers-credit" data-i18n="tiers.credit"></p>
       </button>
 
       <div class="card news-card">
@@ -313,6 +315,15 @@
         </div>
         <div id="mct-body"></div>
       </div>
+      <div class="card cis-card mct-card tl-pvp">
+        <div class="cis-head">
+          <div class="cis-logo pvp">PVP</div>
+          <div><h3>MCPVP</h3><p class="muted small" data-i18n="stats.pvpSub"></p></div>
+          <button class="btn btn-ghost" id="pvp-open" data-url="https://www.mcpvp.com/" data-i18n="stats.open"></button>
+        </div>
+        <div id="pvp-body"></div>
+      </div>
+      <p class="stats-credits muted small" data-i18n="stats.credits"></p>
     </section>
 
     <!-- HOST -->

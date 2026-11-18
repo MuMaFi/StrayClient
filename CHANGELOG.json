@@ -1,5 +1,23 @@
 [
   {
+    "version": "1.4.0",
+    "date": "2026-11-18",
+    "en": {
+      "title": "MCPVP tiers",
+      "items": [
+        "MCPVP next to CISTiers and MCTiers, on the home screen and in Stats",
+        "Credits for all three tier lists"
+      ]
+    },
+    "ru": {
+      "title": "Тиры MCPVP",
+      "items": [
+        "MCPVP рядом с CISTiers и MCTiers — на главном экране и в «Статистике»",
+        "Указаны источники всех трёх тир-листов"
+      ]
+    }
+  },
+  {
     "version": "1.3.9",
     "date": "2026-11-18",
     "en": {

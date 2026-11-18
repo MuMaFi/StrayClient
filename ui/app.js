@@ -1052,7 +1052,15 @@
   const TIER_COLORS = { HT1: "#f9e2af", LT1: "#cfa565", HT2: "#cdd6f4", LT2: "#a6adc8", HT3: "#fab387", LT3: "#c68258", HT4: "#89b4fa", LT4: "#6985c8", HT5: "#9399b2", LT5: "#6c7086" };
   let statsLoaded = false;
   const MCT_COLORS = { HT1: "#e8ba3a", LT1: "#d5b355", HT2: "#c4d3e7", LT2: "#a0a7b2", HT3: "#f89f5a", LT3: "#c67b42", HT4: "#81749a", LT4: "#655b79", HT5: "#8f82a8", LT5: "#655b79" };
-  const tierColor = (src, tier) => (src === "mct" ? MCT_COLORS : TIER_COLORS)[tier.replace(/^R/, "")] || "#6c7086";
+  // MCPVP: HT/MT/LT/ST + level 1–6 → colour by level, brighter for higher sub-tiers
+  const PVP_LEVEL = ["#f9e2af", "#cdd6f4", "#fab387", "#89b4fa", "#9399b2", "#6c7086"];
+  const pvpColor = (tier) => {
+    const m = /^([HMLS])T(\d)$/.exec(tier);
+    if (!m) return "#6c7086";
+    const base = PVP_LEVEL[Math.min(5, +m[2] - 1)];
+    return { H: base, M: `color-mix(in srgb, ${base} 82%, #1a1b24)`, L: `color-mix(in srgb, ${base} 64%, #1a1b24)`, S: `color-mix(in srgb, ${base} 48%, #1a1b24)` }[m[1]];
+  };
+  const tierColor = (src, tier) => (src === "pvp" ? pvpColor(tier) : (src === "mct" ? MCT_COLORS : TIER_COLORS)[tier.replace(/^R/, "")] || "#6c7086");
   const kitName = (k) => k.replace(/_/g, " ");
   // Both lists, cached per name for a few minutes (home card + stats page share it).
   const tierCache = new Map();
@@ -1060,21 +1068,22 @@
     const key = src + ":" + name.toLowerCase();
     const hit = tierCache.get(key);
     if (hit && Date.now() - hit.at < 5 * 60 * 1000) return hit.p;
-    const p = api.call(src === "mct" ? "stats_mctiers" : "stats_cistiers", { name });
+    const p = api.call({ mct: "stats_mctiers", pvp: "stats_mcpvp" }[src] || "stats_cistiers", { name });
     tierCache.set(key, { at: Date.now(), p });
     p.catch(() => tierCache.delete(key));
     return p;
   }
   // Kit icons (simple line drawings), matched by name.
   const KIT_ICONS = [
-    [/sword|vanilla|neth(op|pot)?$/, '<path d="M14.5 3.5H20.5V9.5L9 21 3 15z"/><path d="m5 13 6 6M3 21l3-3"/>'],
+    [/sword|vanilla|early|neth(op|pot)?$/, '<path d="M14.5 3.5H20.5V9.5L9 21 3 15z"/><path d="m5 13 6 6M3 21l3-3"/>'],
     [/axe/, '<path d="M14 4c3 0 6 3 6 6l-5-1-1-5zM14 4 4 20M10 10l4 4"/>'],
     [/mace/, '<circle cx="15" cy="9" r="4"/><path d="M12 12 4 20M15 3v2M21 9h-2M19.5 4.5 18 6"/>'],
-    [/crystal/, '<path d="m12 2 7 6-7 14L5 8z"/><path d="M5 8h14M12 2v20"/>'],
+    [/crystal|end.?game/, '<path d="m12 2 7 6-7 14L5 8z"/><path d="M5 8h14M12 2v20"/>'],
     [/pot/, '<path d="M9 3h6M10 3v4l-4 6a5 5 0 0 0 4 8h4a5 5 0 0 0 4-8l-4-6V3"/><path d="M7.5 14h9"/>'],
     [/uhc|heart/, '<path d="M12 20s-8-5-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 9c0 6-8 11-8 11z"/>'],
-    [/smp|survival/, '<path d="M4 20V9l8-5 8 5v11zM9 20v-6h6v6"/>'],
+    [/smp|survival|diamond/, '<path d="M4 20V9l8-5 8 5v11zM9 20v-6h6v6"/>'],
     [/spear|trident/, '<path d="M12 2v20M8 6l4-4 4 4M9 10h6"/>'],
+    [/shield/, '<path d="M12 3 5 6v6c0 4.5 3 7.5 7 9 4-1.5 7-4.5 7-9V6z"/>'],
     [/bow|cart/, '<path d="M5 3c8 3 11 8 14 16M5 3 19 19M5 3l3 1M5 3l1 3"/>'],
   ];
   const kitIcon = (kit) => {
@@ -1098,11 +1107,12 @@
     try {
       p = await fetchTiers(src, name);
     } catch (e) {
-      body.innerHTML = `<div class="cis-empty">${esc(String(e).includes("stats_bad_name") ? t("err.skin_no_player", name) : src === "mct" ? t("stats.offline").replace("CISTiers", "MCTiers") : t("stats.offline"))}</div>`;
+      const list = { cis: "CISTiers", mct: "MCTiers", pvp: "MCPVP" }[src];
+      body.innerHTML = `<div class="cis-empty">${esc(String(e).includes("stats_bad_name") ? t("err.skin_no_player", name) : t("stats.offline").replace("CISTiers", list))}</div>`;
       return;
     }
     if (!p) {
-      body.innerHTML = `<div class="cis-empty">${esc(t(src === "mct" ? "stats.mctNotFound" : "stats.notFound", name))}</div>`;
+      body.innerHTML = `<div class="cis-empty">${esc(t({ mct: "stats.mctNotFound", pvp: "stats.pvpNotFound" }[src] || "stats.notFound", name))}</div>`;
       return;
     }
     const best = p.tiers[0];
@@ -1114,8 +1124,8 @@
         <div class="tier-facts">
           <div class="cis-player"><img alt="" src="https://mc-heads.net/avatar/${encodeURIComponent(p.nickname)}/48" /><b>${esc(p.nickname)}</b></div>
           <div class="tier-nums">
-            <div><small>${esc(t("stats.rank"))}</small><b>${p.rankPosition ? "#" + p.rankPosition : "—"}</b></div>
-            <div><small>${esc(t("stats.points"))}</small><b>${p.totalPoints}</b></div>
+            ${src === "pvp" ? "" : `<div><small>${esc(t("stats.rank"))}</small><b>${p.rankPosition ? "#" + p.rankPosition : "—"}</b></div>
+            <div><small>${esc(t("stats.points"))}</small><b>${p.totalPoints}</b></div>`}
             <div><small>${esc(third[0])}</small><b>${esc(String(third[1]))}</b></div>
           </div>
         </div>
@@ -1126,6 +1136,8 @@
   function showStats(name) {
     showTierCard("cis", name, $("#cis-body"));
     showTierCard("mct", name, $("#mct-body"));
+    showTierCard("pvp", name, $("#pvp-body"));
+    $("#pvp-open").dataset.url = `https://www.mcpvp.com/@${encodeURIComponent(name)}`;
   }
   const accountName = () => (S.accounts?.accounts?.find((a) => a.uuid === S.accounts.active) || S.init?.account)?.name || "";
   // Home: best tier big, then the next kits, for the signed-in player.
@@ -1138,7 +1150,7 @@
       head.src = `https://mc-heads.net/avatar/${encodeURIComponent(name)}/40`;
       head.onerror = () => (head.hidden = true);
     }
-    for (const [src, box, rank] of [["cis", "#tiers-cis", "#tiers-cis-rank"], ["mct", "#tiers-mct", "#tiers-mct-rank"]]) {
+    for (const [src, box, rank] of [["cis", "#tiers-cis", "#tiers-cis-rank"], ["mct", "#tiers-mct", "#tiers-mct-rank"], ["pvp", "#tiers-pvp", "#tiers-pvp-rank"]]) {
       if (!name) {
         $(box).innerHTML = "";
         $(rank).textContent = "";
@@ -1154,7 +1166,7 @@
           }
           const [best, ...rest] = p.tiers;
           $(box).innerHTML = `<div class="tiers-best" style="--c:${tierColor(src, best.tier)}"><b>${esc(best.tier)}</b><span>${kitIcon(best.kit)}${esc(kitName(best.kit))}</span></div>
-            <div class="tiers-rest">${rest.slice(0, 4).map((k) => `<span class="tiers-badge" title="${esc(kitName(k.kit))}">${kitIcon(k.kit)}${tierBadge(src, k.tier)}</span>`).join("")}</div>`;
+            <div class="tiers-rest">${rest.slice(0, 3).map((k) => `<span class="tiers-badge" title="${esc(kitName(k.kit))}">${kitIcon(k.kit)}${tierBadge(src, k.tier)}</span>`).join("")}</div>`;
         },
         () => {
           $(rank).textContent = "";

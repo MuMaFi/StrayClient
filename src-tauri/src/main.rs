@@ -146,6 +146,12 @@ async fn stats_mctiers(name: String) -> Res<Option<stray_core::stats::TierProfil
     stray_core::stats::mctiers(&name).await.map_err(err)
 }
 
+/// MCPVP tiers of a player, read from the public profile page.
+#[tauri::command]
+async fn stats_mcpvp(name: String) -> Res<Option<stray_core::stats::TierProfile>> {
+    stray_core::stats::mcpvp(&name).await.map_err(err)
+}
+
 /// News for the home screen.
 #[tauri::command]
 async fn news(state: State<'_, AppState>) -> Res<serde_json::Value> {
@@ -668,6 +674,7 @@ fn main() {
             playtime,
             stats_cistiers,
             stats_mctiers,
+            stats_mcpvp,
             news,
             server_status,
             login_start,

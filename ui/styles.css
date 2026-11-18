@@ -1029,3 +1029,15 @@ body.paused .tier-medal::after, body.no-motion .tier-medal::after { animation: n
 @keyframes skel { to { background-position: -200% 0; } }
 .tiers-card:hover .tiers-more { text-decoration: underline; }
 @media (max-width: 1000px) { .tier-hero { grid-template-columns: 1fr; } }
+
+/* MCPVP (third list) + credits */
+.tl-pvp { --tl: 229,62,62; --tl2: 255,140,120; }
+.cis-logo.pvp { background: linear-gradient(135deg, #ff8c78, #e53e3e); color: #2a0d0d; font-size: 11px; box-shadow: 0 8px 22px -10px rgba(229,62,62,.8); }
+.cis-logo.sm.pvp { font-size: 7.5px; }
+.tiers-cols.three { grid-template-columns: repeat(3, 1fr); }
+.tiers-cols.three .tiers-panel { grid-template-columns: 1fr; gap: 10px; }
+.tiers-cols.three .tiers-best { flex-direction: row; justify-content: flex-start; gap: 10px; min-width: 0; }
+.tiers-cols.three .tiers-best b { font-size: 24px; }
+.tiers-credit { margin-top: 12px; font-size: 11px; color: rgba(255,255,255,.38); }
+.stats-credits { margin-top: 14px; line-height: 1.6; }
+@media (max-width: 1150px) { .tiers-cols.three { grid-template-columns: 1fr; } .tiers-cols.three .tiers-panel { grid-template-columns: auto 1fr; } }
