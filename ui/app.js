@@ -870,6 +870,31 @@
         saveSoon();
       });
     }
+    // PvP stats: own name + which tier lists the home screen shows
+    s.statsHome ||= ["cis", "mct", "pvp"];
+    const sn = $("#set-stats-name");
+    sn.value = s.statsName || "";
+    sn.placeholder = accountName() || "Steve";
+    sn.addEventListener("input", () => {
+      s.statsName = sn.value.replace(/[^A-Za-z0-9_]/g, "").slice(0, 16);
+      if (sn.value !== s.statsName) sn.value = s.statsName;
+      statsLoaded = false;
+      $("#stats-name").value = "";
+      saveSoon();
+      clearTimeout(sn._t);
+      sn._t = setTimeout(loadHomeTiers, 600);
+    });
+    $$("[data-stats-home]").forEach((el) => {
+      el.checked = s.statsHome.includes(el.dataset.statsHome);
+      el.addEventListener("change", () => {
+        const order = ["cis", "mct", "pvp"];
+        const set = new Set(s.statsHome);
+        el.checked ? set.add(el.dataset.statsHome) : set.delete(el.dataset.statsHome);
+        s.statsHome = order.filter((k) => set.has(k));
+        saveSoon();
+        loadHomeTiers();
+      });
+    });
     const texts = { "#set-cf": "curseforgeKey", "#set-java": "javaPath", "#set-jvm": "extraJvmArgs" };
     for (const [sel, key] of Object.entries(texts)) {
       const el = $(sel);
@@ -1140,9 +1165,16 @@
     $("#pvp-open").dataset.url = `https://www.mcpvp.com/@${encodeURIComponent(name)}`;
   }
   const accountName = () => (S.accounts?.accounts?.find((a) => a.uuid === S.accounts.active) || S.init?.account)?.name || "";
+  const statsName = () => (S.settings?.statsName || "").trim() || accountName();
   // Home: best tier big, then the next kits, for the signed-in player.
   async function loadHomeTiers() {
-    const name = accountName();
+    const name = statsName();
+    const shown = S.settings.statsHome || ["cis", "mct", "pvp"];
+    $("#tiers-card").hidden = !shown.length;
+    $(".tiers-cols").classList.toggle("three", shown.length === 3);
+    $(".tiers-cols").classList.toggle("one", shown.length === 1);
+    for (const src of ["cis", "mct", "pvp"]) $(`.tiers-col.tl-${src}`).hidden = !shown.includes(src);
+    $(".tiers-credit").textContent = t("tiers.creditPrefix") + [["cis", "CISTiers"], ["mct", "MCTiers"], ["pvp", "MCPVP"]].filter(([k]) => shown.includes(k)).map(([, n]) => n).join(" · ");
     $("#tiers-sub").textContent = name ? t("tiers.for", name) : t("tiers.noAcc");
     const head = $("#tiers-head");
     head.hidden = !name;
@@ -1151,6 +1183,7 @@
       head.onerror = () => (head.hidden = true);
     }
     for (const [src, box, rank] of [["cis", "#tiers-cis", "#tiers-cis-rank"], ["mct", "#tiers-mct", "#tiers-mct-rank"], ["pvp", "#tiers-pvp", "#tiers-pvp-rank"]]) {
+      if (!shown.includes(src)) continue;
       if (!name) {
         $(box).innerHTML = "";
         $(rank).textContent = "";
@@ -1178,7 +1211,7 @@
   function loadStats() {
     $("#stats-name").placeholder = t("stats.namePh");
     if (statsLoaded) return;
-    const name = $("#stats-name").value.trim() || accountName();
+    const name = $("#stats-name").value.trim() || statsName();
     $("#stats-name").value = name;
     if (name) {
       statsLoaded = true;
@@ -1855,6 +1888,8 @@
     S.settings.profiles ||= [];
     S.settings.profile ||= "";
     S.settings.introSound ??= true;
+    S.settings.statsHome ||= ["cis", "mct", "pvp"];
+    S.settings.statsName ||= "";
     S.accounts = S.init.accounts || { active: null, accounts: S.init.account ? [S.init.account] : [] };
     document.body.classList.toggle("no-motion", S.settings.reduceMotion);
     try {

@@ -58,6 +58,10 @@ pub struct Settings {
     pub skip_intro: bool,
     /// Sounds during the start-up animation.
     pub intro_sound: bool,
+    /// Minecraft name for the PvP stats (empty = the signed-in account).
+    pub stats_name: String,
+    /// Tier lists shown on the home screen: `cis`, `mct`, `pvp`.
+    pub stats_home: Vec<String>,
 }
 
 /// A player-made profile with its own mods.
@@ -173,6 +177,8 @@ impl Default for Settings {
             home_layout: "new".into(),
             skip_intro: false,
             intro_sound: true,
+            stats_name: String::new(),
+            stats_home: vec!["cis".into(), "mct".into(), "pvp".into()],
         }
     }
 }

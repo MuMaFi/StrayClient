@@ -1041,3 +1041,8 @@ body.paused .tier-medal::after, body.no-motion .tier-medal::after { animation: n
 .tiers-credit { margin-top: 12px; font-size: 11px; color: rgba(255,255,255,.38); }
 .stats-credits { margin-top: 14px; line-height: 1.6; }
 @media (max-width: 1150px) { .tiers-cols.three { grid-template-columns: 1fr; } .tiers-cols.three .tiers-panel { grid-template-columns: auto 1fr; } }
+
+.tiers-card[hidden], .tiers-col[hidden] { display: none !important; }
+.tiers-cols:not(.three):not(.one) { grid-template-columns: 1fr 1fr; }
+.tiers-cols.one { grid-template-columns: 1fr; }
+.field > label.toggle { text-transform: none; letter-spacing: normal; font-size: 14px; font-weight: 500; color: var(--text); }

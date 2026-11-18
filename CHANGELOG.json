@@ -1,5 +1,23 @@
 [
   {
+    "version": "1.4.1",
+    "date": "2026-11-18",
+    "en": {
+      "title": "Stats settings",
+      "items": [
+        "Set your own name for the PvP stats",
+        "Choose which tier lists the home screen shows"
+      ]
+    },
+    "ru": {
+      "title": "Настройки статистики",
+      "items": [
+        "Свой ник для PvP-статистики",
+        "Выбор тир-листов на главном экране"
+      ]
+    }
+  },
+  {
     "version": "1.4.0",
     "date": "2026-11-18",
     "en": {

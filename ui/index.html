@@ -459,6 +459,21 @@
         </div>
 
         <div class="card set-card">
+          <h3 data-i18n="set.stats"></h3>
+          <div class="field">
+            <label data-i18n="set.statsName"></label>
+            <input type="text" id="set-stats-name" maxlength="16" spellcheck="false" autocomplete="off" />
+            <small class="muted" data-i18n="set.statsNameHint"></small>
+          </div>
+          <div class="field">
+            <label data-i18n="set.statsHome"></label>
+            <label class="toggle"><input type="checkbox" data-stats-home="cis" /><i></i><span>CISTiers</span></label>
+            <label class="toggle"><input type="checkbox" data-stats-home="mct" /><i></i><span>MCTiers</span></label>
+            <label class="toggle"><input type="checkbox" data-stats-home="pvp" /><i></i><span>MCPVP</span></label>
+          </div>
+        </div>
+
+        <div class="card set-card">
           <h3 data-i18n="set.perf"></h3>
           <div class="field">
             <label><span data-i18n="set.memory"></span> <b class="accent" id="mem-label"></b></label>
