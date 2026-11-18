@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "id": "strayclient",
-  "version": "1.5.1",
+  "version": "1.6.0",
   "name": "Stray Client",
   "description": "Stray Client main menu, in-game menu (Right Shift), movable HUD, world hosting, your own cape and the Stray Client loading screen. Managed by the Stray Client launcher. Cape part inspired by Cape Switcher by IcyCroww (MIT).",
   "authors": [

@@ -899,3 +899,24 @@ body.home-new .hero p { font-size: 14.5px; color: rgba(255,255,255,.75); }
   .account:not(:has(img[src^="http"], img[src^="data"])) { display: none; }
 }
 .prof-tags span { white-space: nowrap; }
+
+/* news (home) */
+.news-card { margin-top: 12px; }
+.news-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 12px; margin-top: 14px; }
+.news-item { padding: 14px 16px; border-radius: 16px; background: rgba(0,0,0,.18); box-shadow: inset 0 0 0 1px var(--edge); }
+.news-item header { display: flex; align-items: center; gap: 8px; margin-bottom: 6px; }
+.news-item header b { font-family: var(--display); font-size: 13.5px; }
+.news-ver { font-size: 10.5px; font-weight: 800; padding: 3px 8px; border-radius: 99px; background: var(--accent-soft); color: var(--accent); }
+.news-item time { margin-left: auto; font-size: 11px; color: var(--muted); }
+.news-item ul { margin: 0; padding-left: 16px; color: rgba(255,255,255,.7); font-size: 12.5px; line-height: 1.55; }
+.news-item:first-child { box-shadow: inset 0 0 0 1px rgba(81,162,255,.35); background: linear-gradient(160deg, rgba(81,162,255,.12), rgba(0,0,0,.12) 60%); }
+/* playtime on profile cards */
+.prof-time { display: flex; align-items: center; gap: 5px; font-size: 11.5px; color: rgba(255,255,255,.55); }
+.prof-time svg { width: 13px; height: 13px; }
+/* favourite capes */
+.cape-fav { position: absolute; top: 6px; left: 6px; width: 24px; height: 24px; border-radius: 8px; display: grid; place-items: center; color: rgba(255,255,255,.35); opacity: 0; transition: opacity .15s, color .15s; }
+.cape-card:hover .cape-fav, .cape-fav.on { opacity: 1; }
+.cape-fav.on { color: #ffcc4d; filter: drop-shadow(0 0 6px rgba(255,204,77,.6)); }
+.cape-fav svg { width: 15px; height: 15px; }
+.cape-fav.on svg { fill: currentColor; }
+.news-item time { white-space: nowrap; }

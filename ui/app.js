@@ -44,6 +44,7 @@
     renderStatus();
     renderHome();
     if (!S.busy && !S.running) $("#play-label").textContent = t("play");
+    if (S.init) loadNews();
     // sign-in method hint, auto-join toggle and account chip (boot + every language change)
     if (S.init) applyPlayMode();
   }
@@ -79,7 +80,7 @@
   function go(page) {
     $$(".page").forEach((p) => p.classList.toggle("active", p.id === "page-" + page));
     $$(".nav-btn").forEach((b) => b.classList.toggle("active", b.dataset.page === page));
-    if (page === "home") pollSmp();
+    if (page === "home") { pollSmp(); loadPlaytime(); }
     if (page === "mods") loadMods();
     if (page === "modules") loadModules();
     if (page === "capes") loadWardrobe();
@@ -142,6 +143,33 @@
     if (!tags.length) tags.push(`<span>${esc(t("prof.tag.plain"))}</span>`);
     return tags.join("");
   };
+  // ── playtime (written by our mod) ──
+  const clockIco = '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>';
+  S.playtime = {};
+  function playedText(id) {
+    const s = S.playtime[id] || 0;
+    if (s < 60) return t("prof.notPlayed");
+    const h = Math.floor(s / 3600), m = Math.floor((s % 3600) / 60);
+    const [hu, mu] = S.settings.language === "ru" ? ["ч", "мин"] : ["h", "min"];
+    return t("prof.played", h ? `${h} ${hu} ${m} ${mu}` : `${m} ${mu}`);
+  }
+  async function loadPlaytime() {
+    S.playtime = await api.call("playtime").catch(() => ({}));
+    renderHome();
+  }
+  // ── news ──
+  async function loadNews() {
+    const list = await api.call("news").catch(() => []);
+    const lang = S.settings.language === "ru" ? "ru" : "en";
+    const fmt = (d) => { try { return new Date(d).toLocaleDateString(lang === "ru" ? "ru-RU" : "en-GB", { day: "numeric", month: "short" }); } catch { return d; } };
+    $("#news-list").innerHTML = (Array.isArray(list) ? list.slice(0, 3) : [])
+      .map((n) => {
+        const x = n[lang] || n.en || {};
+        return `<article class="news-item"><header><span class="news-ver">v${esc(n.version)}</span><b>${esc(x.title || "")}</b><time>${esc(fmt(n.date))}</time></header>
+          <ul>${(x.items || []).map((i) => `<li>${esc(i)}</li>`).join("")}</ul></article>`;
+      })
+      .join("");
+  }
   const profVersion = (p) => (p ? p.gameVersion : S.settings.gameVersion) || (S.versions[0] ? `${t("version.latest")} (${S.versions[0]})` : t("version.latest"));
   function renderHome() {
     if (!S.settings) return;
@@ -156,6 +184,7 @@
         .map((p) => `<button class="prof-cardx ${(p ? p.id : "") === (act ? act.id : "") ? "on" : ""}" data-prof="${p ? esc(p.id) : ""}">
           <b>${esc(p ? p.name : t("prof.default"))}</b><small>${esc(profVersion(p))}</small>
           <span class="prof-tags">${profTags(p)}</span>
+          <span class="prof-time">${clockIco}${esc(playedText(p ? p.id : ""))}</span>
           ${p ? `<span class="prof-card-edit" data-prof-edit="${esc(p.id)}" title="${esc(t("prof.edit"))}">${pencil}</span>` : ""}</button>`)
         .join("") + `<button class="prof-cardx add" data-prof-new><i>+</i><span>${esc(t("prof.new"))}</span></button>`;
     $("#prof-menu").innerHTML =
@@ -1050,10 +1079,14 @@
     $("#cape-size").textContent = sel ? `${sel.width}×${sel.height}` : "";
     $$("#cape-mode button").forEach((b) => b.classList.toggle("on", b.dataset.v === S.settings.capeMode));
     const grid = $("#cape-grid");
+    const favs = S.settings.favoriteCapes || [];
+    const ordered = [...S.capes].sort((a, b) => favs.includes(b.file) - favs.includes(a.file));
+    const star = '<svg viewBox="0 0 24 24"><path d="m12 3 2.8 5.7 6.2.9-4.5 4.4 1.1 6.2L12 17.3 6.4 20.2l1.1-6.2L3 9.6l6.2-.9z"/></svg>';
     grid.innerHTML =
-      S.capes
+      ordered
         .map(
           (c) => `<div class="cape-card ${sel && sel.file === c.file ? "on" : ""}" data-file="${esc(c.file)}">
+          <button class="cape-fav ${favs.includes(c.file) ? "on" : ""}" data-fav="${esc(c.file)}" title="${esc(t("cape.fav"))}">${star}</button>
           <button class="cape-del" data-del="${esc(c.file)}" title="${t("mods.remove")}">✕</button>
           <canvas></canvas><span>${esc(c.file.replace(/\.png$/, ""))}</span></div>`
         )
@@ -1263,6 +1296,15 @@
     applyModulesSoon();
   });
   $("#cape-grid").addEventListener("click", async (e) => {
+    const fav = e.target.closest("[data-fav]");
+    if (fav) {
+      e.stopPropagation();
+      const f = fav.dataset.fav, list = S.settings.favoriteCapes || [];
+      S.settings.favoriteCapes = list.includes(f) ? list.filter((x) => x !== f) : [...list, f];
+      renderCapes();
+      saveSoon();
+      return;
+    }
     const del = e.target.closest("[data-del]");
     if (del) {
       e.stopPropagation();
@@ -1677,6 +1719,8 @@
     renderHome();
     renderSmp();
     pollSmp();
+    loadPlaytime();
+    loadNews();
     S.installed = await api.call("mods_list", { game: currentGame() }).catch(() => []);
     renderPerf();
     const page = new URLSearchParams(location.search).get("page");

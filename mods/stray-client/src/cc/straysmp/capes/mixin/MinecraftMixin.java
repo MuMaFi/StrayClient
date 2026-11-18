@@ -17,5 +17,6 @@ public abstract class MinecraftMixin {
         Hosting.tick((Minecraft) (Object) this);
         StrayTitleScreen.tick((Minecraft) (Object) this);
         Modules.autoPlaceKeystrokes((Minecraft) (Object) this);
+        cc.straysmp.capes.menu.Playtime.tick((Minecraft) (Object) this);
     }
 }

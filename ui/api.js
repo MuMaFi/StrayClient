@@ -162,6 +162,8 @@
     async open_dir() {},
     async open_url({ url }) { window.open(url, "_blank"); },
     async official_status() { return { launcherFound: true, minecraftDir: "~/Library/Application Support/minecraft" }; },
+    async playtime() { return { "": 47 * 3600 + 12 * 60, pvp: 5 * 3600 + 3 * 60, vanilla: 0 }; },
+    async news() { return fetch("../CHANGELOG.json").then((r) => r.json()).catch(() => []); },
     async all_versions() {
       const r = (id, fabric, optimized) => ({ id, kind: "release", fabric, optimized });
       return [

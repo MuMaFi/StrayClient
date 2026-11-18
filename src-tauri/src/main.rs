@@ -127,6 +127,19 @@ async fn game_versions(state: State<'_, AppState>) -> Res<Vec<String>> {
     mods::supported_versions(&state.paths).await.map_err(err)
 }
 
+/// Seconds played per profile ("" = default profile).
+#[tauri::command]
+async fn playtime(state: State<'_, AppState>) -> Res<std::collections::BTreeMap<String, u64>> {
+    let settings = state.settings.read().await.clone();
+    Ok(stray_core::news::playtime(&state.paths, &settings).await)
+}
+
+/// News for the home screen.
+#[tauri::command]
+async fn news(state: State<'_, AppState>) -> Res<serde_json::Value> {
+    stray_core::news::news(&state.paths).await.map_err(err)
+}
+
 /// Every playable version for the picker (releases down to 1.8, recent snapshots).
 #[tauri::command]
 async fn all_versions(state: State<'_, AppState>) -> Res<Vec<mods::GameVersionInfo>> {
@@ -640,6 +653,8 @@ fn main() {
             profile_delete,
             game_versions,
             all_versions,
+            playtime,
+            news,
             server_status,
             login_start,
             login_window,

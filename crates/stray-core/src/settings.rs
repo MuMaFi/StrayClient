@@ -38,6 +38,8 @@ pub struct Settings {
     pub cape_mode: String,
     /// File name in the cape library used when `cape_mode` is `local`.
     pub cape: String,
+    /// Cape files pinned to the top of the cape library.
+    pub favorite_capes: Vec<String>,
     pub keystrokes: Keystrokes,
     /// PvP Plus module (bundled mod, Minecraft 26.3).
     pub pvp_plus: bool,
@@ -161,6 +163,7 @@ impl Default for Settings {
             reduce_motion: false,
             cape_mode: "account".into(),
             cape: String::new(),
+            favorite_capes: Vec::new(),
             keystrokes: Keystrokes::default(),
             pvp_plus: false,
             play_mode: "auto".into(),
