@@ -85,6 +85,7 @@
     if (page === "modules") loadModules();
     if (page === "capes") loadWardrobe();
     if (page === "host") loadHost();
+    if (page === "stats") loadStats();
   }
   $$("[data-page]").forEach((b) => b.addEventListener("click", () => go(b.dataset.page)));
   document.addEventListener("click", (e) => {
@@ -1044,6 +1045,57 @@
   }, 100);
 
   // ───────── capes ─────────
+  // ───────── stats (CISTiers) ─────────
+  const TIER_COLORS = { HT1: "#f9e2af", LT1: "#cfa565", HT2: "#cdd6f4", LT2: "#a6adc8", HT3: "#fab387", LT3: "#c68258", HT4: "#89b4fa", LT4: "#6985c8", HT5: "#9399b2", LT5: "#6c7086" };
+  let statsLoaded = false;
+  async function showStats(name) {
+    const body = $("#cis-body");
+    body.innerHTML = `<div class="cis-loading"><i class="spinner"></i>${esc(t("stats.loading"))}</div>`;
+    let p;
+    try {
+      p = await api.call("stats_cistiers", { name });
+    } catch (e) {
+      body.innerHTML = `<div class="cis-empty">${esc(String(e).includes("stats_bad_name") ? t("err.skin_no_player", name) : t("stats.offline"))}</div>`;
+      return;
+    }
+    if (!p) {
+      body.innerHTML = `<div class="cis-empty">${esc(t("stats.notFound", name))}</div>`;
+      return;
+    }
+    const kits = p.tiers.length
+      ? `<div class="cis-kits">${p.tiers
+          .map((k) => `<div class="cis-kit"><span>${esc(k.kit.replace(/_/g, " "))}</span><b class="cis-tier" style="--c:${TIER_COLORS[k.tier] || "#6c7086"}">${esc(k.tier)}</b></div>`)
+          .join("")}</div>`
+      : `<div class="cis-empty">${esc(t("stats.noTiers"))}</div>`;
+    body.innerHTML = `<div class="cis-sum">
+        <div class="cis-stat cis-player"><img alt="" src="https://mc-heads.net/avatar/${encodeURIComponent(p.nickname)}/44" /><b>${esc(p.nickname)}</b></div>
+        <div class="cis-stat"><small>${esc(t("stats.rank"))}</small><b>${p.rankPosition ? "#" + p.rankPosition : "—"}</b></div>
+        <div class="cis-stat"><small>${esc(t("stats.points"))}</small><b>${p.totalPoints}</b></div>
+        <div class="cis-stat"><small>${esc(t("stats.kits"))}</small><b>${p.tiers.length}</b></div>
+      </div>${kits}`;
+    const img = body.querySelector(".cis-player img");
+    img?.addEventListener("error", () => (img.style.visibility = "hidden"));
+  }
+  function loadStats() {
+    $("#stats-name").placeholder = t("stats.namePh");
+    if (statsLoaded) return;
+    const acc = S.accounts?.accounts?.find((a) => a.uuid === S.accounts.active) || S.init?.account;
+    const name = $("#stats-name").value.trim() || acc?.name || "";
+    $("#stats-name").value = name;
+    if (name) {
+      statsLoaded = true;
+      showStats(name);
+    } else $("#cis-body").innerHTML = "";
+  }
+  $("#stats-form").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const name = $("#stats-name").value.trim();
+    if (name) {
+      statsLoaded = true;
+      showStats(name);
+    }
+  });
+
   S.capes = [];
   function drawCape(canvas, src, side = "front") {
     const ctx = canvas.getContext("2d");

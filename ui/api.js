@@ -162,6 +162,14 @@
     async open_dir() {},
     async open_url({ url }) { window.open(url, "_blank"); },
     async official_status() { return { launcherFound: true, minecraftDir: "~/Library/Application Support/minecraft" }; },
+    async stats_cistiers({ name }) {
+      await wait(350);
+      if (!/^[A-Za-z0-9_]{1,16}$/.test(name)) throw "stats_bad_name";
+      if (name.toLowerCase() === "nobody") return null;
+      return { nickname: name, rankPosition: 128, totalPoints: 95, tiers: [
+        { kit: "crystal", tier: "HT1", points: 60 }, { kit: "sword", tier: "HT3", points: 10 }, { kit: "nethpot", tier: "LT3", points: 6 },
+        { kit: "axe", tier: "HT4", points: 4 }, { kit: "smp", tier: "LT4", points: 3 }, { kit: "uhc", tier: "HT5", points: 2 } ] };
+    },
     async playtime() { return { "": 47 * 3600 + 12 * 60, pvp: 5 * 3600 + 3 * 60, vanilla: 0 }; },
     async news() { return fetch("../CHANGELOG.json").then((r) => r.json()).catch(() => []); },
     async all_versions() {

@@ -25,6 +25,7 @@ pub mod paths;
 pub mod ping;
 pub mod settings;
 pub mod skins;
+pub mod stats;
 
 pub use error::{Error, Result};
 

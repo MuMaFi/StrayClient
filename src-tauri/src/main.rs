@@ -134,6 +134,12 @@ async fn playtime(state: State<'_, AppState>) -> Res<std::collections::BTreeMap<
     Ok(stray_core::news::playtime(&state.paths, &settings).await)
 }
 
+/// CISTiers profile of a player (None = not on the tier list).
+#[tauri::command]
+async fn stats_cistiers(name: String) -> Res<Option<stray_core::stats::CisProfile>> {
+    stray_core::stats::cistiers(&name).await.map_err(err)
+}
+
 /// News for the home screen.
 #[tauri::command]
 async fn news(state: State<'_, AppState>) -> Res<serde_json::Value> {
@@ -654,6 +660,7 @@ fn main() {
             game_versions,
             all_versions,
             playtime,
+            stats_cistiers,
             news,
             server_status,
             login_start,

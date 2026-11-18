@@ -1,26 +1,92 @@
 [
   {
+    "version": "1.3.7",
+    "date": "2026-11-18",
+    "en": {
+      "title": "PvP stats",
+      "items": [
+        "New Stats tab with your CISTiers tiers per kit, rank and points"
+      ]
+    },
+    "ru": {
+      "title": "PvP-статистика",
+      "items": [
+        "Новая вкладка «Статистика»: тиры CISTiers по китам, место и очки"
+      ]
+    }
+  },
+  {
     "version": "1.3.6",
     "date": "2026-11-18",
-    "en": { "title": "Playtime, news and favourite capes", "items": ["Profile cards show how long you've played", "News on the home screen", "Pin your favourite capes to the top"] },
-    "ru": { "title": "Время игры, новости и любимые плащи", "items": ["На карточках профилей видно, сколько ты играл", "Новости на главном экране", "Любимые плащи можно закрепить наверху"] }
+    "en": {
+      "title": "Playtime, news and favourite capes",
+      "items": [
+        "Profile cards show how long you've played",
+        "News on the home screen",
+        "Pin your favourite capes to the top"
+      ]
+    },
+    "ru": {
+      "title": "Время игры, новости и любимые плащи",
+      "items": [
+        "На карточках профилей видно, сколько ты играл",
+        "Новости на главном экране",
+        "Любимые плащи можно закрепить наверху"
+      ]
+    }
   },
   {
     "version": "1.3.5",
     "date": "2026-11-18",
-    "en": { "title": "Design 2.0", "items": ["Sidebar navigation", "Cleaner cards, buttons and titles"] },
-    "ru": { "title": "Дизайн 2.0", "items": ["Навигация в боковой панели", "Аккуратнее карточки, кнопки и заголовки"] }
+    "en": {
+      "title": "Design 2.0",
+      "items": [
+        "Sidebar navigation",
+        "Cleaner cards, buttons and titles"
+      ]
+    },
+    "ru": {
+      "title": "Дизайн 2.0",
+      "items": [
+        "Навигация в боковой панели",
+        "Аккуратнее карточки, кнопки и заголовки"
+      ]
+    }
   },
   {
     "version": "1.3.4",
     "date": "2026-11-16",
-    "en": { "title": "Snapshots and older versions", "items": ["Every release down to 1.8 and the latest snapshots", "A clear warning when a version has no mods"] },
-    "ru": { "title": "Снапшоты и старые версии", "items": ["Все релизы вплоть до 1.8 и свежие снапшоты", "Понятное предупреждение, если для версии нет модов"] }
+    "en": {
+      "title": "Snapshots and older versions",
+      "items": [
+        "Every release down to 1.8 and the latest snapshots",
+        "A clear warning when a version has no mods"
+      ]
+    },
+    "ru": {
+      "title": "Снапшоты и старые версии",
+      "items": [
+        "Все релизы вплоть до 1.8 и свежие снапшоты",
+        "Понятное предупреждение, если для версии нет модов"
+      ]
+    }
   },
   {
     "version": "1.3.2",
     "date": "2026-11-16",
-    "en": { "title": "StraySMP one click away", "items": ["“Play StraySMP” in the main menu", "Live server status on the home screen"] },
-    "ru": { "title": "StraySMP в один клик", "items": ["«Играть на StraySMP» в главном меню", "Статус сервера на главном экране"] }
+    "en": {
+      "title": "StraySMP one click away",
+      "items": [
+        "“Play StraySMP” in the main menu",
+        "Live server status on the home screen"
+      ]
+    },
+    "ru": {
+      "title": "StraySMP в один клик",
+      "items": [
+        "«Играть на StraySMP» в главном меню",
+        "Статус сервера на главном экране"
+      ]
+    }
   }
 ]
