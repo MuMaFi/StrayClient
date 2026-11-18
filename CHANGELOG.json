@@ -1,5 +1,25 @@
 [
   {
+    "version": "1.4.2",
+    "date": "2026-11-18",
+    "en": {
+      "title": "Vanilla, Fabric, Forge and NeoForge profiles",
+      "items": [
+        "Pick the mod loader when you create a profile",
+        "Forge and NeoForge install with their official installers",
+        "The Mods tab finds mods for the profile's loader"
+      ]
+    },
+    "ru": {
+      "title": "Профили Vanilla, Fabric, Forge и NeoForge",
+      "items": [
+        "Выбор загрузчика модов при создании профиля",
+        "Forge и NeoForge ставятся официальными установщиками",
+        "Вкладка «Моды» ищет моды под загрузчик профиля"
+      ]
+    }
+  },
+  {
     "version": "1.4.1",
     "date": "2026-11-18",
     "en": {

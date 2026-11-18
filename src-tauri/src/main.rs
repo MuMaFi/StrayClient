@@ -94,6 +94,7 @@ async fn save_settings(state: State<'_, AppState>, settings: Settings) -> Res<bo
     settings.save(&state.paths).await.map_err(err)?;
     let has_cf = mods::curseforge_key(&settings.curseforge_key).is_some();
     state.paths.set_profile(settings.profile_dir());
+    mods::set_loader(settings.loader());
     *state.settings.write().await = settings;
     Ok(has_cf)
 }
@@ -118,6 +119,7 @@ async fn profile_delete(state: State<'_, AppState>, id: String) -> Res<Settings>
     }
     settings.save(&state.paths).await.map_err(err)?;
     state.paths.set_profile(settings.profile_dir());
+    mods::set_loader(settings.loader());
     *state.settings.write().await = settings.clone();
     Ok(settings)
 }
@@ -657,6 +659,7 @@ fn main() {
     let paths = Paths::new(Paths::default_root());
     let settings = rt.block_on(Settings::load(&paths));
     paths.set_profile(settings.profile_dir());
+    mods::set_loader(settings.loader());
 
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())

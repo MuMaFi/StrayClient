@@ -14,7 +14,6 @@ const MODRINTH: &str = "https://api.modrinth.com/v2";
 const CURSEFORGE: &str = "https://api.curseforge.com/v1";
 const CF_MINECRAFT: u32 = 432;
 const CF_CLASS_MODS: u32 = 6;
-const CF_LOADER_FABRIC: u32 = 4;
 
 #[derive(Debug, Clone, Copy, Serialize, Deserialize, PartialEq, Eq, Hash)]
 #[serde(rename_all = "lowercase")]
@@ -185,6 +184,19 @@ struct MrDep {
     dependency_type: String,
 }
 
+/// Loader whose mods the Mods page searches and installs (the active profile's).
+static MOD_LOADER: std::sync::RwLock<crate::loaders::Loader> =
+    std::sync::RwLock::new(crate::loaders::Loader::Fabric);
+
+/// Set when the active profile changes.
+pub fn set_loader(l: crate::loaders::Loader) {
+    *MOD_LOADER.write().unwrap() = l;
+}
+
+fn loader() -> crate::loaders::Loader {
+    *MOD_LOADER.read().unwrap()
+}
+
 fn q(v: &impl Serialize) -> String {
     urlencoding::encode(&serde_json::to_string(v).unwrap_or_default()).into_owned()
 }
@@ -192,7 +204,7 @@ fn q(v: &impl Serialize) -> String {
 async fn modrinth_search(query: &str, game: &str, offset: u32) -> Result<Vec<SearchHit>> {
     let facets = q(&vec![
         vec!["project_type:mod".to_string()],
-        vec!["categories:fabric".to_string()],
+        vec![format!("categories:{}", loader().modrinth())],
         vec![format!("versions:{game}")],
     ]);
     let index = if query.is_empty() {
@@ -222,9 +234,17 @@ async fn modrinth_search(query: &str, game: &str, offset: u32) -> Result<Vec<Sea
 }
 
 async fn modrinth_versions(project: &str, game: Option<&str>) -> Result<Vec<MrVersion>> {
+    modrinth_versions_for(project, game, loader().modrinth()).await
+}
+
+async fn modrinth_versions_for(
+    project: &str,
+    game: Option<&str>,
+    loader: &str,
+) -> Result<Vec<MrVersion>> {
     let mut url = format!(
         "{MODRINTH}/project/{project}/version?loaders={}",
-        q(&["fabric"])
+        q(&[loader])
     );
     if let Some(g) = game {
         url.push_str(&format!("&game_versions={}", q(&[g])));
@@ -234,7 +254,7 @@ async fn modrinth_versions(project: &str, game: Option<&str>) -> Result<Vec<MrVe
 
 /// Every game version a Modrinth project has a Fabric build for.
 pub async fn modrinth_game_versions(project: &str) -> Result<HashSet<String>> {
-    let fabric: Vec<MrVersion> = modrinth_versions(project, None).await?;
+    let fabric: Vec<MrVersion> = modrinth_versions_for(project, None, "fabric").await?;
     Ok(fabric.into_iter().flat_map(|v| v.game_versions).collect())
 }
 
@@ -311,8 +331,9 @@ async fn curseforge_search(
     offset: u32,
 ) -> Result<Vec<SearchHit>> {
     let url = format!(
-        "{CURSEFORGE}/mods/search?gameId={CF_MINECRAFT}&classId={CF_CLASS_MODS}&modLoaderType={CF_LOADER_FABRIC}\
+        "{CURSEFORGE}/mods/search?gameId={CF_MINECRAFT}&classId={CF_CLASS_MODS}&modLoaderType={}\
          &gameVersion={game}&searchFilter={}&sortField={}&sortOrder=desc&pageSize=24&index={offset}",
+        loader().curseforge(),
         urlencoding::encode(query),
         if query.is_empty() { 6 } else { 2 } // 6 = total downloads, 2 = popularity
     );
@@ -417,7 +438,10 @@ async fn resolve_curseforge(key: &str, id: &str, game: &str) -> Result<Resolved>
     let m: CfOne<CfMod> = cf_get(key, &format!("{CURSEFORGE}/mods/{id}")).await?;
     let files: CfList<CfFile> = cf_get(
         key,
-        &format!("{CURSEFORGE}/mods/{id}/files?gameVersion={game}&modLoaderType={CF_LOADER_FABRIC}&pageSize=1"),
+        &format!(
+            "{CURSEFORGE}/mods/{id}/files?gameVersion={game}&modLoaderType={}&pageSize=1",
+            loader().curseforge()
+        ),
     )
     .await?;
     let f = files

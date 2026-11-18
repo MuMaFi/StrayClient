@@ -1046,3 +1046,11 @@ body.paused .tier-medal::after, body.no-motion .tier-medal::after { animation: n
 .tiers-cols:not(.three):not(.one) { grid-template-columns: 1fr 1fr; }
 .tiers-cols.one { grid-template-columns: 1fr; }
 .field > label.toggle { text-transform: none; letter-spacing: normal; font-size: 14px; font-weight: 500; color: var(--text); }
+
+/* loader choice */
+.loader-seg button { font-size: 12.5px; }
+.prof-card.non-fabric .fabric-only { display: none; }
+.prof-tags span.ld { background: rgba(255,255,255,.07); color: rgba(255,255,255,.8); }
+.prof-tags span.ld-forge { background: rgba(223,131,72,.18); color: #f0a36c; }
+.prof-tags span.ld-neoforge { background: rgba(246,140,58,.16); color: #ffb072; }
+.prof-tags span.ld-vanilla { background: rgba(108,180,90,.16); color: #8fd47a; }

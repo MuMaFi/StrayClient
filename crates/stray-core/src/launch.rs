@@ -53,8 +53,20 @@ pub async fn prepare(
         done: 0,
         total: 1,
     });
-    let (vanilla, loader) =
-        tokio::try_join!(mojang::version(paths, game), loader_for(paths, game))?;
+    use crate::loaders::Loader;
+    let kind = settings.loader();
+    // Forge and NeoForge run through the official Minecraft Launcher (their installers set
+    // the game up there); direct start supports vanilla and Fabric.
+    if matches!(kind, Loader::Forge | Loader::NeoForge) {
+        return Err(crate::Error::other("loader_needs_launcher"));
+    }
+    let (vanilla, loader) = tokio::try_join!(mojang::version(paths, game), async {
+        if kind == Loader::Vanilla {
+            Ok(None)
+        } else {
+            loader_for(paths, game).await
+        }
+    })?;
     let fabric_on = loader.is_some();
     let version = match loader {
         Some(l) => fabric::merge(vanilla, fabric::profile(paths, game, &l).await?),

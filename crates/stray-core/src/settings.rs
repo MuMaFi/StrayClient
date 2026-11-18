@@ -77,6 +77,8 @@ pub struct Profile {
     pub performance_mods: bool,
     /// The standard mods and HUD modules (Freelook, AppleSkin, Keystrokes, PvP Plus, …).
     pub standard_mods: bool,
+    /// `vanilla`, `fabric` (default, also when empty), `forge` or `neoforge`.
+    pub loader: String,
 }
 
 impl Profile {
@@ -108,11 +110,21 @@ impl Settings {
     }
     /// Sodium + FerriteCore wanted in the active profile.
     pub fn performance_mods(&self) -> bool {
-        self.active_profile().is_none_or(|p| p.performance_mods)
+        self.loader() == crate::loaders::Loader::Fabric
+            && self.active_profile().is_none_or(|p| p.performance_mods)
     }
-    /// Standard mods and HUD modules wanted in the active profile.
+    /// Standard mods and HUD modules wanted in the active profile (Fabric only).
     pub fn standard_mods(&self) -> bool {
-        self.active_profile().is_none_or(|p| p.standard_mods)
+        self.loader() == crate::loaders::Loader::Fabric
+            && self.active_profile().is_none_or(|p| p.standard_mods)
+    }
+    /// The mod loader of the active profile (the default profile uses Fabric).
+    pub fn loader(&self) -> crate::loaders::Loader {
+        crate::loaders::Loader::parse(
+            self.active_profile()
+                .map(|p| p.loader.as_str())
+                .unwrap_or(""),
+        )
     }
 
     /// Whether a standard mod (see `cosmetics::EXTRAS`) is on.
@@ -244,7 +256,9 @@ mod tests {
             game_version: "26.3".into(),
             performance_mods: true,
             standard_mods: false,
+            loader: String::new(),
         });
+        assert_eq!(s.loader(), crate::loaders::Loader::Fabric);
         s.profile = "pAbc1".into();
         assert_eq!(s.chosen_game(), "26.3");
         assert!(s.performance_mods() && !s.standard_mods());

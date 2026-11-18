@@ -17,6 +17,7 @@ pub mod host;
 pub mod http;
 pub mod java;
 pub mod launch;
+pub mod loaders;
 pub mod mods;
 pub mod mojang;
 pub mod news;

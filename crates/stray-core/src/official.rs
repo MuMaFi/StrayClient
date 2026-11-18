@@ -209,7 +209,18 @@ pub async fn install_profile(
     });
     // With Fabric: write its version json (inherits from vanilla). Without (very old
     // releases, new snapshots): the official launcher knows the vanilla id itself.
-    let version_id = match launch::loader_for(paths, game).await? {
+    use crate::loaders::Loader;
+    let kind = settings.loader();
+    if matches!(kind, Loader::Forge | Loader::NeoForge) {
+        let id = crate::loaders::install(paths, kind, game, mc_dir, progress).await?;
+        return finish_profile(paths, mc_dir, game, settings, id, progress).await;
+    }
+    let fabric_loader = if kind == Loader::Vanilla {
+        None
+    } else {
+        launch::loader_for(paths, game).await?
+    };
+    let version_id = match fabric_loader {
         Some(loader) => {
             let profile = fabric::profile(paths, game, &loader).await?;
             let version_id = profile.id.clone();
@@ -245,6 +256,18 @@ pub async fn install_profile(
         None => game.to_string(),
     };
 
+    finish_profile(paths, mc_dir, game, settings, version_id, progress).await
+}
+
+/// JVM flags, game folder and the "Stray Client" launcher profile for `version_id`.
+async fn finish_profile(
+    paths: &Paths,
+    mc_dir: &Path,
+    game: &str,
+    settings: &Settings,
+    version_id: String,
+    progress: &ProgressFn,
+) -> Result<String> {
     let java_major = mojang::version(paths, game)
         .await
         .ok()

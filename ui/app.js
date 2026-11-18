@@ -63,6 +63,11 @@
     if (s.startsWith("skin_no_player:")) return t("err.skin_no_player", s.slice(15));
     if (s.startsWith("skin_upload_failed:")) return t("err.skin_upload_failed", s.slice(19));
     if (s.startsWith("cape_bad_size:")) return t("err.cape_bad_size", s.slice(14).replace("x", "×"));
+    if (s.startsWith("no_loader:")) {
+      const [, l, g] = s.split(":");
+      return t("err.no_loader", l, g);
+    }
+    if (s.startsWith("loader_install_failed:")) return t("err.loader_install_failed", LOADER_NAMES[profLoader(activeProfile())] || "Forge");
     if (s.startsWith("host_unavailable:")) return t("host.unavailable", s.slice(17));
     if (s.startsWith("keystrokes_unavailable:")) return t("ks.unavailable", s.slice(23));
     if (s.startsWith("cf_no_download:")) return `${s.slice(15)}: ${{ ru: "автор запретил сторонние загрузки" }[S.settings.language] || "author disabled third-party downloads"}`;
@@ -140,7 +145,11 @@
 
   // ───────── home screen: layout switch + profiles ─────────
   const pencil = '<svg viewBox="0 0 24 24"><path d="M4 20h4L19 9l-4-4L4 16zM13.5 6.5l4 4"/></svg>';
+  const LOADER_NAMES = { vanilla: "Vanilla", fabric: "Fabric", forge: "Forge", neoforge: "NeoForge" };
+  const profLoader = (p) => (p && LOADER_NAMES[p.loader] ? p.loader : "fabric");
   const profTags = (p) => {
+    const ld = profLoader(p);
+    if (ld !== "fabric") return `<span class="ld ld-${ld}">${LOADER_NAMES[ld]}</span>`;
     const tags = [];
     if (!p || p.performanceMods) tags.push(`<span class="y">${esc(t("prof.tag.perf"))}</span>`);
     if (!p || p.standardMods) tags.push(`<span class="y">${esc(t("prof.tag.std"))}</span>`);
@@ -246,6 +255,7 @@
     const latest = S.versions[0] ? `${t("version.latest")} (${S.versions[0]})` : t("version.latest");
     $("#prof-version").innerHTML = versionOptions();
     $("#prof-version").value = p ? p.gameVersion : chosenGame();
+    setProfLoader(p ? profLoader(p) : "fabric");
     $("#prof-perf").checked = p ? p.performanceMods : true;
     $("#prof-std").checked = p ? p.standardMods : true;
     $("#prof-save").textContent = t(p ? "prof.save" : "prof.create");
@@ -256,12 +266,23 @@
     $("#prof-modal").hidden = false;
     setTimeout(() => $("#prof-name").focus(), 50);
   }
+  function setProfLoader(v) {
+    $("#prof-loader").dataset.v = v;
+    $$("#prof-loader button").forEach((b) => b.classList.toggle("on", b.dataset.v === v));
+    $("#prof-loader-hint").textContent = t("prof.ld." + v);
+    $(".prof-card").classList.toggle("non-fabric", v !== "fabric");
+  }
+  $("#prof-loader").addEventListener("click", (e) => {
+    const b = e.target.closest("button");
+    if (b) setProfLoader(b.dataset.v);
+  });
   $("#prof-cancel").addEventListener("click", () => ($("#prof-modal").hidden = true));
   $("#prof-modal").addEventListener("mousedown", (e) => e.target === e.currentTarget && ($("#prof-modal").hidden = true));
   $("#prof-name").addEventListener("keydown", (e) => e.key === "Enter" && $("#prof-save").click());
   $("#prof-save").addEventListener("click", async () => {
     const name = $("#prof-name").value.trim() || t("prof.new");
-    const data = { name, gameVersion: $("#prof-version").value, performanceMods: $("#prof-perf").checked, standardMods: $("#prof-std").checked };
+    const loader = $("#prof-loader").dataset.v || "fabric";
+    const data = { name, gameVersion: $("#prof-version").value, loader, performanceMods: loader === "fabric" && $("#prof-perf").checked, standardMods: loader === "fabric" && $("#prof-std").checked };
     S.settings.profiles ||= [];
     let p = profEditing && S.settings.profiles.find((x) => x.id === profEditing);
     if (p) Object.assign(p, data);
@@ -323,10 +344,12 @@
   function renderVersionWarn() {
     if (S.init) renderHome(); // profile cards show the chosen version
     const info = versionInfo(currentGame());
-    const off = !!info && !info.optimized;
+    const ld = profLoader(activeProfile());
+    // Forge/NeoForge have their own mods, so the Fabric optimisation warning doesn't apply.
+    const off = ld === "vanilla" || (ld === "fabric" && !!info && !info.optimized);
     $$("[data-ver-warn]").forEach((el) => {
       el.hidden = !off;
-      if (off) el.querySelector("span").textContent = t("version.noMods", info.id);
+      if (off) el.querySelector("span").textContent = ld === "vanilla" ? t("mods.vanilla") : t("version.noMods", info.id);
     });
   }
   for (const sel of [$("#version-select"), $("#set-version")]) {

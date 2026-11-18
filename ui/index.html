@@ -580,9 +580,19 @@
         <label data-i18n="prof.version"></label>
         <select id="prof-version"></select>
       </div>
-      <label class="toggle prof-q"><input type="checkbox" id="prof-perf" /><i></i>
+      <div class="field">
+        <label data-i18n="prof.loader"></label>
+        <div class="seg loader-seg" id="prof-loader">
+          <button data-v="vanilla">Vanilla</button>
+          <button data-v="fabric">Fabric</button>
+          <button data-v="forge">Forge</button>
+          <button data-v="neoforge">NeoForge</button>
+        </div>
+        <small class="muted" id="prof-loader-hint"></small>
+      </div>
+      <label class="toggle prof-q fabric-only"><input type="checkbox" id="prof-perf" /><i></i>
         <span><b data-i18n="prof.q.perf"></b><small data-i18n="prof.q.perfSub"></small></span></label>
-      <label class="toggle prof-q"><input type="checkbox" id="prof-std" /><i></i>
+      <label class="toggle prof-q fabric-only"><input type="checkbox" id="prof-std" /><i></i>
         <span><b data-i18n="prof.q.std"></b><small data-i18n="prof.q.stdSub"></small></span></label>
       <p class="muted small" data-i18n="prof.note"></p>
       <div class="modal-actions">
