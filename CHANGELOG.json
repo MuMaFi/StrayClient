@@ -1,5 +1,23 @@
 [
   {
+    "version": "1.3.9",
+    "date": "2026-11-18",
+    "en": {
+      "title": "Prettier PvP tiers",
+      "items": [
+        "Your best tier as a glowing medal",
+        "Kit icons and a strength bar per kit"
+      ]
+    },
+    "ru": {
+      "title": "Красивее PvP-тиры",
+      "items": [
+        "Лучший тир — светящаяся медаль",
+        "Иконки китов и шкала силы для каждого кита"
+      ]
+    }
+  },
+  {
     "version": "1.3.8",
     "date": "2026-11-18",
     "en": {

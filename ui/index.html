@@ -152,10 +152,10 @@
       </div>
 
       <button class="card tiers-card" id="tiers-card" data-page="stats">
-        <div class="card-head"><div><h3 data-i18n="tiers.title"></h3><p class="muted" id="tiers-sub"></p></div><span class="tiers-more" data-i18n="tiers.more"></span></div>
+        <div class="card-head"><div class="tiers-who"><img id="tiers-head" alt="" /><div><h3 data-i18n="tiers.title"></h3><p class="muted" id="tiers-sub"></p></div></div><span class="tiers-more" data-i18n="tiers.more"></span></div>
         <div class="tiers-cols">
-          <div class="tiers-col"><div class="tiers-src"><i class="cis-logo sm">CIS</i><b>CISTiers</b><span class="muted" id="tiers-cis-rank"></span></div><div class="tiers-badges" id="tiers-cis"></div></div>
-          <div class="tiers-col"><div class="tiers-src"><i class="cis-logo sm mct">MC</i><b>MCTiers</b><span class="muted" id="tiers-mct-rank"></span></div><div class="tiers-badges" id="tiers-mct"></div></div>
+          <div class="tiers-col tl-cis"><div class="tiers-src"><i class="cis-logo sm">CIS</i><b>CISTiers</b><span class="tiers-rank" id="tiers-cis-rank"></span></div><div class="tiers-panel" id="tiers-cis"></div></div>
+          <div class="tiers-col tl-mct"><div class="tiers-src"><i class="cis-logo sm mct">MC</i><b>MCTiers</b><span class="tiers-rank" id="tiers-mct-rank"></span></div><div class="tiers-panel" id="tiers-mct"></div></div>
         </div>
       </button>
 
@@ -297,7 +297,7 @@
         <input type="text" id="stats-name" maxlength="16" spellcheck="false" autocomplete="off" />
         <button class="btn btn-primary" type="submit"><span data-i18n="stats.show"></span></button>
       </form>
-      <div class="card cis-card" id="cis-card">
+      <div class="card cis-card tl-cis" id="cis-card">
         <div class="cis-head">
           <div class="cis-logo">CIS</div>
           <div><h3>CISTiers</h3><p class="muted small" data-i18n="stats.cisSub"></p></div>
@@ -305,7 +305,7 @@
         </div>
         <div id="cis-body"></div>
       </div>
-      <div class="card cis-card mct-card">
+      <div class="card cis-card mct-card tl-mct">
         <div class="cis-head">
           <div class="cis-logo mct">MC</div>
           <div><h3>MCTiers</h3><p class="muted small" data-i18n="stats.mctSub"></p></div>

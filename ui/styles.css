@@ -959,3 +959,73 @@ body.home-new .hero p { font-size: 14.5px; color: rgba(255,255,255,.75); }
 .tiers-badge .cis-tier { font-size: 10.5px; padding: 3px 7px; border-radius: 7px; }
 .tiers-none { font-size: 12px; color: var(--muted); }
 @media (max-width: 900px) { .tiers-cols { grid-template-columns: 1fr; } }
+
+/* ═════════ tiers, polished ═════════ */
+.tl-cis { --tl: 250,179,135; --tl2: 249,226,175; }
+.tl-mct { --tl: 88,101,242; --tl2: 138,210,255; }
+.cis-card.tl-cis, .cis-card.tl-mct {
+  position: relative; overflow: hidden;
+  background: radial-gradient(520px 200px at 0% 0%, rgba(var(--tl), .16), transparent 70%), var(--surface), var(--panel);
+}
+.cis-card.tl-cis::before, .cis-card.tl-mct::before { content: ""; position: absolute; inset: 0 0 auto; height: 2px; background: linear-gradient(90deg, rgba(var(--tl2), .9), rgba(var(--tl), 0)); }
+.cis-card .cis-head h3 { font-size: 19px; }
+
+/* hero: best-tier medal + facts */
+.tier-hero { display: grid; grid-template-columns: 150px 1fr; gap: 14px; margin-top: 18px; }
+.tier-medal {
+  position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  border-radius: 20px; padding: 14px 10px; overflow: hidden; isolation: isolate;
+  background: radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--c) 45%, transparent), transparent 70%), rgba(0,0,0,.28);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 55%, transparent), 0 14px 36px -18px var(--c);
+}
+.tier-medal::after { content: ""; position: absolute; inset: -40%; z-index: -1; background: conic-gradient(from 0deg, transparent, color-mix(in srgb, var(--c) 30%, transparent), transparent 30%); animation: medal-spin 6s linear infinite; }
+@keyframes medal-spin { to { transform: rotate(1turn); } }
+body.paused .tier-medal::after, body.no-motion .tier-medal::after { animation: none; }
+.tier-medal small { font-size: 10px; font-weight: 800; letter-spacing: .16em; text-transform: uppercase; color: rgba(255,255,255,.55); }
+.tier-medal b { font: 800 40px/1.05 var(--display); letter-spacing: -.02em; color: var(--c); text-shadow: 0 0 24px color-mix(in srgb, var(--c) 70%, transparent); }
+.tier-medal span { font-size: 12px; font-weight: 700; text-transform: capitalize; color: rgba(255,255,255,.75); }
+.tier-facts { display: flex; flex-direction: column; gap: 10px; padding: 14px 16px; border-radius: 20px; background: rgba(0,0,0,.2); box-shadow: inset 0 0 0 1px var(--edge); }
+.tier-facts .cis-player b { font: 700 20px var(--display); letter-spacing: -.01em; }
+.tier-facts .cis-player img { width: 40px; height: 40px; border-radius: 10px; }
+.tier-nums { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+.tier-nums div { padding: 10px 12px; border-radius: 14px; background: rgba(255,255,255,.035); }
+.tier-nums small { display: block; font-size: 10px; font-weight: 800; letter-spacing: .12em; text-transform: uppercase; color: var(--muted); }
+.tier-nums b { font: 700 22px var(--display); letter-spacing: -.02em; }
+
+/* kit rows: icon, name, badge, strength bar */
+.cis-kits { grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); }
+.cis-kit { position: relative; display: grid; grid-template-columns: 30px 1fr auto; align-items: center; gap: 10px; padding: 12px 12px 16px; border-radius: 16px;
+  background: linear-gradient(135deg, color-mix(in srgb, var(--c) 10%, transparent), transparent 60%), rgba(0,0,0,.18); transition: transform .15s, box-shadow .2s; }
+.cis-kit:hover { transform: translateY(-2px); box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 45%, transparent), 0 10px 24px -14px var(--c); }
+.kit-ico { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; background: color-mix(in srgb, var(--c) 18%, transparent); color: var(--c); }
+.kit-ico svg { width: 17px; height: 17px; }
+.kit-bar { position: absolute; left: 12px; right: 12px; bottom: 7px; height: 3px; border-radius: 3px; background: rgba(255,255,255,.06); overflow: hidden; }
+.kit-bar i { display: block; height: 100%; border-radius: 3px; background: linear-gradient(90deg, color-mix(in srgb, var(--c) 60%, transparent), var(--c)); box-shadow: 0 0 8px var(--c); }
+.cis-tier.retired { opacity: .55; filter: grayscale(.4); }
+.cis-tier { letter-spacing: .02em; }
+
+/* home card */
+.tiers-who { display: flex; align-items: center; gap: 12px; }
+.tiers-who img { width: 40px; height: 40px; border-radius: 11px; image-rendering: pixelated; box-shadow: 0 6px 16px -8px rgba(0,0,0,.9); }
+.tiers-col { position: relative; overflow: hidden; padding: 14px 16px 16px;
+  background: radial-gradient(260px 140px at 0% 0%, rgba(var(--tl), .16), transparent 70%), rgba(0,0,0,.2); }
+.tiers-col::before { content: ""; position: absolute; inset: 0 0 auto; height: 2px; background: linear-gradient(90deg, rgba(var(--tl2), .85), transparent); }
+.tiers-rank { margin-left: auto; font: 700 13px var(--display); color: rgb(var(--tl2)); }
+.tiers-panel { display: grid; grid-template-columns: auto 1fr; gap: 14px; align-items: center; min-height: 64px; }
+.tiers-best { display: flex; flex-direction: column; align-items: center; justify-content: center; min-width: 92px; padding: 8px 12px; border-radius: 16px;
+  background: radial-gradient(circle at 50% 30%, color-mix(in srgb, var(--c) 40%, transparent), transparent 75%), rgba(0,0,0,.25);
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--c) 55%, transparent), 0 10px 26px -14px var(--c); }
+.tiers-best b { font: 800 28px/1.05 var(--display); color: var(--c); text-shadow: 0 0 18px color-mix(in srgb, var(--c) 70%, transparent); }
+.tiers-best span { display: flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 700; text-transform: capitalize; color: rgba(255,255,255,.7); }
+.tiers-best span svg { width: 12px; height: 12px; }
+.tiers-rest { display: flex; flex-wrap: wrap; gap: 6px; }
+.tiers-badge { padding: 4px 4px 4px 8px; background: rgba(255,255,255,.05); }
+.tiers-badge svg { width: 14px; height: 14px; color: rgba(255,255,255,.7); }
+.tiers-none { grid-column: 1 / -1; }
+.tiers-skel { grid-column: 1 / -1; display: flex; align-items: center; gap: 14px; }
+.tiers-skel i { width: 92px; height: 60px; border-radius: 16px; }
+.tiers-skel span { flex: 1; height: 26px; border-radius: 9px; max-width: 220px; }
+.tiers-skel i, .tiers-skel span { background: linear-gradient(90deg, rgba(255,255,255,.04), rgba(255,255,255,.09), rgba(255,255,255,.04)); background-size: 200% 100%; animation: skel 1.2s linear infinite; }
+@keyframes skel { to { background-position: -200% 0; } }
+.tiers-card:hover .tiers-more { text-decoration: underline; }
+@media (max-width: 1000px) { .tier-hero { grid-template-columns: 1fr; } }

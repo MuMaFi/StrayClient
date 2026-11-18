@@ -1065,6 +1065,33 @@
     p.catch(() => tierCache.delete(key));
     return p;
   }
+  // Kit icons (simple line drawings), matched by name.
+  const KIT_ICONS = [
+    [/sword|vanilla|neth(op|pot)?$/, '<path d="M14.5 3.5H20.5V9.5L9 21 3 15z"/><path d="m5 13 6 6M3 21l3-3"/>'],
+    [/axe/, '<path d="M14 4c3 0 6 3 6 6l-5-1-1-5zM14 4 4 20M10 10l4 4"/>'],
+    [/mace/, '<circle cx="15" cy="9" r="4"/><path d="M12 12 4 20M15 3v2M21 9h-2M19.5 4.5 18 6"/>'],
+    [/crystal/, '<path d="m12 2 7 6-7 14L5 8z"/><path d="M5 8h14M12 2v20"/>'],
+    [/pot/, '<path d="M9 3h6M10 3v4l-4 6a5 5 0 0 0 4 8h4a5 5 0 0 0 4-8l-4-6V3"/><path d="M7.5 14h9"/>'],
+    [/uhc|heart/, '<path d="M12 20s-8-5-8-11a4.5 4.5 0 0 1 8-2.8A4.5 4.5 0 0 1 20 9c0 6-8 11-8 11z"/>'],
+    [/smp|survival/, '<path d="M4 20V9l8-5 8 5v11zM9 20v-6h6v6"/>'],
+    [/spear|trident/, '<path d="M12 2v20M8 6l4-4 4 4M9 10h6"/>'],
+    [/bow|cart/, '<path d="M5 3c8 3 11 8 14 16M5 3 19 19M5 3l3 1M5 3l1 3"/>'],
+  ];
+  const kitIcon = (kit) => {
+    const hit = KIT_ICONS.find(([re]) => re.test(kit.toLowerCase()));
+    return `<svg viewBox="0 0 24 24">${hit ? hit[1] : '<circle cx="12" cy="12" r="8"/><path d="M12 8v8M8 12h8"/>'}</svg>`;
+  };
+  // HT1 → 10 … LT5 → 1 (strength bar)
+  const tierStrength = (tier) => {
+    const m = /^R?([HL])T(\d)/.exec(tier);
+    return m ? Math.max(1, 11 - (+m[2] * 2 - (m[1] === "H" ? 1 : 0))) : 1;
+  };
+  const tierBadge = (src, tier, big = false) =>
+    `<b class="cis-tier${big ? " big" : ""}${tier.startsWith("R") ? " retired" : ""}" style="--c:${tierColor(src, tier)}">${esc(tier)}</b>`;
+  const kitRow = (src, k) =>
+    `<div class="cis-kit" style="--c:${tierColor(src, k.tier)}"><i class="kit-ico">${kitIcon(k.kit)}</i><span>${esc(kitName(k.kit))}</span>${tierBadge(src, k.tier)}
+      <em class="kit-bar"><i style="width:${tierStrength(k.tier) * 10}%"></i></em></div>`;
+
   async function showTierCard(src, name, body) {
     body.innerHTML = `<div class="cis-loading"><i class="spinner"></i>${esc(t("stats.loading"))}</div>`;
     let p;
@@ -1078,18 +1105,21 @@
       body.innerHTML = `<div class="cis-empty">${esc(t(src === "mct" ? "stats.mctNotFound" : "stats.notFound", name))}</div>`;
       return;
     }
-    const kits = p.tiers.length
-      ? `<div class="cis-kits">${p.tiers
-          .map((k) => `<div class="cis-kit"><span>${esc(kitName(k.kit))}</span><b class="cis-tier" style="--c:${tierColor(src, k.tier)}">${esc(k.tier)}</b></div>`)
-          .join("")}</div>`
-      : `<div class="cis-empty">${esc(t("stats.noTiers"))}</div>`;
+    const best = p.tiers[0];
     const third = src === "mct" && p.region ? [t("stats.region"), p.region] : [t("stats.kits"), p.tiers.length];
-    body.innerHTML = `<div class="cis-sum">
-        <div class="cis-stat cis-player"><img alt="" src="https://mc-heads.net/avatar/${encodeURIComponent(p.nickname)}/44" /><b>${esc(p.nickname)}</b></div>
-        <div class="cis-stat"><small>${esc(t("stats.rank"))}</small><b>${p.rankPosition ? "#" + p.rankPosition : "—"}</b></div>
-        <div class="cis-stat"><small>${esc(t("stats.points"))}</small><b>${p.totalPoints}</b></div>
-        <div class="cis-stat"><small>${esc(third[0])}</small><b>${esc(String(third[1]))}</b></div>
-      </div>${kits}`;
+    body.innerHTML = `<div class="tier-hero">
+        <div class="tier-medal" style="--c:${best ? tierColor(src, best.tier) : "#6c7086"}">
+          <small>${esc(t("stats.best"))}</small><b>${best ? esc(best.tier) : "—"}</b><span>${best ? esc(kitName(best.kit)) : ""}</span>
+        </div>
+        <div class="tier-facts">
+          <div class="cis-player"><img alt="" src="https://mc-heads.net/avatar/${encodeURIComponent(p.nickname)}/48" /><b>${esc(p.nickname)}</b></div>
+          <div class="tier-nums">
+            <div><small>${esc(t("stats.rank"))}</small><b>${p.rankPosition ? "#" + p.rankPosition : "—"}</b></div>
+            <div><small>${esc(t("stats.points"))}</small><b>${p.totalPoints}</b></div>
+            <div><small>${esc(third[0])}</small><b>${esc(String(third[1]))}</b></div>
+          </div>
+        </div>
+      </div>${p.tiers.length ? `<div class="cis-kits">${p.tiers.map((k) => kitRow(src, k)).join("")}</div>` : `<div class="cis-empty">${esc(t("stats.noTiers"))}</div>`}`;
     const img = body.querySelector(".cis-player img");
     img?.addEventListener("error", () => (img.style.visibility = "hidden"));
   }
@@ -1098,23 +1128,33 @@
     showTierCard("mct", name, $("#mct-body"));
   }
   const accountName = () => (S.accounts?.accounts?.find((a) => a.uuid === S.accounts.active) || S.init?.account)?.name || "";
-  // Home: best tiers from both lists for the signed-in player.
+  // Home: best tier big, then the next kits, for the signed-in player.
   async function loadHomeTiers() {
     const name = accountName();
     $("#tiers-sub").textContent = name ? t("tiers.for", name) : t("tiers.noAcc");
+    const head = $("#tiers-head");
+    head.hidden = !name;
+    if (name) {
+      head.src = `https://mc-heads.net/avatar/${encodeURIComponent(name)}/40`;
+      head.onerror = () => (head.hidden = true);
+    }
     for (const [src, box, rank] of [["cis", "#tiers-cis", "#tiers-cis-rank"], ["mct", "#tiers-mct", "#tiers-mct-rank"]]) {
       if (!name) {
         $(box).innerHTML = "";
         $(rank).textContent = "";
         continue;
       }
-      $(box).innerHTML = `<span class="tiers-none">${esc(t("tiers.loading"))}</span>`;
+      $(box).innerHTML = `<div class="tiers-skel"><i></i><span></span></div>`;
       fetchTiers(src, name).then(
         (p) => {
           $(rank).textContent = p?.rankPosition ? "#" + p.rankPosition : "";
-          $(box).innerHTML = p?.tiers?.length
-            ? p.tiers.slice(0, 4).map((k) => `<span class="tiers-badge">${esc(kitName(k.kit))}<b class="cis-tier" style="--c:${tierColor(src, k.tier)}">${esc(k.tier)}</b></span>`).join("")
-            : `<span class="tiers-none">${esc(t("tiers.none"))}</span>`;
+          if (!p?.tiers?.length) {
+            $(box).innerHTML = `<span class="tiers-none">${esc(t("tiers.none"))}</span>`;
+            return;
+          }
+          const [best, ...rest] = p.tiers;
+          $(box).innerHTML = `<div class="tiers-best" style="--c:${tierColor(src, best.tier)}"><b>${esc(best.tier)}</b><span>${kitIcon(best.kit)}${esc(kitName(best.kit))}</span></div>
+            <div class="tiers-rest">${rest.slice(0, 4).map((k) => `<span class="tiers-badge" title="${esc(kitName(k.kit))}">${kitIcon(k.kit)}${tierBadge(src, k.tier)}</span>`).join("")}</div>`;
         },
         () => {
           $(rank).textContent = "";
