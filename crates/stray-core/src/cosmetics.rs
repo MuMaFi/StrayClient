@@ -20,6 +20,23 @@ use crate::{Error, ProgressFn, Result};
 /// The Stray Client mod (loading screen + capes), built from `mods/stray-client` (see its build.sh).
 const CAPES_JAR: &[u8] = include_bytes!("../../../mods/stray-client/dist/stray-client.jar");
 const CAPES_JAR_NAME: &str = "stray-client.jar";
+/// Forge/NeoForge: the Stray loading screen (mods/stray-loading, code-free mod with mixins).
+const LOADING_JAR: &[u8] = include_bytes!("../../../mods/stray-loading/dist/stray-loading.jar");
+const LOADING_JAR_NAME: &str = "stray-loading.jar";
+
+/// Put the Stray loading screen into a Forge/NeoForge profile (the Fabric mod can't load
+/// there, so it is removed if it is still around).
+pub async fn apply_loading_screen(paths: &Paths, game: &str) -> Result<()> {
+    let dir = paths.instance(game).join("mods");
+    tokio::fs::create_dir_all(&dir).await?;
+    let _ = tokio::fs::remove_file(dir.join(CAPES_JAR_NAME)).await;
+    if capes_supported(game) {
+        write_if_changed(&dir.join(LOADING_JAR_NAME), LOADING_JAR).await?;
+    } else {
+        let _ = tokio::fs::remove_file(dir.join(LOADING_JAR_NAME)).await;
+    }
+    Ok(())
+}
 /// File name used by older Stray Client versions (removed on update).
 const LEGACY_JAR_NAME: &str = "stray-capes.jar";
 pub const KEYSTROKES_SLUG: &str = "modern-keystrokes";
@@ -503,6 +520,26 @@ mod tests {
         b.extend(h.to_be_bytes());
         b.extend([8, 6, 0, 0, 0]);
         b
+    }
+
+    #[tokio::test]
+    async fn loading_screen_for_forge_profiles() {
+        assert_eq!(&LOADING_JAR[..2], b"PK");
+        let root = std::env::temp_dir().join(format!("stray-load-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&root);
+        let paths = Paths::new(root.clone());
+        let mods = paths.instance("26.3").join("mods");
+        std::fs::create_dir_all(&mods).unwrap();
+        std::fs::write(mods.join("stray-client.jar"), b"PK").unwrap();
+        apply_loading_screen(&paths, "26.3").await.unwrap();
+        assert!(mods.join("stray-loading.jar").exists() && !mods.join("stray-client.jar").exists());
+        // not on versions whose classes it doesn't know
+        apply_loading_screen(&paths, "1.20.1").await.unwrap();
+        assert!(!paths
+            .instance("1.20.1")
+            .join("mods/stray-loading.jar")
+            .exists());
+        let _ = std::fs::remove_dir_all(root);
     }
 
     #[test]

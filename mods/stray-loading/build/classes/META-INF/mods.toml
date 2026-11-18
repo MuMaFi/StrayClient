@@ -1,0 +1,14 @@
+modLoader="lowcodefml"
+loaderVersion="[1,)"
+license="MIT"
+issueTrackerURL="https://github.com/MuMaFi/StrayClient/issues"
+
+[[mods]]
+modId="strayloading"
+version="1.0.0"
+displayName="Stray Client (loading screen)"
+authors="Stray Client"
+description="The Stray Client loading screen (logo and navy background). Managed by the Stray Client launcher."
+
+[[mixins]]
+config="strayloading.mixins.json"

@@ -1,5 +1,21 @@
 [
   {
+    "version": "1.4.4",
+    "date": "2026-11-18",
+    "en": {
+      "title": "Stray loading screen on Forge and NeoForge",
+      "items": [
+        "The Stray logo and navy loading screen now also show in Forge and NeoForge profiles"
+      ]
+    },
+    "ru": {
+      "title": "Экран загрузки Stray на Forge и NeoForge",
+      "items": [
+        "Логотип Stray и тёмно-синий экран загрузки теперь и в профилях Forge и NeoForge"
+      ]
+    }
+  },
+  {
     "version": "1.4.3",
     "date": "2026-11-18",
     "en": {

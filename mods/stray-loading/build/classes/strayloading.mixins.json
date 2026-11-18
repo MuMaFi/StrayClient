@@ -1,0 +1,8 @@
+{
+  "required": false,
+  "minVersion": "0.8",
+  "package": "cc.straysmp.loading.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "client": ["LogoTextureMixin", "LoadingOverlayMixin"],
+  "injectors": { "defaultRequire": 0 }
+}

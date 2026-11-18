@@ -216,6 +216,8 @@ pub async fn install_profile(
         // Optimised on every loader: the Forge/NeoForge builds of the performance mods.
         mods::set_loader(kind);
         let _ = mods::ensure_optimizations(paths, game, progress).await;
+        // The Stray loading screen (logo + navy) on Forge/NeoForge too.
+        let _ = cosmetics::apply_loading_screen(paths, game).await;
         return finish_profile(paths, mc_dir, game, settings, id, progress).await;
     }
     let fabric_loader = if kind == Loader::Vanilla {
