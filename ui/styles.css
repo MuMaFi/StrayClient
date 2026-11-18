@@ -770,3 +770,132 @@ body.home-new .tiles { grid-template-columns: repeat(4, 1fr); }
 .ver-warn svg { width: 18px; height: 18px; flex: none; }
 .page > .ver-warn { margin: 0 0 14px; }
 .hero .ver-warn { background: rgba(40,30,10,.72); backdrop-filter: blur(10px); }
+
+/* ═════════════════════════════════════════════════════════════════════
+   Design 2.0 — sidebar navigation, larger type, layered surfaces
+   (a layer on top of the rules above; nothing below changes behaviour)
+   ═════════════════════════════════════════════════════════════════════ */
+:root {
+  --side: 236px;
+  --surface: linear-gradient(180deg, rgba(255,255,255,.035), rgba(255,255,255,.012));
+  --edge: rgba(255,255,255,.07);
+  --edge-hi: rgba(255,255,255,.12);
+  --glow: 0 0 0 1px rgba(81,162,255,.45), 0 10px 34px -10px rgba(43,127,255,.55);
+  --shadow: 0 1px 0 rgba(255,255,255,.04) inset, 0 18px 40px -24px rgba(0,0,0,.9);
+}
+
+/* ── sidebar ── */
+.top {
+  position: fixed; inset: 0 auto 0 0; width: var(--side); z-index: 30;
+  margin: 0; padding: 48px 14px 16px;
+  flex-direction: column; align-items: stretch; gap: 26px;
+  border-bottom: 0; border-right: 1px solid var(--edge);
+  background:
+    radial-gradient(420px 260px at 0% 0%, rgba(81,162,255,.10), transparent 70%),
+    linear-gradient(180deg, #1d1e28 0%, #191a23 100%);
+}
+.brand { padding: 0 10px; gap: 12px; }
+.brand img { width: 34px; height: 34px; }
+.brand span { font-size: 16px !important; }
+.nav { flex-direction: column; gap: 3px; }
+.nav-label { padding: 0 14px 6px; font-size: 10.5px; font-weight: 800; letter-spacing: .14em; text-transform: uppercase; color: rgba(255,255,255,.32); }
+.nav-btn, :is(html:lang(ru), html:lang(uk)) .nav-btn:not(.active) {
+  position: relative; padding: 11px 14px; gap: 12px; border-radius: 12px;
+  font-size: 13.5px; font-weight: 500; color: rgba(255,255,255,.66);
+}
+.nav-btn span, :is(html:lang(ru), html:lang(uk)) .nav-btn:not(.active) span { display: inline !important; }
+.nav-btn svg { width: 19px; height: 19px; opacity: .85; }
+.nav-btn:hover:not(.active) { background: rgba(255,255,255,.045); color: #fff; box-shadow: none; }
+.nav-btn.active {
+  color: #fff; box-shadow: none;
+  background: linear-gradient(90deg, rgba(81,162,255,.20), rgba(81,162,255,.05) 70%, transparent);
+}
+.nav-btn.active svg { color: var(--accent); opacity: 1; filter: drop-shadow(0 0 6px rgba(81,162,255,.6)); }
+.nav-btn.active::before {
+  content: ""; position: absolute; left: -14px; top: 9px; bottom: 9px; width: 3px; border-radius: 0 3px 3px 0;
+  background: var(--accent); box-shadow: 0 0 12px var(--accent);
+}
+.top-right {
+  margin: auto 0 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; align-items: center;
+  padding-top: 14px; border-top: 1px solid var(--edge);
+}
+.top-right .social { display: grid !important; justify-self: center; width: 38px; height: 38px; }
+.lang { grid-column: 1 / -1; margin: 0; justify-content: stretch; }
+.lang button { flex: 1; }
+.account { grid-column: 1 / -1; width: 100%; height: 50px; padding: 6px 12px 6px 6px; border-radius: 14px; background: rgba(255,255,255,.04); box-shadow: inset 0 0 0 1px var(--edge); }
+.account img { width: 36px; height: 36px; border-radius: 10px; }
+.account span { flex: 1; min-width: 0; text-align: left; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.account.guest { justify-content: center; }
+.acc-menu { top: auto; bottom: 62px; left: 0; right: auto; width: 290px; }
+
+/* ── content area ── */
+main { margin-left: var(--side); height: 100%; padding: 44px 40px 40px; }
+body::before { left: var(--side); }
+
+/* page heads: bigger, calmer */
+.page-head { margin-bottom: 22px; align-items: flex-end; }
+.page-head h2 { font-size: 30px; font-weight: 700; letter-spacing: -.02em; margin-bottom: 6px; }
+.page-head p { font-size: 13.5px; line-height: 1.55; max-width: 620px; color: rgba(255,255,255,.55); }
+
+/* layered surfaces */
+.card, .mod, .tile, .prof-cardx:not(.add), .world, .cape-card:not(.add), .online-card, .module-card, .set-card {
+  background: var(--surface), var(--panel);
+  box-shadow: inset 0 0 0 1px var(--edge), var(--shadow);
+}
+.card { border-radius: 20px; }
+.tile, .prof-cardx, .world, .mod { border-radius: 18px; }
+.set-card h3, .module-text h3, .card-head h3 { font-size: 17px; letter-spacing: -.005em; }
+
+/* inputs & segmented controls */
+.field input[type=text], .field input[type=password], .field input[type=number], .field select, .search, .skin-import input {
+  background: rgba(0,0,0,.22); box-shadow: inset 0 0 0 1px var(--edge);
+}
+.seg { background: rgba(0,0,0,.25); box-shadow: inset 0 0 0 1px var(--edge); }
+.seg button.on { background: linear-gradient(180deg, #3a3c52, #2f3142); box-shadow: 0 1px 0 rgba(255,255,255,.08) inset, 0 4px 12px -6px rgba(0,0,0,.8); }
+.tabs { background: rgba(0,0,0,.22); box-shadow: inset 0 0 0 1px var(--edge); }
+.tab.active { background: linear-gradient(180deg, #3a3c52, #2f3142); box-shadow: 0 1px 0 rgba(255,255,255,.08) inset; }
+
+/* primary buttons: gradient + inner light */
+.btn-primary { background: linear-gradient(180deg, #5eaaff, #2b7fff); box-shadow: 0 1px 0 rgba(255,255,255,.3) inset, 0 6px 18px -8px rgba(43,127,255,.9); }
+.btn-primary:hover:not(:disabled) { background: linear-gradient(180deg, #74b6ff, #3a88ff); }
+.btn { border-radius: 12px; }
+
+/* notices */
+.notice { border-radius: 14px; padding: 12px 16px; background: linear-gradient(90deg, rgba(81,162,255,.14), rgba(81,162,255,.05)); }
+
+/* ── home ── */
+.hero { border-radius: 26px; }
+.hero h1 { font-size: 40px !important; letter-spacing: -.025em; }
+body.home-new .hero p { font-size: 14.5px; color: rgba(255,255,255,.75); }
+.play { height: 60px; padding: 0 34px; border-radius: 18px; font-size: 17px; letter-spacing: .06em; }
+.home-bar h3 { font-size: 18px; letter-spacing: -.01em; }
+.tile-ico { width: 38px; height: 38px; border-radius: 12px; background: linear-gradient(180deg, rgba(81,162,255,.22), rgba(81,162,255,.08)); box-shadow: inset 0 0 0 1px rgba(81,162,255,.25); }
+.tile b { font-size: 15px; }
+.prof-cardx.on { background: linear-gradient(160deg, rgba(81,162,255,.20), rgba(81,162,255,.04) 55%), var(--panel); }
+
+/* ── responsive: icon rail on narrow windows ── */
+@media (max-width: 1080px) {
+  :root { --side: 78px; }
+  .top { padding: 46px 12px 14px; align-items: center; }
+  .brand { padding: 0; }
+  .brand span, .nav-btn span, .nav-label { display: none !important; }
+  .nav-btn, :is(html:lang(ru), html:lang(uk)) .nav-btn:not(.active) { justify-content: center; padding: 12px; width: 52px; }
+  .nav-btn.active::before { left: -12px; }
+  .top-right { grid-template-columns: 1fr; width: 100%; }
+  .top-right .social, .lang { display: none !important; }
+  .account { width: 52px; height: 52px; padding: 7px; justify-self: center; }
+  .account span, .account .acc-caret { display: none; }
+  .account.guest { padding: 0; }
+  .acc-menu { left: 0; bottom: 64px; }
+  main { padding: 40px 28px 28px; }
+}
+/* selected items keep their accent ring on the new surfaces */
+.prof-cardx.on, .world.on, .cape-card.on { box-shadow: inset 0 0 0 2px var(--accent), 0 12px 30px -14px rgba(43,127,255,.55) !important; }
+.prof-cardx.add { box-shadow: inset 0 0 0 1px rgba(81,162,255,.35); background: rgba(81,162,255,.04); }
+.prof-cardx.add:hover { background: rgba(81,162,255,.09); }
+.wr-tabs { margin-bottom: 18px; }
+@media (max-width: 1080px) {
+  /* no avatar (official-launcher mode): nothing useful to show in the rail */
+  .account:not(:has(img[src^="http"], img[src^="data"])) { display: none; }
+}
+.prof-tags span { white-space: nowrap; }
